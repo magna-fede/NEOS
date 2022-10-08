@@ -35,8 +35,8 @@ job_list = [
      'dep': '',                       # name of preceeding process (optional)
      'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
 
-    # ### fix EEG electrode positions in fiff-files
-    # ### NOTE: Can get "Permission denied"; should be run separately
+    ### fix EEG electrode positions in fiff-files
+    ### NOTE: Can get "Permission denied"; should be run separately
     # {'N':   'F_FE',                    # job name
     #  'Py':  'EOS_fix_electrodes',      # Python script
     #  'Ss':  subjs,                    # subject indices
@@ -45,7 +45,7 @@ job_list = [
 
     # ### Pre-processing
 
-    # ### Filter raw data
+    ### Filter raw data
     # {'N':   'F_FR',                  # job name
     #  'Py':  'EOS_filter_raw',          # Python script
     #  'Ss':  subjs,                    # subject indices
@@ -58,13 +58,13 @@ job_list = [
     #  'mem': '4G',                    # memory for qsub process
     #  'dep': 'F_FR'},
 
-    #  ### Compute ICA
+     ### Compute ICA
     # {'N':   'F_CICA',                  # job name
     #  'Py':  'EOS_Compute_ICA',          # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '96G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
-      ### Apply ICA (change ica_suff in config_sweep.py if necessary)
+    #   ### Apply ICA (change ica_suff in config_sweep.py if necessary)
     # {'N':   'F_AICA',                  # job name
     #  'Py':  'EOS_Apply_ICA',          # Python script
     #  'Ss':  subjs,                    # subject indices
@@ -74,7 +74,7 @@ job_list = [
 ]
 
 # directory where python scripts are
-dir_py = path.join('/', 'home', 'fm02', 'Desktop', 'MEG_EOS_scripts')
+dir_py = path.join('/', 'home', 'fm02', 'MEG_NEOS', 'NEOS')
 
 # directory for qsub output
 dir_sbatch = path.join('/', 'home', 'fm02', 'Desktop', 'MEG_EOS_scripts',

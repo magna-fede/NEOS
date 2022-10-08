@@ -14,13 +14,15 @@ import numpy as np
 ###############################################################################
 
 # IDs of subjects to process (SLURM and Grand-Average)
-do_subjs = [3]
+do_subjs = [5]
 
 # path to acquired raw data
 cbu_path = '/megdata/cbu/eyeonsemantics'
 
 # path to data for pre-processing
 data_path = '/imaging/hauk/users/fm02/MEG_EOS/data'
+
+path_ET = '/imaging/hauk/users/fm02/MEG_EOS/ET_data'
 
 if not path.isdir(data_path):  # create if necessary
     os.mkdir(data_path)
@@ -35,6 +37,8 @@ map_subjects = {
     1 : ('meg22_165', '220805'), # first real participant
     2 : ('meg22_190', '221003'),
     3 : ('meg22_191', '221005'),
+#    4 : ('meg22_192', '221006'), # participant did not complete experiment, very sleepy
+    5 : ('meg22_193', '221007')
 }
 
 # which files to maxfilter and how to name them after sss
@@ -53,8 +57,11 @@ sss_map_fnames = {
     2 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
     3 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
+    5 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),        
-}
+}       
+
 
 
 ###############################################################################
@@ -70,16 +77,26 @@ sss_map_fnames = {
 for ss in map_subjects:
     # subject-specific sub-dir, e.g. maxfiltered raw data
     subj_dir = path.join(data_path, map_subjects[ss][0])
+
     if not path.isdir(subj_dir):
         print('Creating directory %s.' % subj_dir)
         os.mkdir(subj_dir)
+        
+    # Figures directory
+    fig_dir = path.join(data_path, map_subjects[ss][0],
+                         'Figures')  # subject figure dir
+    if not path.isdir(fig_dir):
+        print('Creating directory %s.' % fig_dir)
+        os.mkdir(fig_dir)
 
 
 # For subjects without clean ECG channel,
 # use the following magnetometers in ICA (else specify '' to use ECG)
 ECG_channels = {
     0 : '',
-    1 : ''
+    1 : '',
+    2 : '',
+    3 : '',
 }
 
 # Artefact rejection thresholds
@@ -133,6 +150,12 @@ stim_channel = 'STI101'
 l_freq, h_freq = 0.1, 40.
 
 raw_ICA_suff = 'ica_raw'
+
+
+# EDF Label start trial
+edf_start_trial = 'TRIGGER 94'
+# EDF Label end trial
+edf_end_trial = 'TRIGGER 95'
 
 ########################################################
 # Edited for FPVS up to here
