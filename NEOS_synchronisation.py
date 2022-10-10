@@ -9,7 +9,7 @@ OH, modified October 2019
 """
 
 
-import EOS_config as config
+import NEOS_config as config
 import sys
 import os
 from os import path
@@ -28,12 +28,15 @@ print(mne)
 
 reload(config)
 
-# 
 def trial_duration_ET(row):
     return int(row['TRIGGER 95']) - int(row['TRIGGER 94'])
 
 
 def synchronise(sbj_id):
+    # HEY! synchronise won't work with participant 0-1 bc of different
+    # coding of triggers. use first_participant.ipynb for them.
+
+    # path to participant folder
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     sbj_path_ET = path.join(
         config.path_ET, config.map_subjects[sbj_id][0][-3:])
@@ -93,15 +96,21 @@ def synchronise(sbj_id):
     # transform trials to DataFrame
     pd_trials = pd.DataFrame(trials)
 
-
+    # load preprocessed ET file
+    ############## NEED TO IMPROVE THIS!!!! ########################
     events_ET_file = os.path.join(
         sbj_path_ET, 'data_'+config.map_subjects[sbj_id][0][-3:]+'.P')
     with open(events_ET_file, 'rb') as f:
         events_ET = pickle.load(f)
 
+    # Create DataFrame with meg info about trigger ID
+    # note, previous should now be useless, because we introduced a delay
+    # with respect to the preceding trigger state
+    # (while it was consecutive in previous versions)
     pd_events_meg = pd.DataFrame(devents)
     pd_events_meg.columns = ['time', 'previous', 'trigger']
 
+    # get trial ids from the .edf data
     ids = []
 
     for trial in events_ET:
@@ -109,7 +118,7 @@ def synchronise(sbj_id):
 
     pd_trials['IDstim'] = ids
 
-    meg_trial = dict()
+    print('Calculating each trial')
     pd_trials['meg_duration'] = 0
 
     for i in range(0, len(pd_events_meg)-1):
@@ -166,6 +175,20 @@ def synchronise(sbj_id):
     np.save(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                           '_FIX_eve.npy'), devents)
     mne.write_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          '_FIX_eve.fif'), devents)
+                          '_FIX_eve.fif'), devents, overwrite=True)
+        
+# get all input arguments except first
+if len(sys.argv) == 1:
+
+    sbj_ids = np.arange(0, 18) + 1
+
+else:
+
+    # get list of subjects IDs to process
+    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+for ss in sbj_ids:
+    synchronise(ss)
         
 

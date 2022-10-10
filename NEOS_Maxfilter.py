@@ -12,7 +12,7 @@ import numpy as np
 
 from importlib import reload
 
-import EOS_config as config
+import NEOS_config as config
 reload(config)
 
 MF = config.MF  # Maxfilter parameters

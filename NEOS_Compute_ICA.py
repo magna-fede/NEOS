@@ -26,7 +26,7 @@ import mne
 from mne.preprocessing import ICA, create_eog_epochs, create_ecg_epochs
 from mne.report import Report
 
-import EOS_config as config
+import NEOS_config as config
 reload(config)
 
 print('MNE Version: %s\n\n' % mne.__version__)  # just in case

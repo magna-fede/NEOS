@@ -14,7 +14,7 @@ import numpy as np
 ###############################################################################
 
 # IDs of subjects to process (SLURM and Grand-Average)
-do_subjs = [5]
+do_subjs = [2,3,5,6]
 
 # path to acquired raw data
 cbu_path = '/megdata/cbu/eyeonsemantics'
@@ -38,7 +38,8 @@ map_subjects = {
     2 : ('meg22_190', '221003'),
     3 : ('meg22_191', '221005'),
 #    4 : ('meg22_192', '221006'), # participant did not complete experiment, very sleepy
-    5 : ('meg22_193', '221007')
+    5 : ('meg22_193', '221007'),
+    6 : ('meg22_194', '221010'),    
 }
 
 # which files to maxfilter and how to name them after sss
@@ -59,7 +60,9 @@ sss_map_fnames = {
     3 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
     5 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
-        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),        
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    6 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
 }       
 
 
@@ -81,7 +84,7 @@ for ss in map_subjects:
     if not path.isdir(subj_dir):
         print('Creating directory %s.' % subj_dir)
         os.mkdir(subj_dir)
-        
+
     # Figures directory
     fig_dir = path.join(data_path, map_subjects[ss][0],
                          'Figures')  # subject figure dir
@@ -97,6 +100,33 @@ ECG_channels = {
     1 : '',
     2 : '',
     3 : '',
+    4 : '',
+    5 : '',
+    6 : '',
+    7 : '',
+    8 : '',
+    9 : '',
+    10 : '',
+    11 : '',
+    12 : '',
+    13 : '',
+    14 : '',
+    15 : '',
+    16 : '',
+    17 : '',
+    18 : '',
+    19 : '',
+    20 : '',
+    21 : '',
+    22 : '',
+    23 : '',
+    24 : '',
+    25 : '',
+    26 : '',
+    27 : '',
+    28 : '',
+    29 : '',
+    30 : ''
 }
 
 # Artefact rejection thresholds
@@ -107,8 +137,16 @@ reject = dict(grad=4e-10, mag=1e-11, eeg=1e-3)
 # ERPs
 
 # artefact rejection thresholds for epoching
-epo_reject = dict(grad=4e-10, mag=1e-11, eeg=1e-3)
+epo_reject = dict(grad=3000e-13,
+                  mag=3500e-15,
+                  eeg=200e-6)
 
+epo_flat = dict(grad=1e-13,
+                mag=1e-15,
+                eeg=1e-6)
+
+
+#####
 # baseline in s
 #epo_baseline = (-.2, 0.)
 

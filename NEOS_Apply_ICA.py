@@ -20,7 +20,7 @@ import mne
 print('MNE Version: %s\n\n' % mne.__version__)  # just in case
 print(mne)
 
-import EOS_config as config
+import NEOS_config as config
 reload(config)
 
 ###############################################

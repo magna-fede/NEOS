@@ -21,7 +21,7 @@ from importlib import reload
 
 import mne
 
-import EOS_config as config
+import NEOS_config as config
 reload(config)
 
 print('MNE Version: %s\n\n' % mne.__version__)  # just in case

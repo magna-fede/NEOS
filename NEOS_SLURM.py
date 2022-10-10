@@ -14,40 +14,40 @@ from os import path
 from importlib import reload
 
 # import study parameters
-import EOS_config as config
+import NEOS_config as config
 reload(config)
 
 print(__doc__)
 
 # wrapper to run python script via qsub. Python3
-fname_wrap = path.join('/', 'home', 'fm02', 'Desktop', 'MEG_EOS_scripts',
+fname_wrap = path.join('/', 'home', 'fm02', 'MEG_NEOS', 'NEOS',
                      'Python2SLURM.sh')
 
 # indices of subjects to process
 subjs = config.do_subjs
 
 job_list = [
-    ### Neuromag Maxfilter
-    {'N':   'F_MF',                  # job name
-     'Py':  'EOS_Maxfilter',  # Python script
-     'Ss':  subjs,                    # subject indices
-     'mem': '16G',                   # memory for qsub process
-     'dep': '',                       # name of preceeding process (optional)
-     'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
+    # ### Neuromag Maxfilter
+    # {'N':   'F_MF',                  # job name
+    #  'Py':  'NEOS_Maxfilter',  # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '16G',                   # memory for qsub process
+    #  'dep': '',                       # name of preceeding process (optional)
+    #  'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
 
-    ### fix EEG electrode positions in fiff-files
-    ### NOTE: Can get "Permission denied"; should be run separately
+    # ### fix EEG electrode positions in fiff-files
+    # ### NOTE: Can get "Permission denied"; should be run separately
     # {'N':   'F_FE',                    # job name
-    #  'Py':  'EOS_fix_electrodes',      # Python script
+    #  'Py':  'NEOS_fix_electrodes',      # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '1G',                    # memory for qsub process
     #  'dep': ''},                       # name of preceeding process (optional)
 
     # ### Pre-processing
 
-    ### Filter raw data
+    # ### Filter raw data
     # {'N':   'F_FR',                  # job name
-    #  'Py':  'EOS_filter_raw',          # Python script
+    #  'Py':  'NEOS_filter_raw',          # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '16G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
@@ -58,18 +58,30 @@ job_list = [
     #  'mem': '4G',                    # memory for qsub process
     #  'dep': 'F_FR'},
 
-     ### Compute ICA
+    # ### Compute ICA
     # {'N':   'F_CICA',                  # job name
-    #  'Py':  'EOS_Compute_ICA',          # Python script
+    #  'Py':  'NEOS_Compute_ICA',          # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '96G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
-    #   ### Apply ICA (change ica_suff in config_sweep.py if necessary)
+    # ### Apply ICA (change ica_suff in config_sweep.py if necessary)
     # {'N':   'F_AICA',                  # job name
-    #  'Py':  'EOS_Apply_ICA',          # Python script
+    #  'Py':  'NEOS_Apply_ICA',          # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '2G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
+    # ### Synchronise ET and MEG and save new event file
+    # {'N':   'F_Synch',                  # job name
+    #  'Py':  'NEOS_synchronisation',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '2G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
+    {'N':   'F_evoked',                  # job name
+     'Py':  'comp_n_plot_evoked_frps_TEMP',          # Python script
+     'Ss':  subjs,                    # subject indices
+     'mem': '2G',                    # memory for qsub process
+     'dep': ''},                      # name of preceeding process (optional)
+
 
 ]
 
