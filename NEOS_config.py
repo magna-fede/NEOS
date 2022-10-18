@@ -14,15 +14,15 @@ import numpy as np
 ###############################################################################
 
 # IDs of subjects to process (SLURM and Grand-Average)
-do_subjs = [2,3,5,6]
+do_subjs = [7, 8, 9, 10]
 
 # path to acquired raw data
 cbu_path = '/megdata/cbu/eyeonsemantics'
 
 # path to data for pre-processing
-data_path = '/imaging/hauk/users/fm02/MEG_EOS/data'
+data_path = '/imaging/hauk/users/fm02/MEG_NEOS/data'
 
-path_ET = '/imaging/hauk/users/fm02/MEG_EOS/ET_data'
+path_ET = '/imaging/hauk/users/fm02/MEG_NEOS/ET_data'
 
 if not path.isdir(data_path):  # create if necessary
     os.mkdir(data_path)
@@ -39,7 +39,11 @@ map_subjects = {
     3 : ('meg22_191', '221005'),
 #    4 : ('meg22_192', '221006'), # participant did not complete experiment, very sleepy
     5 : ('meg22_193', '221007'),
-    6 : ('meg22_194', '221010'),    
+    6 : ('meg22_194', '221010'),   
+    7 : ('meg22_195', '221011'),
+    8 : ('meg22_196', '221011'),
+    9 : ('meg22_197', '221011'), 
+    10 : ('meg22_198', '221012'), 
 }
 
 # which files to maxfilter and how to name them after sss
@@ -62,7 +66,15 @@ sss_map_fnames = {
     5 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
     6 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
+    7 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
+    8 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
+    9 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),   
+    10 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),           
 }       
 
 

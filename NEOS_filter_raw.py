@@ -87,8 +87,7 @@ def run_filter_raw(sbj_id):
                          trans_bandwidth=0.04)
 
         # str() because of None
-        print('Applying band-pass filter %s to %s Hz.' % (str(config.l_freq),
-                                                          str(config.h_freq)))
+        print(f'Applying band-pass filter {config.l_freq} to {config.h_freq} Hz.')
 
         # broad filter, including VGBR and ASSR frequencies
         # most settings are the MNE-Python defaults (zero-phase FIR)

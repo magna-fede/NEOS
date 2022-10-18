@@ -58,12 +58,12 @@ job_list = [
     #  'mem': '4G',                    # memory for qsub process
     #  'dep': 'F_FR'},
 
-    # ### Compute ICA
-    # {'N':   'F_CICA',                  # job name
-    #  'Py':  'NEOS_Compute_ICA',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '96G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
+    ### Compute ICA
+    {'N':   'F_CICA',                  # job name
+     'Py':  'NEOS_Compute_ICA',          # Python script
+     'Ss':  subjs,                    # subject indices
+     'mem': '96G',                    # memory for qsub process
+     'dep': ''},                      # name of preceeding process (optional)
     # ### Apply ICA (change ica_suff in config_sweep.py if necessary)
     # {'N':   'F_AICA',                  # job name
     #  'Py':  'NEOS_Apply_ICA',          # Python script
@@ -76,11 +76,11 @@ job_list = [
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '2G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
-    {'N':   'F_evoked',                  # job name
-     'Py':  'comp_n_plot_evoked_frps_TEMP',          # Python script
-     'Ss':  subjs,                    # subject indices
-     'mem': '2G',                    # memory for qsub process
-     'dep': ''},                      # name of preceeding process (optional)
+    # {'N':   'F_evoked',                  # job name
+    #  'Py':  'comp_n_plot_evoked_frps_TEMP',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '2G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
 
 
 ]
