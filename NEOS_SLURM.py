@@ -25,15 +25,16 @@ fname_wrap = path.join('/', 'home', 'fm02', 'MEG_NEOS', 'NEOS',
 
 # indices of subjects to process
 subjs = config.do_subjs
+# subjs = list(range(2, 16))
 
 job_list = [
-    # ### Neuromag Maxfilter
-    # {'N':   'F_MF',                  # job name
-    #  'Py':  'NEOS_Maxfilter',  # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '16G',                   # memory for qsub process
-    #  'dep': '',                       # name of preceeding process (optional)
-    #  'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
+    ### Neuromag Maxfilter
+    {'N':   'F_MF',                  # job name
+     'Py':  'NEOS_Maxfilter',  # Python script
+     'Ss':  subjs,                    # subject indices
+     'mem': '16G',                   # memory for qsub process
+     'dep': '',                       # name of preceeding process (optional)
+     'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
 
     # ### fix EEG electrode positions in fiff-files
     # ### NOTE: Can get "Permission denied"; should be run separately
@@ -58,12 +59,12 @@ job_list = [
     #  'mem': '4G',                    # memory for qsub process
     #  'dep': 'F_FR'},
 
-    ### Compute ICA
-    {'N':   'F_CICA',                  # job name
-     'Py':  'NEOS_Compute_ICA',          # Python script
-     'Ss':  subjs,                    # subject indices
-     'mem': '96G',                    # memory for qsub process
-     'dep': ''},                      # name of preceeding process (optional)
+    # ### Compute ICA
+    # {'N':   'F_CICA',                  # job name
+    #  'Py':  'NEOS_Compute_ICA',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '96G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
     # ### Apply ICA (change ica_suff in config_sweep.py if necessary)
     # {'N':   'F_AICA',                  # job name
     #  'Py':  'NEOS_Apply_ICA',          # Python script
@@ -81,8 +82,26 @@ job_list = [
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '2G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
-
-
+    # {'N':   'synch_all',                  # job name
+    #  'Py':  'NEOS_synchronisation_includeEDF',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '4G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
+    # {'N':   'sentence_ICA',
+    #  'Py':  'NEOS_sentencesICA',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '96G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
+    # {'N':   'sentence_ICA_conc',                  # job name
+    #  'Py':  'NEOS_sentencesICA_concatenated',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '96G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
+    # {'N':   'someplots',                  # job name
+    #  'Py':  'plot_evoked_persubject',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '8G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
 ]
 
 # directory where python scripts are
@@ -139,6 +158,8 @@ for job in job_list:
                         --mem=%s -t 1-00:00:00 %s -J %s %s %s' \
                         % (file_out, file_err, Py, Ss, mem,
                            node_str, N, dep_str, fname_wrap)
+
+        ## --nodelist=node-j17,node-j18,node-i03
 
         # format string for display
         print_str = sbatch_cmd.replace(' ' * 25, '  ')

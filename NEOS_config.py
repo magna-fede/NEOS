@@ -14,8 +14,8 @@ import numpy as np
 ###############################################################################
 
 # IDs of subjects to process (SLURM and Grand-Average)
-do_subjs = [7, 8, 9, 10]
-
+#do_subjs = [16, 17,18, 19, 21, 22, 23, 24]
+do_subjs = [21]
 # path to acquired raw data
 cbu_path = '/megdata/cbu/eyeonsemantics'
 
@@ -43,7 +43,21 @@ map_subjects = {
     7 : ('meg22_195', '221011'),
     8 : ('meg22_196', '221011'),
     9 : ('meg22_197', '221011'), 
-    10 : ('meg22_198', '221012'), 
+    10 : ('meg22_198', '221012'),
+    11 : ('meg22_199', '221014'),
+    12 : ('meg22_202', '221019'),
+    13 : ('meg22_203', '221020'),
+    14 : ('meg22_204', '221020'),
+    15 : ('meg22_206', '221021'),
+    16 : ('meg22_207', '221024'),
+    17 : ('meg22_209', '221031'),
+    18 : ('meg22_210', '221101'),
+    19 : ('meg22_213', '221103'),
+#20 : TOO MAGNETIC DID NOT TEST    
+    21 : ('mwg22_226', '221116'), # careful, misspelled
+    22 : ('meg22_228', '221117'),
+    23 : ('meg22_229', '221118'),
+    24 : ('meg22_232', '221122'),
 }
 
 # which files to maxfilter and how to name them after sss
@@ -74,7 +88,34 @@ sss_map_fnames = {
     9 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),   
     10 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
-        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),           
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
+    11 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),  
+    12 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),  
+    13 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),  
+    14 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),  
+    15 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),     
+    16 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    17 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    18 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),                    
+    19 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+#    20 : ([],[]),    
+    21 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    22 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    23 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    24 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
 }       
 
 

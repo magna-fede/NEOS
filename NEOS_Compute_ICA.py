@@ -13,6 +13,8 @@ OH July 2019
 
 import sys
 
+import os
+
 from os import path
 import numpy as np
 
@@ -25,6 +27,9 @@ from importlib import reload
 import mne
 from mne.preprocessing import ICA, create_eog_epochs, create_ecg_epochs
 from mne.report import Report
+
+wd = '/home/fm02/MEG_NEOS/NEOS'
+os.chdir(wd)
 
 import NEOS_config as config
 reload(config)

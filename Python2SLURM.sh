@@ -22,7 +22,8 @@ conda --version
 
 # conda activate mne0.24
 # this will need to be changed to the following
-conda activate mne1.1.0_0
+#conda activate mne1.1.0_0
+conda activate mne1.2.1_0
 
 # show path to conda environment
 echo "Conda environment:"
