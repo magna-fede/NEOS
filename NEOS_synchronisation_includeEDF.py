@@ -18,20 +18,33 @@ from importlib import reload
 import pickle
 import mne
 
-import seaborn as sns
+import matplotlib
+matplotlib.use('Agg')  #  for running graphics on cluster ### EDIT
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 print('MNE Version: %s\n\n' % mne.__version__)  # just in case
 print(mne)
 
 reload(config)
 
+
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
+mne.viz.set_browser_backend("matplotlib")
+
+sns.set(rc={"figure.dpi":300, 'savefig.dpi':300})
+
+sns.set_theme(context="notebook",
+              style="white",
+              font="sans-serif")
+
+sns.set_style("ticks")
+
 def trial_duration_ET(row):
     return int(row['TRIGGER 95']) - int(row['TRIGGER 94'])
-
 
 def synchronise(sbj_id):
     # HEY! synchronise won't work with participant 0-1 bc of different
@@ -152,7 +165,7 @@ def synchronise(sbj_id):
     print(f"Saving trials duration for ET and MEG and their difference \n \
           {path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + '_trial_synch.csv')}")                            
     pd_trials.to_csv(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                               '_trial_synch.csv'), index=False)
+                                '_trial_synch.csv'), index=False)
 
     print(f'MAX trial duration difference (ms) {pd_trials["difference"].max()}')
     print(f'MIN trial duration difference (ms) {pd_trials["difference"].min()}')
@@ -283,8 +296,10 @@ def synchronise(sbj_id):
                         reject=reject_criteria, flat=flat_criteria,
                         preload=True)
     evoked = epochs['fixation'].average()
+    print('Do Plots')
     fixation_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
     
+    print('Save Plots')
     for i, fig in zip(['EEG','MAG','GRAD'], fixation_fig):
         fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')
         fig.savefig(fname_fig)    
@@ -297,8 +312,10 @@ def synchronise(sbj_id):
                         reject=reject_criteria, flat=flat_criteria,
                         preload=True)
     evoked = epochs['saccade'].average()
+    print('Do PLots.')
     saccade_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
     
+    print('Save Plots.')
     for i, fig in zip(['EEG','MAG','GRAD'], saccade_fig):
         fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_saccade_{i}.jpg')
         fig.savefig(fname_fig)        

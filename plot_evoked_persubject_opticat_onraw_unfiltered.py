@@ -13,10 +13,6 @@ from os import path
 import numpy as np
 import pandas as pd
 
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
-from mayavi import mlab
-mlab.options.offscreen = True
-
 from importlib import reload
 import pickle
 import mne
@@ -36,6 +32,16 @@ reload(config)
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
+mne.viz.set_browser_backend("matplotlib")
+
+sns.set(rc={"figure.dpi":300, 'savefig.dpi':300})
+
+sns.set_theme(context="notebook",
+              style="white",
+              font="sans-serif")
+
+sns.set_style("ticks")
+
 def evoked_sensors(sbj_id):
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     
@@ -47,44 +53,27 @@ def evoked_sensors(sbj_id):
     for sss_file in tmp_fnames:
         sss_map_fnames.append(sss_file)
     
-    data_raw_files = []
-    
-    for raw_stem_in in sss_map_fnames:
-        data_raw_files.append(
-            path.join(sbj_path, raw_stem_in[:-7] + 'sss_f_ica_raw.fif'))
+    data_raw_file = path.join(sbj_path,
+                               sbj_path[-3:] +
+                              "_sss_f_ica_od_unfiltered_onraw_raw.fif")
     
     print(f'Reading raw file {sss_map_fnames}')
-    data = []
-    for drf in data_raw_files:
-        data.append(mne.io.read_raw_fif(drf))
-    
-    print('Concatenating data')
-    data = mne.concatenate_raws(data)
+    data = mne.io.read_raw_fif(data_raw_file)
     
     devents = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          '_FIX_eve.fif'))
-
+                          '_target_events.fif'))
     event_dict = {'FRP': 999}
     epochs = mne.Epochs(data, devents, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
                     reject=reject_criteria, flat=flat_criteria,
                     preload=True)
-    epochs.save(path.join(sbj_path, sbj_path[-3:] +
-                          '_frp-epo.fif'), overwrite=True)
-    print('Saved frp-epo')
-    # dropped_fig = epochs.plot_drop_log()
-
-    # fname_fig = path.join(sbj_path, 'Figures', 'dropped_log.jpg')
-    # dropped_fig.savefig(fname_fig)
-    
     evoked = epochs['FRP'].average()
     
     FRP_fig = evoked.plot_joint(times=[0, .110, .167, .210, .266, .330, .430])
 
     for i, fig in zip(['EEG','MAG','GRAD'], FRP_fig):
-        fname_fig = path.join(sbj_path, 'Figures', f'FRP_all_{i}.jpg')
-        fig.savefig(fname_fig)        
-    
-    
+        fname_fig = path.join(sbj_path, 'Figures', f'FRP_all_{i}_opticat_unfiltered_raw.png')
+        fig.savefig(fname_fig)     
+        
     rows = np.where(devents[:,2]==999)
     for row in rows[0]:
         if devents[row-2, 2] == 1:
@@ -106,8 +95,8 @@ def evoked_sensors(sbj_id):
     epochs = mne.Epochs(data, devents, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
                         reject=reject_criteria, flat=flat_criteria,
                         preload=True)
-    epochs.save(path.join(sbj_path, sbj_path[-3:] +
-                      '_frp_percondition-epo.fif'), overwrite=True)
+#    epochs = mne.read_epochs(path.join(sbj_path, sbj_path[-3:] +
+#                      '_frp_percondition-epo.fif'))
     
     # evokeds_pred = [epochs[name].average() for name in ('Predictable', 'Unpredictable')]
     # evokeds_conc = [epochs[name].average() for name in ('Concrete', 'Abstract')]
@@ -115,11 +104,46 @@ def evoked_sensors(sbj_id):
     # predictability_fig = mne.viz.plot_evoked_topo(evokeds_pred)
     # concreteness_fig = mne.viz.plot_evoked_topo(evokeds_conc)
 
-    # fname_fig = path.join(sbj_path, 'Figures', f'FRP_concreteness.jpg')
+    # fname_fig = path.join(sbj_path, 'Figures', f'FRP_concreteness.png')
     # concreteness_fig.savefig(fname_fig)
-    # fname_fig = path.join(sbj_path, 'Figures', f'FRP_predictability.jpg')
+    # fname_fig = path.join(sbj_path, 'Figures', f'FRP_predictability.png')
     # predictability_fig.savefig(fname_fig)      
+    cond1 = 'Predictable'
+    cond2 = 'Unpredictable'
+    
+    fig, ax = plt.subplots(3, 3)
+    params = dict(spatial_colors=True, #show=False,
+                  time_unit='s')
+    epochs[cond1].average().plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_predictable_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
+    epochs[cond2].average().plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_unpredictable_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
+    contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
+                                  weights=[1, -1])
+    contrast.plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_predictability_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
 
+    cond1 = 'Concrete'
+    cond2 = 'Abstract'
+    
+    fig, ax = plt.subplots(3, 3)
+    params = dict(spatial_colors=True, show=False,
+                  time_unit='s')
+    epochs[cond1].average().plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_concrete_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
+    epochs[cond2].average().plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_abstract_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
+    contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
+                                  weights=[1, -1])
+    contrast.plot(**params)
+    fname_fig = path.join(sbj_path, 'Figures', 'FRP_concreteness_opticat_unfiltered_raw.png')
+    plt.savefig(fname_fig)
+    
 # get all input arguments except first
 if len(sys.argv) == 1:
 

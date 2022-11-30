@@ -14,8 +14,34 @@ import numpy as np
 ###############################################################################
 
 # IDs of subjects to process (SLURM and Grand-Average)
-#do_subjs = [16, 17,18, 19, 21, 22, 23, 24]
-do_subjs = [21]
+do_subjs = [
+            1,
+            2,
+            3,
+        #   4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18, 
+            19, 
+        #   20,
+            21,
+            22, 
+            23, 
+            24,
+            ]
+
+# do_subjs = [21]
 # path to acquired raw data
 cbu_path = '/megdata/cbu/eyeonsemantics'
 
@@ -58,6 +84,7 @@ map_subjects = {
     22 : ('meg22_228', '221117'),
     23 : ('meg22_229', '221118'),
     24 : ('meg22_232', '221122'),
+    25 : ('meg22_235', '221124'),
 }
 
 # which files to maxfilter and how to name them after sss
@@ -69,23 +96,24 @@ sss_map_fnames = {
     #     ['pilot00_sss_raw', 'pilot01_sss_raw']),
     # 1: (['trigger_test_raw'],
     #     ['trichk_sss_raw'])
-    0 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    0 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
-    1 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    1 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
-    2 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    2 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
-    3 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    3 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
-    5 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+#   4 : ([],[]),  
+    5 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
-    6 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    6 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
-    7 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    7 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
-    8 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    8 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
-    9 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+    9 :  (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),   
     10 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),
@@ -107,7 +135,7 @@ sss_map_fnames = {
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),                    
     19 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
-#    20 : ([],[]),    
+#   20 : ([],[]),    
     21 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
     22 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
@@ -115,7 +143,10 @@ sss_map_fnames = {
     23 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
     24 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
+    25 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+
 }       
 
 
@@ -123,10 +154,58 @@ sss_map_fnames = {
 ###############################################################################
 # Bad channels
 
-# bad_channels = {
-#     1: {'eeg': ['EEG028'],
-#         'meg': ['MEG1123', 'MEG2223', 'MEG0813']}
-# }
+bad_channels = {
+    1 : {'eeg': [],
+         'meg': []},
+    2 : {'eeg': ['EEG017'],
+        'meg': []},
+    3 : {'eeg': ['EEG029'],
+         'meg': []},
+    # 4 : {'eeg': [],
+    #      'meg': []},
+    5 : {'eeg': ['EEG017'],
+        'meg': []},
+    6 : {'eeg': ['EEG002', 'EEG029', 'EEG039'],
+         'meg': []},
+    7 : {'eeg': ['EEG054'],
+         'meg': []},
+    8 : {'eeg': ['EEG034'],
+        'meg': []},
+    9 : {'eeg': [],
+         'meg': []},
+    10 : {'eeg': [],
+         'meg': []},
+    11 : {'eeg': [],
+        'meg': []},
+    12 : {'eeg': ['EEG041', 'EEG050'],
+         'meg': []},         
+    13 : {'eeg': ['EEG029', 'EEG034', 'EEG061'],
+         'meg': []},
+    14 : {'eeg': [],
+        'meg': []},
+    15 : {'eeg': [],
+         'meg': []},
+    16 : {'eeg': ['EEG002'],
+          'meg': []},
+    17 : {'eeg': [],
+        'meg': []},
+    18 : {'eeg': [],
+         'meg': []},
+    19 : {'eeg': ['EEG002', 'EEG063'],
+         'meg': []},
+    # 20 : {'eeg': [],
+    #     'meg': []},
+    21 : {'eeg': ['EEG028', 'EEG029', 'EEG030', 'EEG040'],
+         'meg': []},
+    22 : {'eeg': [],
+         'meg': []},
+    23 : {'eeg': [],
+        'meg': []},
+    24 : {'eeg': ['EEG041', 'EEG050'],
+         'meg': []},    
+    25 : {'eeg': ['EEG040', 'EEG047'],
+          'meg': []}     
+}
 
 
 # create subject-specific data directories if necessary

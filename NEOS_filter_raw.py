@@ -46,7 +46,7 @@ def run_filter_raw(sbj_id):
 
     print(sss_map_fnames)
 
-#    bad_eeg = config.bad_channels[sbj_id]['eeg']  # bad EEG channels
+    bad_eeg = config.bad_channels[sbj_id]['eeg']  # bad EEG channels
 
     for raw_stem_in in sss_map_fnames:
 
@@ -68,11 +68,11 @@ def run_filter_raw(sbj_id):
         # ONLY FOR EEG
         if any('EEG' in ch for ch in raw.info['ch_names']):
 
-            # print('Marking bad EEG channels: %s' % bad_eeg)
-            # raw.info['bads'] = bad_eeg
+            print('Marking bad EEG channels: %s' % bad_eeg)
+            raw.info['bads'] = bad_eeg
 
-            # print('Interpolating bad EEG channels.')
-            # raw.interpolate_bads(mode='accurate', reset_bads=True)
+            print('Interpolating bad EEG channels.')
+            raw.interpolate_bads(mode='accurate', reset_bads=True)
 
             print('Setting EEG reference.')
             raw.set_eeg_reference(ref_channels='average', projection=True)
@@ -109,9 +109,17 @@ def run_filter_raw(sbj_id):
         stim_delay = int(config.delay * raw.info['sfreq'])
         events[:, 0] = events[:, 0] + stim_delay
 
-        event_file = path.join(sbj_path, raw_stem_in + '_sss_f_raw-eve.fif')
-        print('Saving events to %s.' % event_file)
-        mne.write_events(event_file, events)
+##########################################################################################################################
+##########################################################################################################################
+### HEY! THINK ABOUT THIS! the sentences actually appear (and disappear) 30ms after what's reported on stim channel
+### However in theory we don't care about this, because need to know the activity in real time (not locked to stimulus)
+### this might be relevant only when estimating erp activity (to avoid 34ms difference) 
+##########################################################################################################################
+##########################################################################################################################
+        
+        # event_file = path.join(sbj_path, raw_stem_in + '_sss_f_raw-eve.fif')
+        # print('Saving events to %s.' % event_file)
+        # #mne.write_events(event_file, events)
 
         # plot only if events were found
         if events.size != 0:
