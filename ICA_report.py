@@ -5,18 +5,7 @@ Create a HTML report where
     - for each participant
         - for each condition
             we plot comparison of different ICAs correction.
-            
-We need to plot the following:
-    1) uncorrected
-    2) standard ICA procedure (on raw data)
-    ICAs fitted on cropped data (only when reading the sentences, excluding large saccade):
-        - standard mne pipeline
-            3) zero padded
-            4) concatenated
-        - OPTICAT (overweighte and component variance selection)    
-            5) low pass filtered @ 40 Hz
-            6) unfiltered
-        
+
 @author: federica.magnabosco@mrc-cbu.cam.ac.uk
 """
 
@@ -111,13 +100,23 @@ uncorrected = {
     # 'uncorrected_saccade_GRAD.png',
     # 'uncorrected_saccade_MAG.png',
     }
+
+ica_per_block = {
+     'eeg': 'FRP_all_EEG_ica_perblock_raw.png',
+     'grad': 'FRP_all_GRAD_ica_perblock_raw.png',
+     'mag': 'FRP_all_MAG_ica_perblock_raw.png',
+     'predictable': 'FRP_predictable_ica_perblock_raw.png',
+     'unpredictable': 'FRP_unpredictable_ica_perblock_raw.png',
+     'predictability':  'FRP_predictability_ica_perblock_raw.png',
+    }
     
 
 conditions = dict({
+                  'standard': standard, 
                   'opticat': opticat,
                   'unfiltered_opticat': unfiltered_opticat,
-                  'unfiltered_opticat_raw': unfiltered_opticat_raw,
-                  'standard': standard, 
+                  'unfiltered_opticat_raw': unfiltered_opticat_raw,  
+                  'ica_per_block' : ica_per_block
                   })
 
 for sbj_id in subjs:
@@ -170,5 +169,5 @@ for sbj_id in subjs:
             )
         plt.close('all')
 
-report.save(path.join(config.data_path, 'misc', 'report_custom_figures.html'), overwrite=True)
+report.save(path.join(config.data_path, 'misc', 'methodsday_custom_figures.html'), overwrite=True)
 
