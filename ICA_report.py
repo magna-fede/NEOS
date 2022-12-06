@@ -107,7 +107,7 @@ ica_per_block = {
      'mag': 'FRP_all_MAG_ica_perblock_raw.png',
      'predictable': 'FRP_predictable_ica_perblock_raw.png',
      'unpredictable': 'FRP_unpredictable_ica_perblock_raw.png',
-     'predictability':  'FRP_predictability_ica_perblock_raw.png',
+     'predictability':  'FRP_predictability_ica_perblock_raw.png'
     }
     
 
@@ -120,6 +120,7 @@ conditions = dict({
                   })
 
 for sbj_id in subjs:
+    print(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0], 'Figures')
 
     figs = []
