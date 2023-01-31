@@ -85,6 +85,7 @@ map_subjects = {
     23 : ('meg22_229', '221118'),
     24 : ('meg22_232', '221122'),
     25 : ('meg22_235', '221124'),
+    26 : ('meg22_245', '221208'),
 }
 
 # which files to maxfilter and how to name them after sss
@@ -146,6 +147,8 @@ sss_map_fnames = {
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
     25 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    26 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
 
 }       
 
@@ -204,7 +207,9 @@ bad_channels = {
     24 : {'eeg': ['EEG041', 'EEG050'],
          'meg': []},    
     25 : {'eeg': ['EEG040', 'EEG047'],
-          'meg': []}     
+          'meg': []},
+    26 : {'eeg': ['EEG028', 'EEG054'],
+          'meg': []}          
 }
 
 

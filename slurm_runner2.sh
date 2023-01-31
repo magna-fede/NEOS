@@ -17,11 +17,7 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="$WORKDIR/apply_ica_over_participants.py"
 # SCRIPT="plot_frps_over_participants.py"
 # SCRIPT="NEOS_synch_per_block.py"
-# SCRIPT="compare_overweighting_ica_over_participants.py"
-# SCRIPT2="compare_NOoverweighting_ica_over_participants.py"
-# SCRIPT="plt_frps_fileffects_icaboth_over_participants.py"
-SCRIPT="snr_compare_componentselection_ica_oveweighted.py"
-SCRIPT2="snr_compare_componentselection_ica_NOoveweight.py"
+SCRIPT="compare_NOoverweighting_ica_over_participants.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -41,21 +37,6 @@ do
     srun --ntasks=1 \
         --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
         --exclusive "python" $SCRIPT $i &
-    
-    echo "TASK $i PUSHED TO BACKGROUND"
-done
-
-# # Wait till everything has run
-wait
-
-for i in {1..24}
-do
-    echo "TASK $i STARTING"
-
-    # Run task on node
-    srun --ntasks=1 \
-        --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
-        --exclusive "python" $SCRIPT2 $i &
     
     echo "TASK $i PUSHED TO BACKGROUND"
 done

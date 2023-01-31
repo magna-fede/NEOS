@@ -12,6 +12,8 @@ from my_eyeCA import preprocess as pp
 from pathlib import Path
 from matplotlib import pyplot as plt
 
+import numpy as np
+import pandas as pd
 
 def compute_noise_covariance(inst, time_win, method="shrunk"):
 
@@ -58,18 +60,25 @@ def compute_ica(inst, cov, time_win, picks, method, n_comp=50):
 
     return ica
 
-
-def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp):
+def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp, drf=None):
 
     # Handle folder/file management
-    fpath = Path(raw.filenames[0])
-    fname = fpath.stem
-    tag = f"{fname}_ICA_{method}_{n_comp}_COV_{cov_estimator}"
-    out_dir = fpath.parent / "ICA" / tag
-    out_dir.mkdir(exist_ok=True, parents=True)
+    try:
+        fpath = Path(raw.filenames[0])    
+        fpath = Path(drf)
+        fname = fpath.stem
+        tag = f"{fname}_ICA_{method}_{n_comp}_COV_{cov_estimator}"
+        out_dir = fpath.parent / "ICA" / tag
+        out_dir.mkdir(exist_ok=True, parents=True)
+    except:
+        fpath = Path(drf)
+        fname = fpath.stem
+        tag = f"{fname}_ICA_{method}_{n_comp}_COV_{cov_estimator}"
+        out_dir = fpath.parent / "ICA_ovr_w" / tag
+        out_dir.mkdir(exist_ok=True, parents=True)
 
     # Take subset of events for this instance of Raw
-    evt = pp.subset_events(raw, evt)
+    #evt = pp.subset_events(raw, evt)
 
     # Filter and downsample
     draw, devt = pp.downsample_and_filter(raw, evt, lf=2, hf=40, sf=200)
