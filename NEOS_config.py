@@ -349,3 +349,5 @@ stc_morph = 'fsaverage'
 
 # vertex size
 src_spacing = 5
+
+subjects_dir = '/imaging/hauk/users/fm02/MEG_NEOS/MRI'

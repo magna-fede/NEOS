@@ -20,8 +20,10 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="compare_overweighting_ica_over_participants.py"
 # SCRIPT2="compare_NOoverweighting_ica_over_participants.py"
 # SCRIPT="plt_frps_fileffects_icaboth_over_participants.py"
-SCRIPT="snr_compare_componentselection_ica_oveweighted.py"
-SCRIPT2="snr_compare_componentselection_ica_NOoveweight.py"
+SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
+SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
+
+# SCRIPT="snr_compare_filtering_ica_overweight_both.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -33,6 +35,8 @@ conda activate mne1.2.1_0
 echo "JOB $SLURM_JOB_ID STARTING"
 
 # Loop over range of arguments to script
+# array=(5 11 12 13 14 18 24)
+# for i in "${array[@]}"
 for i in {1..24}
 do
     echo "TASK $i STARTING"
@@ -45,9 +49,10 @@ do
     echo "TASK $i PUSHED TO BACKGROUND"
 done
 
-# # Wait till everything has run
+# Wait till everything has run
 wait
 
+# for i in "${array[@]}"
 for i in {1..24}
 do
     echo "TASK $i STARTING"

@@ -118,7 +118,7 @@ job_list = [
     #  'mem': '16G',                    # memory for qsub process
     #  'dep': ''}, 
      {'N':   'someplots',
-     'Py':  'plot_frps_over_participants',          # Python script
+     'Py':  'plt_frps_component_selection',          # Python script
      'Ss':  subjs,                    # subject indices
      'mem': '4G',                    # memory for qsub process
      'dep': ''}, 

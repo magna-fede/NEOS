@@ -77,51 +77,29 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         
     elif method=='variance':
         pd_evt = pd.DataFrame(evt, columns=['time', 'previous', 'trigger'])
+        pd_evt['time'] = pd_evt['time']*1e-3*raw.info['sfreq']
+        # time is in samples right now        
+        # convert it to seconds
+        # this is useful for ICA components timecourse
+        pd_evt['time'] = (pd_evt['time']-t0)/raw.info['sfreq']
+    
+        start_saccades = np.array(pd_evt['time'][pd_evt['trigger']==801])
+        end_saccades = np.array(pd_evt['time'][pd_evt['trigger']==802])
         
-        start_saccades = np.where(pd_evt['trigger']==801)[0]
-        end_saccades = np.where(pd_evt['trigger']==802)[0] 
-        
-        start_fixations = np.where(pd_evt['trigger']==901)[0]
-        end_fixations = np.where(pd_evt['trigger']==902)[0]
-          
+        start_fixations = np.array(pd_evt['time'][pd_evt['trigger']==901])
+        end_fixations = np.array(pd_evt['time'][pd_evt['trigger']==902])         
         
         times_sac = tuple(zip(start_saccades, end_saccades))
         
-        sac_selection = dict.fromkeys(['data', 'time'])
-        sac_selection['data'] = list()
-        sac_selection['time'] = list()  
-        
-        for i, indices in enumerate(times_sac):
-        
-            d, t = raw[:,(evt[indices[0]][0] - t0) : (evt[indices[1]][0] - t0) ]
-        
-            sac_selection['data'].append(d)    
-            sac_selection['time'].append(t) 
-        
-        
         times_fix = tuple(zip(start_fixations, end_fixations))
-        
-        fix_selection = dict.fromkeys(['data', 'time'])
-        fix_selection['data'] = list()
-        fix_selection['time'] = list()
-        
-        for i, indices in enumerate(times_fix):
-        
-            d, t = raw[:,(evt[indices[0]][0] - t0) : (evt[indices[1]][0] - t0) ]
-            fix_selection['data'].append(d)    
-            fix_selection['time'].append(t) 
-        
-            
-        
+
         print('Reading ICA file')
-               
         components_timecourse = ic.get_sources(raw)
         
         var_sac = []
         
-        for event in sac_selection['time']:
-            section = components_timecourse.get_data(tmin=event[0],
-                                                     tmax=event[-1])
+        for i, indices in enumerate(times_sac):
+            section = components_timecourse.get_data(tmin=indices[0], tmax=indices[1])
             var_sac.append(np.var(section, axis=1))
         
         var_sac = np.dstack(var_sac).squeeze()
@@ -130,9 +108,8 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         
         var_fix = []
         
-        for event in fix_selection['time']:
-            section = components_timecourse.get_data(tmin=event[0],
-                                                     tmax=event[-1])
+        for i, indices in enumerate(times_fix):
+            section = components_timecourse.get_data(tmin=indices[0], tmax=indices[1])
             var_fix.append(np.var(section, axis=1))
         
         var_fix = np.dstack(var_fix).squeeze()
@@ -167,51 +144,31 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         
     
     elif method=='both':
+
         pd_evt = pd.DataFrame(evt, columns=['time', 'previous', 'trigger'])
+        pd_evt['time'] = pd_evt['time']*1e-3*raw.info['sfreq']
+        # time is in samples right now        
+        # convert it to seconds
+        # this is useful for ICA components timecourse
+        pd_evt['time'] = (pd_evt['time']-t0)/raw.info['sfreq']
+    
+        start_saccades = np.array(pd_evt['time'][pd_evt['trigger']==801])
+        end_saccades = np.array(pd_evt['time'][pd_evt['trigger']==802])
         
-        start_saccades = np.where(pd_evt['trigger']==801)[0]
-        end_saccades = np.where(pd_evt['trigger']==802)[0] 
-        
-        start_fixations = np.where(pd_evt['trigger']==901)[0]
-        end_fixations = np.where(pd_evt['trigger']==902)[0]
-          
+        start_fixations = np.array(pd_evt['time'][pd_evt['trigger']==901])
+        end_fixations = np.array(pd_evt['time'][pd_evt['trigger']==902])         
         
         times_sac = tuple(zip(start_saccades, end_saccades))
         
-        sac_selection = dict.fromkeys(['data', 'time'])
-        sac_selection['data'] = list()
-        sac_selection['time'] = list()  
-        
-        for i, indices in enumerate(times_sac):
-        
-            d, t = raw[:,(evt[indices[0]][0] - t0) : (evt[indices[1]][0] - t0) ]
-        
-            sac_selection['data'].append(d)    
-            sac_selection['time'].append(t) 
-        
-        
         times_fix = tuple(zip(start_fixations, end_fixations))
-        
-        fix_selection = dict.fromkeys(['data', 'time'])
-        fix_selection['data'] = list()
-        fix_selection['time'] = list()
-        
-        for i, indices in enumerate(times_fix):
-        
-            d, t = raw[:,(evt[indices[0]][0] - t0) : (evt[indices[1]][0] - t0) ]
-            fix_selection['data'].append(d)    
-            fix_selection['time'].append(t) 
-        
-            
-        
+
         print('Reading ICA file')
         components_timecourse = ic.get_sources(raw)
         
         var_sac = []
         
-        for event in sac_selection['time']:
-            section = components_timecourse.get_data(tmin=event[0],
-                                                     tmax=event[-1])
+        for i, indices in enumerate(times_sac):
+            section = components_timecourse.get_data(tmin=indices[0], tmax=indices[1])
             var_sac.append(np.var(section, axis=1))
         
         var_sac = np.dstack(var_sac).squeeze()
@@ -220,9 +177,8 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         
         var_fix = []
         
-        for event in fix_selection['time']:
-            section = components_timecourse.get_data(tmin=event[0],
-                                                     tmax=event[-1])
+        for i, indices in enumerate(times_fix):
+            section = components_timecourse.get_data(tmin=indices[0], tmax=indices[1])
             var_fix.append(np.var(section, axis=1))
         
         var_fix = np.dstack(var_fix).squeeze()
@@ -262,74 +218,90 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
 
 
 
-def plot_evoked_sensors(data, devents, comp_sel):
+def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rejection=True):
+    
+    # need to deal with downsampled data
+    # adapt the events numpy array, check if this works
+    loc_events = devents.copy()
+    
+    if data.info['sfreq']!=1000.0:
+        loc_events[:,0] = loc_events[:,0]*1e-3*data.info['sfreq']
+    
     fpath = Path(data.filenames[0])
     event_dict = {'FRP': 999}
-    epochs = mne.Epochs(data, devents, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
+    if standard_rejection:
+        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
                     reject=reject_criteria, flat=flat_criteria,
                     preload=True)
+    else:
+        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
+                    reject=None, flat=None, reject_by_annotation=False,
+                    preload=True)    
+        
     evoked = epochs['FRP'].average()
     
     FRP_fig = evoked.plot_joint(times=[0, .110, .167, .210, .266, .330, .430])
 
     for i, fig in zip(['EEG','MAG','GRAD'], FRP_fig):
-        fname_fig = fpath.parent / 'Figures' / f'FRP_all_{i}_ovrw_{comp_sel}.png'
+        fname_fig = fpath.parent / 'Figures' / f'FRP_all_{i}_{comp_sel}.png'
         fig.savefig(fname_fig)     
-        
-    rows = np.where(devents[:,2]==999)
-    for row in rows[0]:
-        if devents[row-2, 2] == 1:
-            devents[row, 2] = 991
-        elif devents[row-2, 2] == 2:
-            devents[row, 2] = 992
-        elif devents[row-2, 2] == 3:
-            devents[row, 2] = 993
-        elif devents[row-2, 2] == 4:
-            devents[row, 2] = 994
-        elif devents[row-2, 2] == 5:
-            devents[row, 2] = 995
+    
+    if all_factors:
             
-    event_dict = {'Abstract/Predictable': 991, 
-                  'Concrete/Predictable': 992,
-                  'Abstract/Unpredictable': 993, 
-                  'Concrete/Unpredictable': 994}
-    epochs = mne.Epochs(data, devents, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
-                        reject=reject_criteria, flat=flat_criteria,
-                        preload=True)
-    cond1 = 'Predictable'
-    cond2 = 'Unpredictable'
-    
-    params = dict(spatial_colors=True, show=False,
-                  time_unit='s')
-    epochs[cond1].average().plot(**params)
-    fname_fig =  fpath.parent / 'Figures' / f'FRP_predictable_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-    epochs[cond2].average().plot(**params)
-    fname_fig =  fpath.parent / 'Figures' / f'FRP_unpredictable_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-    contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
-                                  weights=[1, -1])
-    contrast.plot(**params)
-    fname_fig =  fpath.parent / 'Figures' / f'FRP_predictabibility_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-
-    cond1 = 'Concrete'
-    cond2 = 'Abstract'
-    
-    params = dict(spatial_colors=True, show=False,
-                  time_unit='s')
-    epochs[cond1].average().plot(**params)
-    fname_fig = fpath.parent / 'Figures' / f'FRP_concrete_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-    epochs[cond2].average().plot(**params)
-    fname_fig =  fpath.parent / 'Figures' / f'FRP_abstract_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-    contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
-                                  weights=[1, -1])
-    contrast.plot(**params)
-    fname_fig =  fpath.parent / 'Figures' / f'FRP_concreteness_ovrw_{comp_sel}.png'
-    plt.savefig(fname_fig)
-
+        rows = np.where(loc_events[:,2]==999)
+        for row in rows[0]:
+            if loc_events[row-2, 2] == 1:
+                loc_events[row, 2] = 991
+            elif loc_events[row-2, 2] == 2:
+                loc_events[row, 2] = 992
+            elif loc_events[row-2, 2] == 3:
+                loc_events[row, 2] = 993
+            elif loc_events[row-2, 2] == 4:
+                loc_events[row, 2] = 994
+            elif loc_events[row-2, 2] == 5:
+                loc_events[row, 2] = 995
+                
+        event_dict = {'Abstract/Predictable': 991, 
+                      'Concrete/Predictable': 992,
+                      'Abstract/Unpredictable': 993, 
+                      'Concrete/Unpredictable': 994}
+        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
+                            reject=reject_criteria, flat=flat_criteria,
+                            preload=True)
+        cond1 = 'Predictable'
+        cond2 = 'Unpredictable'
+        
+        params = dict(spatial_colors=True, show=False,
+                      time_unit='s')
+        epochs[cond1].average().plot(**params)
+        fname_fig =  fpath.parent / 'Figures' / f'FRP_predictable_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        epochs[cond2].average().plot(**params)
+        fname_fig =  fpath.parent / 'Figures' / f'FRP_unpredictable_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
+                                      weights=[1, -1])
+        contrast.plot(**params)
+        fname_fig =  fpath.parent / 'Figures' / f'FRP_predictabibility_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        
+        cond1 = 'Concrete'
+        cond2 = 'Abstract'
+        
+        params = dict(spatial_colors=True, show=False,
+                      time_unit='s')
+        epochs[cond1].average().plot(**params)
+        fname_fig = fpath.parent / 'Figures' / f'FRP_concrete_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        epochs[cond2].average().plot(**params)
+        fname_fig =  fpath.parent / 'Figures' / f'FRP_abstract_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        contrast = mne.combine_evoked([epochs[cond1].average(), epochs[cond2].average()],
+                                      weights=[1, -1])
+        contrast.plot(**params)
+        fname_fig =  fpath.parent / 'Figures' / f'FRP_concreteness_ovrw_{comp_sel}.png'
+        plt.savefig(fname_fig)
+        
 
 # def generate_report(inst, ic_scores, raw, file_ica, reject):
     
