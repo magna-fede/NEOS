@@ -28,13 +28,13 @@ subjs = config.do_subjs
 # subjs = [16, 17, 18, 19, 21, 22, 23, 24]
 
 job_list = [
-    # ### Neuromag Maxfilter
-    # {'N':   'F_MF',                  # job name
-    #  'Py':  'NEOS_Maxfilter',  # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '16G',                   # memory for qsub process
-    #  'dep': '',                       # name of preceeding process (optional)
-    #  'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
+    ### Neuromag Maxfilter
+    {'N':   'F_MF',                  # job name
+     'Py':  'NEOS_Maxfilter',  # Python script
+     'Ss':  subjs,                    # subject indices
+     'mem': '16G',                   # memory for qsub process
+     'dep': '',                       # name of preceeding process (optional)
+     'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
 
     # ### fix EEG electrode positions in fiff-files
     # ### NOTE: Can get "Permission denied"; should be run separately
@@ -117,11 +117,11 @@ job_list = [
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '16G',                    # memory for qsub process
     #  'dep': ''}, 
-     {'N':   'someplots',
-     'Py':  'plt_frps_component_selection',          # Python script
-     'Ss':  subjs,                    # subject indices
-     'mem': '4G',                    # memory for qsub process
-     'dep': ''}, 
+     # {'N':   'someplots',
+     # 'Py':  'plt_frps_component_selection',          # Python script
+     # 'Ss':  subjs,                    # subject indices
+     # 'mem': '4G',                    # memory for qsub process
+     # 'dep': ''}, 
      # {'N':   'otherplots',
      # 'Py':  'plot_evoked_persubject',          # Python script
      # 'Ss':  subjs,                    # subject indices

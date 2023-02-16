@@ -30,7 +30,7 @@ def subset_events(raw, evt):
     return evt[mask, :]
 
 
-def downsample_and_filter(raw, evt, lf, hf, sf):
+def downsample_and_filter(raw, evt, lf, hf, sf=None):
 
     # Load data
     load_data(raw)

@@ -15,30 +15,34 @@ import numpy as np
 
 # IDs of subjects to process (SLURM and Grand-Average)
 do_subjs = [
-            1,
-            2,
-            3,
-        #   4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18, 
-            19, 
-        #   20,
-            21,
-            22, 
-            23, 
-            24,
+        #     1,
+        #     2,
+        #     3,
+        # #   4,
+        #     5,
+        #     6,
+        # #    7,
+        #     8,
+        #     9,
+        #     10,
+        #     11,
+        #     12,
+        #     13,
+        #     14,
+        #     15,
+        #     16,
+        #     17,
+        #     18, 
+        #     19, 
+        # #   20,
+        #     21,
+        #     22, 
+        #     23, 
+        #     24,
+            25,
+            26,
+            27,
+            28
             ]
 
 # do_subjs = [21]
@@ -66,7 +70,7 @@ map_subjects = {
 #    4 : ('meg22_192', '221006'), # participant did not complete experiment, very sleepy
     5 : ('meg22_193', '221007'),
     6 : ('meg22_194', '221010'),   
-    7 : ('meg22_195', '221011'),
+#    7 : ('meg22_195', '221011'), # participant did not get MRI
     8 : ('meg22_196', '221011'),
     9 : ('meg22_197', '221011'), 
     10 : ('meg22_198', '221012'),
@@ -86,6 +90,8 @@ map_subjects = {
     24 : ('meg22_232', '221122'),
     25 : ('meg22_235', '221124'),
     26 : ('meg22_245', '221208'),
+    27 : ('meg22_246', '221209'),
+    28 : ('meg23_025', '230216'),
 }
 
 # which files to maxfilter and how to name them after sss
@@ -149,7 +155,10 @@ sss_map_fnames = {
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
     26 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
-
+    27 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    28 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
 }       
 
 
@@ -209,7 +218,11 @@ bad_channels = {
     25 : {'eeg': ['EEG040', 'EEG047'],
           'meg': []},
     26 : {'eeg': ['EEG028', 'EEG054'],
-          'meg': []}          
+          'meg': []}, 
+    27 : {'eeg': [],
+         'meg': []},
+    28 : {'eeg': [],
+         'meg': []},         
 }
 
 

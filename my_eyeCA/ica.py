@@ -81,7 +81,7 @@ def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp, drf=None):
     #evt = pp.subset_events(raw, evt)
 
     # Filter and downsample
-    draw, devt = pp.downsample_and_filter(raw, evt, lf=2, hf=40, sf=200)
+    draw, devt = pp.downsample_and_filter(raw, evt, lf=2, hf=40)
 
        # %%
     draw.interpolate_bads(mode='accurate', reset_bads=True)
@@ -119,9 +119,12 @@ def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp, drf=None):
     # Compute ICA, and generate plots
 
     # Get limits of data to use for decomposition
-    tmin = devt[0, 0] / draw.info["sfreq"] - 5  # 5 sec before first event
-    tmax = devt[-1, 0] / draw.info["sfreq"] + 5  # 5 sec after last event
-
+    #tmin = devt[0, 0] / draw.info["sfreq"] - 5  # 5 sec before first event
+    #tmax = devt[-1, 0] / draw.info["sfreq"] + 5  # 5 sec after last event
+    
+    tmin = draw.tmin
+    tmax = draw.tmax
+    
     # Fit ICA using given params
     ic = compute_ica(
         draw,
