@@ -190,7 +190,7 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         
         eog_idx, ic_scores_eog = ic.find_bads_eog(raw, ch_name=["EOG001", "EOG002"])
         
-        ic.exclude = eog_idx + list(set(to_exclude) - set(eog_idx))
+        ic.exclude = list(set(eog_idx) | set(to_exclude))
         
         ### hacky solution for now 
         bads, raw.info['bads'] = raw.info['bads'], []
