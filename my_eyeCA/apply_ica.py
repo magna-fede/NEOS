@@ -24,7 +24,7 @@ reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
 
-def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance=None, ovrw=False):
+def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance=None, ovrw=False, ovrw_onset=False):
     # Handle folder/file management
     fpath = Path(raw.filenames[0])
 
@@ -36,10 +36,15 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
     elif ica_instance:
         ic = ica_instance
         if ovrw==True:
-            ica_filename = path.join(fpath.parent, 'ICA_ovr_w',
+            if ovrw_onset==False:
+                ica_filename = path.join(fpath.parent, 'ICA_ovr_w',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
-        elif ovrw==False:
+            elif ovrw_onset==True:
+                ica_filename = path.join(fpath.parent, 'ICA_ovr_w_onset',
+                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')    
+        elif ovrw==False:            
             ica_filename = path.join(fpath.parent, 'ICA',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
@@ -62,11 +67,14 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
             raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_eog_raw.fif",
                 overwrite=True)
         elif ovrw==True:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_eog_raw.fif",
-                overwrite=True)
-        
+            if  ovrw_onset==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_eog_raw.fif",
+                         overwrite=True)
+            if  ovrw_onset==True:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_eog_raw.fif",
+                         overwrite=True)        
             # Save fitted ICA
-        ic_file = ica_filename + '_ovrw_eog.fif'
+        ic_file = ica_filename + '_eog.fif'
         
         ic.save(ic_file, overwrite=True)
         
@@ -130,9 +138,12 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
             raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_var_raw.fif",
                 overwrite=True)
         elif ovrw==True:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_var_raw.fif",
-                overwrite=True)
-        
+            if  ovrw_onset==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_var_raw.fif",
+                    overwrite=True)
+            if  ovrw_onset==True:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_var_raw.fif",
+                    overwrite=True)    
             # Save fitted ICA
         ic_file = ica_filename + '_varcomp.fif'
         
@@ -203,8 +214,14 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
             raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_both_raw.fif",
                 overwrite=True)
         elif ovrw==True:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_both_raw.fif",
-                overwrite=True)
+            if  ovrw_onset==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_both_raw.fif",
+                    overwrite=True)
+            if  ovrw_onset==True:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_both_raw.fif",
+                    overwrite=True)  
+                
+
         
             # Save fitted ICA
         ic_file = ica_filename + '_eogvar.fif'

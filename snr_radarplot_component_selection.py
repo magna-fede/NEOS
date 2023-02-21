@@ -30,7 +30,7 @@ os.chdir("/home/fm02/MEG_NEOS/NEOS")
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 
-mne.viz.set_browser_backend("matplotlib")
+#mne.viz.set_browser_backend("matplotlib")
 
 ovr_metrics = dict()
 novr_metrics = dict()
@@ -165,7 +165,7 @@ df_ovr = pd.concat(ovr_metrics.values(), keys=ovr_metrics.keys())
 #     plt.show()
 
 
-categories = ['P1_SNR', 'SNR_n400','S_amplitude','S_auc']
+categories = ['P1_SNR', 'GFP_first100', 'SNR_n400','S_amplitude','S_auc']
 
 # SNR does not need to be normalised as it has not unit, but other values 
 # should be somehow scaled for comparison
@@ -307,24 +307,13 @@ nOVR_eog = norm_novr[categories].loc[(slice(None), "eog"), :].mean(axis=0)
 #    nOVR_preICA = norm_novr[categories].loc[(slice(None), "pre-ICA"), :].mean(axis=0)
 nOVR_var = norm_novr[categories].loc[(slice(None), "variance"), :].mean(axis=0) 
 
-OVR_both = [*OVR_both, OVR_both[0]]
-OVR_eog = [*OVR_eog, OVR_eog[0]]
-OVR_preICA = [*OVR_preICA, OVR_preICA[0]]
-OVR_var = [*OVR_var, OVR_var[0]]
-
-nOVR_both = [*nOVR_both, nOVR_both[0]]
-nOVR_eog = [*nOVR_eog, nOVR_eog[0]]
-#    nOVR_preICA = [*nOVR_preICA, nOVR_preICA[0]]
-nOVR_var = [*nOVR_var, nOVR_var[0]]
-
-
 label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(categories))
 
 fig = plt.figure(figsize=(12,12))
 ax = plt.subplot(111, polar=True)    
 ax.plot(label_loc, OVR_both, label='Overweighted - Both')
 ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
-ax.plot(label_loc, OVR_preICA, label='preICA')
+#ax.plot(label_loc, OVR_preICA, label='preICA')
 ax.plot(label_loc, OVR_var, label='Overweighted - Variance')
 ax.plot(label_loc, nOVR_both, label='Non-overweighted - Both')
 ax.plot(label_loc, nOVR_eog, label='Non-overweighted - EOG')
@@ -339,7 +328,8 @@ ax.set_position([box.x0, box.y0 + box.height * 0.1,
 
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
-
+fname_fig = path.join(config.data_path, 'misc', f'avg_snr_EEG_all_01Hz.png')
+fig.savefig(fname_fig)
 plt.show()
 
 summary_ovr = df_ovr[['P1_SNR', 'SNR_n400','S_amplitude','S_auc']].loc[(slice(None), ["both", "variance", "eog", "pre-ICA"]), :]

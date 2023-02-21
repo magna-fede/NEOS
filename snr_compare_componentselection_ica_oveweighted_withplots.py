@@ -78,7 +78,8 @@ for block, drf in enumerate(data_raw_files):
     
 	# %%
     ic = ica.run_ica_pipeline(
-	    raw=raw_ica, evt=evt, method="extinfomax", cov_estimator=None, n_comp=0.99, drf=drf
+	    raw=raw_ica, evt=evt, method="extinfomax", cov_estimator=None,
+        n_comp=0.99, over_type=='ovrwonset', drf=drf
 	)
     pre_ica, figs = snr_metrics.compute_metrics(raw_orig, evt, plot=True)
     pre_ica["type"] = "pre-ICA"

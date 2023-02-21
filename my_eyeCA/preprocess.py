@@ -177,3 +177,45 @@ def overweight_saccades(data, all_events):
     data_for_ica = mne.io.BaseRaw(info=data.info, preload=overweighted_for_ica)
     
     return data_for_ica
+
+def overweight_saccades_onset(data, all_events):
+    """all_events is the xy all events pandas dataframe"""
+    t0 = data.first_samp
+
+    # extract Raw Data
+    raw = data.get_data()
+    
+    # get times of saccades trigger
+    ix_801 = np.where((all_events['trigger']==801) & (all_events['y'] < 700))[0]
+#    ix_802 = np.where((all_events['trigger']==802) & (all_events['y'] < 700))[0]
+    
+    sac_selection = dict.fromkeys(['data', 'time'])
+    sac_selection['data'] = list()
+    sac_selection['time'] = list()
+    
+    for i, index in enumerate(ix_801):
+        # adding -20 ms prior to saccade onset and +10ms after saccade offset
+        # 20 is fine as long as th
+        d, t = data[:,(all_events.iloc[index][0] - int(20*1e-3*data.info['sfreq']) - t0) : \
+                        (all_events.iloc[index][0] + int(10*1e-3*data.info['sfreq']) - t0)]
+        # mean centre each saccade epoch
+        d -= d.mean(axis=1).reshape(-1,1)    
+        sac_selection['data'].append(d)    
+        sac_selection['time'].append(t) 
+
+    sac_concatenated = np.concatenate(sac_selection['data'], axis=1)
+    
+    # same approach as in OPTICAT
+    # repeat saccade matrix until it is at least 0.5 at times as long as epochs
+    sac_concatenated  = np.tile(sac_concatenated, int(np.ceil(raw.shape[1]*0.5 / sac_concatenated.shape[1])))
+
+    # and prune down until is exactly 0.5
+    sac_concatenated = sac_concatenated[:, 0:int(raw.shape[1]*0.5)]
+
+    # concatenate to original raw data
+    overweighted_for_ica = np.concatenate([raw, sac_concatenated], axis=1)
+    
+    # transform to Raw object
+    data_for_ica = mne.io.BaseRaw(info=data.info, preload=overweighted_for_ica)
+    
+    return data_for_ica

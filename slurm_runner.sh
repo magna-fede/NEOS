@@ -1,9 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=ica_testing  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
-#SBATCH --ntasks=4
+#SBATCH --ntasks=24
 #SBATCH --cpus-per-task=4
-#SBATCH --nodelist=node-i[06,07]
 #SBATCH --mem-per-cpu=1G
 #SBATCH --verbose                                   # Be verbose wherever possible
 #SBATCH --time=24:00:00                             # Request resources for 24 hours
@@ -17,11 +16,11 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="$WORKDIR/main_over_participants.py"
 # SCRIPT="$WORKDIR/apply_ica_over_participants.py"
 # SCRIPT="plot_frps_over_participants.py"
-SCRIPT="$WORKDIR/NEOS_synch_per_block.py"
+# SCRIPT="$WORKDIR/NEOS_synch_per_block.py"
 # SCRIPT="compare_overweighting_ica_over_participants.py"
 # SCRIPT2="compare_NOoverweighting_ica_over_participants.py"
 # SCRIPT="plt_frps_fileffects_icaboth_over_participants.py"
-# SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
+SCRIPT="snr_compare_componentselection_ica_oveweighted_onsets_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
 # SCRIPT="plt_frps_ic_n_filt.py"
@@ -38,7 +37,7 @@ echo "JOB $SLURM_JOB_ID STARTING"
 # Loop over range of arguments to script
 # array=(5 11 12 13 14 18 24)
 # for i in "${array[@]}"
-for i in {25..28}
+for i in {1..24}
 do
     echo "TASK $i STARTING"
 
