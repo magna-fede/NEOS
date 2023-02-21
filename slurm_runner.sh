@@ -20,10 +20,14 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="compare_overweighting_ica_over_participants.py"
 # SCRIPT2="compare_NOoverweighting_ica_over_participants.py"
 # SCRIPT="plt_frps_fileffects_icaboth_over_participants.py"
+
 SCRIPT="snr_compare_componentselection_ica_oveweighted_onsets_withplots.py"
+# SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
 # SCRIPT="plt_frps_ic_n_filt.py"
+# SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
+# SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
