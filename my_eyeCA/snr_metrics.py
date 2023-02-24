@@ -171,16 +171,28 @@ def saccade_locked(raw, evt, plot=False):
     auc = simpson(y=abs(amplitude), x=times, dx=1 / evo.info["sfreq"])
 
     # Get peak amplitude of saccade
-    chan, lat, peak = (
-        evo.copy()
-        .pick_channels(["EEG008"])
-        .get_peak(
-            tmin=0.0,
-            tmax=0.04,
-            mode="pos",
-            return_amplitude=True,
+    try:
+        chan, lat, peak = (
+            evo.copy()
+            .pick_channels(["EEG008"])
+            .get_peak(
+                tmin=0.0,
+                tmax=0.04,
+                mode="pos",
+                return_amplitude=True,
+            )
         )
-    )
+    except:
+        chan, lat, peak = (
+            evo.copy()
+            .pick_channels(["EEG008"])
+            .get_peak(
+                tmin=0.0,
+                tmax=0.04,
+                mode="abs",
+                return_amplitude=True,
+            )
+        )    
 
     # Return dict of outputs
     out = {

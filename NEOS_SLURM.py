@@ -53,35 +53,6 @@ job_list = [
     #  'mem': '16G',                    # memory for qsub process
     #  'dep': ''},                      # name of preceeding process (optional)
 
-    # {'N':   'F_Cov',                  # job name
-    #  'Py':  'FPVS_make_covmat',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '4G',                    # memory for qsub process
-    #  'dep': 'F_FR'},
-
-    # ### Compute ICA
-    # {'N':   'F_CICA',                  # job name
-    #  'Py':  'NEOS_Compute_ICA',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '96G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
-    # ### Apply ICA (change ica_suff in config_sweep.py if necessary)
-    # {'N':   'F_AICA',                  # job name
-    #  'Py':  'NEOS_Apply_ICA',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '2G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
-    # ### Synchronise ET and MEG and save new event file
-    # {'N':   'F_Synch',                  # job name
-    #  'Py':  'NEOS_synchronisation',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '2G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
-    # {'N':   'F_evoked',                  # job name
-    #  'Py':  'comp_n_plot_evoked_frps_TEMP',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '2G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
     {'N':   'synch_all',                  # job name
      'Py':  'NEOS_synchronisation_includeEDF',          # Python script
      'Ss':  subjs,                    # subject indices

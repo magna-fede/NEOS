@@ -39,10 +39,12 @@ do_subjs = [
         #     22, 
         #     23, 
         #     24,
-            25,
-            26,
-            27,
-            28
+            # 25,
+            # 26,
+            # 27,
+            # 28,
+            29,
+            30
             ]
 
 # do_subjs = [21]
@@ -92,6 +94,8 @@ map_subjects = {
     26 : ('meg22_245', '221208'),
     27 : ('meg22_246', '221209'),
     28 : ('meg23_025', '230216'),
+    29 : ('meg23_031', '230221'),
+    30 : ('meg23_034', '230222')
 }
 
 # which files to maxfilter and how to name them after sss
@@ -158,7 +162,11 @@ sss_map_fnames = {
     27 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
     28 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']), 
+    29 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
         ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),    
+    30 : (['block1_raw', 'block2_raw', 'block3_raw', 'block4_raw', 'block5_raw'],
+        ['block1_sss_raw', 'block2_sss_raw', 'block3_sss_raw', 'block4_sss_raw', 'block5_sss_raw']),       
 }       
 
 
@@ -222,7 +230,11 @@ bad_channels = {
     27 : {'eeg': [],
          'meg': []},
     28 : {'eeg': [],
+         'meg': []},  
+    29 : {'eeg': [],
          'meg': []},         
+    30 : {'eeg': [],
+         'meg': []},                
 }
 
 
