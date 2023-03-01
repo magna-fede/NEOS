@@ -179,7 +179,7 @@ bad_channels = {
          'meg': []},
     2 : {'eeg': ['EEG017'],
         'meg': []},
-    3 : {'eeg': ['EEG029'],
+    3 : {'eeg': ['EEG029'], #check if need to add 4 (would prefer not as close to eyes)
          'meg': []},
     # 4 : {'eeg': [],
     #      'meg': []},
@@ -197,7 +197,7 @@ bad_channels = {
          'meg': []},
     11 : {'eeg': [],
         'meg': []},
-    12 : {'eeg': ['EEG041', 'EEG050'],
+    12 : {'eeg': ['EEG003', 'EEG045'], #check if need to add 8 (would prefer not as close to eyes)
          'meg': []},         
     13 : {'eeg': ['EEG029', 'EEG034', 'EEG061'],
          'meg': []},
@@ -207,7 +207,7 @@ bad_channels = {
          'meg': []},
     16 : {'eeg': ['EEG002'],
           'meg': []},
-    17 : {'eeg': [],
+    17 : {'eeg': ['EEG018', 'EEG039'],
         'meg': []},
     18 : {'eeg': [],
          'meg': []},
@@ -229,9 +229,9 @@ bad_channels = {
           'meg': []}, 
     27 : {'eeg': [],
          'meg': []},
-    28 : {'eeg': [],
+    28 : {'eeg': ['EEG010'], # participants bad channels are plenty (22,*29*,33,43,44,45,*63*) # the problem is that they are not always bad
          'meg': []},  
-    29 : {'eeg': [],
+    29 : {'eeg': ['EEG034', 'EEG035', 'EEG045'], # check if want to add also 50
          'meg': []},         
     30 : {'eeg': [],
          'meg': []},                

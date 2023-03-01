@@ -59,14 +59,14 @@ do_subjs = [
         #   20,
             21,
             22, 
-         #   23, # check why overweighted onset did not work  
+            23, # check why overweighted onset did not work  
             24,
-            # 25,
-            # 26,
-            # 27,
-            # 28,
-            # 29,
-            # 30
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
             ]
 
 for sbj_id in do_subjs:
@@ -116,69 +116,6 @@ for sbj_id in do_subjs:
 df_novr = pd.concat(novr_metrics.values(), keys=novr_metrics.keys())
 df_ovr = pd.concat(ovr_metrics.values(), keys=ovr_metrics.keys())
 df_ovrons = pd.concat(ovrons_metrics.values(), keys=ovrons_metrics.keys())
-    
-# categories = ['P1_SNR', 'P1_latency', 'GFP_first100', 'GFP_n400', 'GFP_last100',
-#                'SNR_n400', 'S_amplitude', 'S_latency', 'S_auc']
-# magn = [1/10, 10, 10000000, 1000000, 1000000, 1, 1000000, 100, 10000000]
-# categories = ['P1_SNR', 'GFP_first100', 'GFP_n400', 
-#                'SNR_n400','S_amplitude']
-
-# magn = [1/10, 10000000, 1000000, 1, 1000000]
-
-# categories = [*categories, categories[0]]
-
-
-
-# for sbj_id in config.do_subjs:
-#     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-#     OVR_both = np.multiply(df_ovr[categories].loc[sbj_id,"both"].values[:-1], magn)
-#     OVR_eog = np.multiply(df_ovr[categories].loc[sbj_id,"eog"].values[:-1], magn)
-#     #OVR_preICA = np.multiply(df_ovr[categories].loc[sbj_id,"pre-ICA"].values[:-1], magn)
-#     OVR_var = np.multiply(df_ovr[categories].loc[sbj_id,"variance"].values[:-1], magn)
-    
-    
-#     nOVR_both = np.multiply(df_novr[categories].loc[sbj_id,"both"].values[:-1], magn)
-#     nOVR_eog = np.multiply(df_novr[categories].loc[sbj_id,"eog"].values[:-1], magn)
-#     #nOVR_preICA = np.multiply(df_novr[categories].loc[sbj_id,"pre-ICA"].values[:-1], magn)
-#     nOVR_var = np.multiply(df_novr[categories].loc[sbj_id,"variance"].values[:-1], magn)
-    
-    
-#     OVR_both = [*OVR_both, OVR_both[0]]
-#     OVR_eog = [*OVR_eog, OVR_eog[0]]
-#     #OVR_preICA = [*OVR_preICA, OVR_preICA[0]]
-#     OVR_var = [*OVR_var, OVR_var[0]]
-    
-#     nOVR_both = [*nOVR_both, nOVR_both[0]]
-#     nOVR_eog = [*nOVR_eog, nOVR_eog[0]]
-#     #nOVR_preICA = [*nOVR_preICA, nOVR_preICA[0]]
-#     nOVR_var = [*nOVR_var, nOVR_var[0]]
-    
-    
-#     label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(categories))
-    
-#     fig = plt.figure(figsize=(12,12))
-#     ax = plt.subplot(111, polar=True)
-#     ax.plot(label_loc, OVR_both, label='Overweighted - Both')
-#     ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
-#     #ax.plot(label_loc, OVR_preICA, label='Overweighted - preICA')
-#     ax.plot(label_loc, OVR_var, label='Overweighted - Variance')
-#     ax.plot(label_loc, nOVR_both, label='Non-overweighted - Both')
-#     ax.plot(label_loc, nOVR_eog, label='Non-overweighted - EOG')
-#     #ax.plot(label_loc, nOVR_preICA, label='Non-overweighted - preICA')
-#     ax.plot(label_loc, nOVR_var, label='Non-overweighted - Variance')
-#     ax.fill(label_loc, OVR_both, label='Overweighted - Both', alpha=0.1)
-#     plt.title(f'Participant {sbj_id}', size=20, y=1.05)
-#     lines, labels = plt.thetagrids(np.degrees(label_loc), labels=categories)
-#     # Shrink current axis's height by 10% on the bottom
-#     box = ax.get_position()
-#     ax.set_position([box.x0, box.y0 + box.height * 0.1,
-#                  box.width, box.height * 0.9])
-
-# # Put a legend below current axis
-#     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
-#     fname_fig = path.join(sbj_path, 'Figures', f'snr1_EEG_all_01Hz.png')
-#     fig.savefig(fname_fig)
-#     plt.show()
 
 
 categories = ['P1_SNR', 'GFP_first100', 'SNR_n400','S_amplitude','S_auc']
@@ -240,90 +177,32 @@ for sbj_id in do_subjs:
     
     label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(categories))
     
-    fig = plt.figure(figsize=(12,12))
+    fig = plt.figure(figsize=(20,10))
     ax = plt.subplot(111, polar=True)    
     ax.plot(label_loc, OVR_both, label='Overweighted - Both')
-    ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
-    ax.plot(label_loc, OVR_preICA, label='Overweighted - preICA')
-    ax.plot(label_loc, OVR_var, label='Overweighted - Variance')
+    #ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
+    #ax.plot(label_loc, OVR_preICA, label='Overweighted - preICA')
+    # ax.plot(label_loc, OVR_var, label='Overweighted - Variance')
     ax.plot(label_loc, OVRons_both, label='Overweighted onset - Both')
-    ax.plot(label_loc, OVRons_eog, label='Overweighted onset - EOG')
-    ax.plot(label_loc, OVRons_preICA, label='Overweighted onset - preICA')
-    ax.plot(label_loc, OVRons_var, label='Overweighted onset - Variance')
+    # ax.plot(label_loc, OVRons_eog, label='Overweighted onset - EOG')
+    # ax.plot(label_loc, OVRons_preICA, label='Overweighted onset - preICA')
+    # ax.plot(label_loc, OVRons_var, label='Overweighted onset - Variance')
     ax.plot(label_loc, nOVR_both, label='Non-overweighted - Both')
-    ax.plot(label_loc, nOVR_eog, label='Non-overweighted - EOG')
+    # ax.plot(label_loc, nOVR_eog, label='Non-overweighted - EOG')
 #    plt.plot(label_loc, nOVR_preICA, label='Non-overweighted - preICA')
-    ax.plot(label_loc, nOVR_var, label='Non-overweighted - Variance')
+    # ax.plot(label_loc, nOVR_var, label='Non-overweighted - Variance')
     ax.fill(label_loc, OVR_both, label='Overweighted - Both', alpha=0.1)
-    plt.title(f'Participant {sbj_id}', size=20, y=1.05)
+    #plt.title(f'Participant {sbj_id}', size=20, y=1.05)
+    
     lines, labels = plt.thetagrids(np.degrees(label_loc), labels=categories)
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                 box.width, box.height * 0.9])
-
-# Put a legend below current axis
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
-    
-    fname_fig = path.join(sbj_path, 'Figures', f'snr_EEG_all_01Hz.png')
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    leg = ax.legend(loc='upper left', bbox_to_anchor=(1.1, 0.5), ncol=1)
+    leg = leg.set_in_layout(True)
+    fig.tight_layout()
+    fname_fig = path.join(sbj_path, 'Figures',  f'snr_EEG_all_01Hz.png')
     fig.savefig(fname_fig)
-    plt.show()
-    
-    
-    # if you don't want to standardize, need to consider the unit
-    
-# magn = [1, 1, 1000000, 10000000]
-
-# for sbj_id in do_subjs:
-#     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    
-#     OVR_both = np.multiply(df_ovr[categories].loc[sbj_id,"both"].values[:-1], magn)
-#     OVR_eog = np.multiply(df_ovr[categories].loc[sbj_id,"eog"].values[:-1], magn)
-#     OVR_preICA = np.multiply(df_ovr[categories].loc[sbj_id,"pre-ICA"].values[:-1], magn)
-#     OVR_var = np.multiply(df_ovr[categories].loc[sbj_id,"variance"].values[:-1], magn)
-    
-    
-#     nOVR_both = np.multiply(df_novr[categories].loc[sbj_id,"both"].values[:-1], magn)
-#     nOVR_eog = np.multiply(df_novr[categories].loc[sbj_id,"eog"].values[:-1], magn)
-# #    nOVR_preICA = np.multiply(df_novr[categories].loc[sbj_id,"pre-ICA"].values[:-1], magn)
-#     nOVR_var = np.multiply(df_novr[categories].loc[sbj_id,"variance"].values[:-1], magn)
-    
-    
-#     OVR_both = [*OVR_both, OVR_both[0]]
-#     OVR_eog = [*OVR_eog, OVR_eog[0]]
-#     OVR_preICA = [*OVR_preICA, OVR_preICA[0]]
-#     OVR_var = [*OVR_var, OVR_var[0]]
-    
-#     nOVR_both = [*nOVR_both, nOVR_both[0]]
-#     nOVR_eog = [*nOVR_eog, nOVR_eog[0]]
-# #    nOVR_preICA = [*nOVR_preICA, nOVR_preICA[0]]
-#     nOVR_var = [*nOVR_var, nOVR_var[0]]
-    
-    
-#     label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(categories))
-    
-#     fig = plt.figure(figsize=(12,12))
-#     ax = plt.subplot(111, polar=True)    
-#     ax.plot(label_loc, OVR_both, label='Overweighted - Both')
-#     ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
-#     ax.plot(label_loc, OVR_preICA, label='Overweighted - preICA')
-#     ax.plot(label_loc, OVR_var, label='Overweighted - Variance')
-#     ax.plot(label_loc, nOVR_both, label='Non-overweighted - Both')
-#     ax.plot(label_loc, nOVR_eog, label='Non-overweighted - EOG')
-# #    plt.plot(label_loc, nOVR_preICA, label='Non-overweighted - preICA')
-#     ax.plot(label_loc, nOVR_var, label='Non-overweighted - Variance')
-#     ax.fill(label_loc, OVR_both, label='Overweighted - Both', alpha=0.1)
-#     plt.title(f'Participant {sbj_id}', size=20, y=1.05)
-#     lines, labels = plt.thetagrids(np.degrees(label_loc), labels=categories)
-#     box = ax.get_position()
-#     ax.set_position([box.x0, box.y0 + box.height * 0.1,
-#                  box.width, box.height * 0.9])
-
-# # Put a legend below current axis
-#     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
-    
-#     fname_fig = path.join(sbj_path, 'Figures', f'snr_EEG_all_01Hz.png')
-#     fig.savefig(fname_fig)
-#     plt.show()
+    #plt.show()
     
 
 # average SNR
@@ -345,7 +224,7 @@ nOVR_var = norm_novr[categories].loc[(slice(None), "variance"), :].mean(axis=0)
 
 label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(categories))
 
-fig = plt.figure(figsize=(12,12))
+fig = plt.figure(figsize=(20,10))
 ax = plt.subplot(111, polar=True)    
 ax.plot(label_loc, OVR_both, label='Overweighted - Both')
 #ax.plot(label_loc, OVR_eog, label='Overweighted - EOG')
@@ -359,23 +238,24 @@ ax.plot(label_loc, nOVR_both, label='Non-overweighted - Both')
 #    plt.plot(label_loc, nOVR_preICA, label='Non-overweighted - preICA')
 #ax.plot(label_loc, nOVR_var, label='Non-overweighted - Variance')
 ax.fill(label_loc, OVR_both, label='Overweighted - Both', alpha=0.1)
-plt.title('Average across participants', size=20, y=1.05)
+#plt.title('Average across participants', size=20, y=1.05)
+
 lines, labels = plt.thetagrids(np.degrees(label_loc), labels=categories)
 box = ax.get_position()
-ax.set_position([box.x0, box.y0 + box.height * 0.1,
-             box.width, box.height * 0.9])
-
-# Put a legend below current axis
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+leg = ax.legend(loc='upper left', bbox_to_anchor=(1.1, 0.5), ncol=1)
+leg = leg.set_in_layout(True)
+fig.tight_layout()
 fname_fig = path.join(config.data_path, 'misc', f'avg_snr_EEG_both_01Hz.png')
 fig.savefig(fname_fig)
-plt.show()
+#plt.show()
+    
 
 summary_ovr = df_ovr[['P1_SNR', 'SNR_n400','S_amplitude','S_auc']].loc[(slice(None), ["both", "variance", "eog", "pre-ICA"]), :]
 summary_ovrons = df_ovrons[['P1_SNR', 'SNR_n400','S_amplitude','S_auc']].loc[(slice(None), ["both", "variance", "eog", "pre-ICA"]), :]
 summary_novr = df_novr[['P1_SNR', 'SNR_n400','S_amplitude','S_auc']].loc[(slice(None), ["both", "variance", "eog", "pre-ICA"]), :]
 
 
-print(summary_novr.groupby(["type"]).mean())
-print(summary_ovr.groupby(["type"]).mean())
-print(summary_ovrons.groupby(["type"]).mean())
+print("No overweighting: \n", summary_novr.groupby(["type"]).mean(), "\n")
+print("Saccade overweighting: \n",summary_ovr.groupby(["type"]).mean(), "\n")
+print("Saccade onset overweighting: \n",summary_ovrons.groupby(["type"]).mean(), "\n")

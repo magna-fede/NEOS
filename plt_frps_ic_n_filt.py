@@ -36,8 +36,13 @@ flat_criteria = config.epo_flat
 def plot_ICA(sbj_id):
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
+    bad_eeg = config.bad_channels[sbj_id]['eeg']
     
-    for over in ['_ovrw', '']:
+    for over in [
+                '_ovrw',
+                '',
+                 '_ovrwonset'
+                ]:
         for condition in ['eog', 'var', 'both']:
         
             raw_test = []   
@@ -47,9 +52,12 @@ def plot_ICA(sbj_id):
                 
             raw_test= mne.concatenate_raws(raw_test)
             raw_test.load_data()
+            raw_test.info['bads'] = bad_eeg
+            
+            raw_test.interpolate_bads(reset_bads=True)
             
             target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              f'_target_events.fif'))
+                              '_target_events.fif'))
             
             event_dict = {'FRP': 999}
             epochs = mne.Epochs(raw_test, target_evts, picks=['meg', 'eeg', 'eog'],
@@ -59,10 +67,11 @@ def plot_ICA(sbj_id):
                                 preload=True)
             
             evoked = epochs['FRP'].average()
-            FRP_fig = evoked.plot_joint(times=[0, .110, .167, .210, .266, .330, .430])
+            FRP_fig = evoked.plot_joint(title= None, 
+                                        times=[0, .110, .167, .210, .266, .330, .430])
             
             for i, fig in zip(['EEG','MAG','GRAD'], FRP_fig):
-                fname_fig = path.join(sbj_path, 'Figures', f'FRP_{i}_all_{condition}{over}_01Hz.png')
+                fname_fig = path.join(sbj_path, 'Figures', f'FRP_all_{i}_{condition}{over}_01Hz.png')
                 fig.savefig(fname_fig)
 
             # %% High-pass raw data at 1Hz & compute SNR metrics on ICA-reconstructed data

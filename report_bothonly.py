@@ -80,27 +80,21 @@ ch_type = {
      'mag': 'FRP_all_MAG_',   
      }     
 
-ch_type01 = {
-     'eeg': 'FRP_EEG_all_',                    
-     'grad': 'FRP_GRAD_all_',
-     'mag': 'FRP_MAG_all_',   
-     }     
-        
 conditions = {#"preica" : "_pre-ICA_",
-             "eog" : "eog_",
-             "var" : "var_",
+             # "eog" : "eog_",
+             # "var" : "var_",
              "both" : "both_"
              }
 
 over = {"overweighted" : "ovrw_",
-        "non-overweighted" : "",
+        # "non-overweighted" : "",
         "onset overweighted" : "ovrwonset_"
         }
 
 filtering =  {
         '0.1': "01Hz",
         '0.5': "05Hz",
-        '1.0': "10Hz",
+        # '1.0': "10Hz",
         }   
 
 uncorrected = {
@@ -221,5 +215,5 @@ for sbj_id in subjs:
                 )
             plt.close('all')
 
-report.save(path.join(config.data_path, 'misc', 'systematic_comparison.html'), overwrite=True)
+report.save(path.join(config.data_path, 'misc', 'systematic_comparison_bothonly.html'), overwrite=True)
 
