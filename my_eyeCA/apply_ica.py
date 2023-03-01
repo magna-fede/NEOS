@@ -257,7 +257,8 @@ def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rej
         
     evoked = epochs['FRP'].average()
     
-    FRP_fig = evoked.plot_joint(times=[0, .110, .167, .210, .266, .330, .430])
+    FRP_fig = evoked.plot_joint(title= None,
+                                times=[0, .110, .167, .210, .266, .330, .430])
 
     for i, fig in zip(['EEG','MAG','GRAD'], FRP_fig):
         fname_fig = fpath.parent / 'Figures' / f'FRP_all_{i}_{comp_sel}.png'
@@ -288,7 +289,7 @@ def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rej
         cond1 = 'Predictable'
         cond2 = 'Unpredictable'
         
-        params = dict(spatial_colors=True, show=False,
+        params = dict(title= None, spatial_colors=True, show=False,
                       time_unit='s')
         epochs[cond1].average().plot(**params)
         fname_fig =  fpath.parent / 'Figures' / f'FRP_predictable_ovrw_{comp_sel}.png'
@@ -305,7 +306,7 @@ def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rej
         cond1 = 'Concrete'
         cond2 = 'Abstract'
         
-        params = dict(spatial_colors=True, show=False,
+        params = dict(title= None, spatial_colors=True, show=False,
                       time_unit='s')
         epochs[cond1].average().plot(**params)
         fname_fig = fpath.parent / 'Figures' / f'FRP_concrete_ovrw_{comp_sel}.png'
