@@ -24,7 +24,9 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="snr_radarplot_component_selection.py"
 # SCRIPT2="snr_radarplot_filt_ovr_both.py"
 
-SCRIPT="NEOS_evokedasfactors.py"
+# SCRIPT="NEOS_evokedasfactors.py"
+
+SCRIPT="NEOS_getbetas.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
