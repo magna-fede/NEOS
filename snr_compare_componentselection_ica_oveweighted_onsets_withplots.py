@@ -142,10 +142,10 @@ for block, drf in enumerate(data_raw_files):
     df = pd.DataFrame([pre_ica, eog_ica, var_ica, both_ica])
     cols = {
         "P1_SNR": "P1 SNR",
-        "GFP_first100": "GFP (Baseline)",
-        "GFP_n400": "GFP (N400)",
-        "GFP_last100": "GFP (Last 100ms)",
-        "SNR_n400": "GFP Ratio (n400/Bsaline)",
+        "GFP_first100": "GFP (first 100 ms)",
+        "GFP_baseline": "GFP (Baseline)",
+        "GFP_fixation_onset": "GFP (Fixation Onset)",
+        "GFP_late": "GFP (last 300 ms)",
         "S_amplitude": "Saccade Peak Ampl.",
         "S_auc": "Saccade AUC",
     }

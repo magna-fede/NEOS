@@ -2,7 +2,7 @@
 #SBATCH --job-name=ica_testing  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
 #SBATCH --ntasks=30
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=4G
 #SBATCH --verbose                                   # Be verbose wherever possible
 #SBATCH --time=48:00:00                             # Request resources for 24 hours

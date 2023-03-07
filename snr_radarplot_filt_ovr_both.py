@@ -122,9 +122,15 @@ norm_ovr = pd.DataFrame(columns=df_ovr.columns, index=df_ovr.index)
 norm_ovrons = pd.DataFrame(columns=df_ovrons.columns, index=df_ovrons.index)
 norm_novr = pd.DataFrame(columns=df_novr.columns, index=df_novr.index)
 
-categories = ['P1_SNR', 'GFP_first100', 'GFP_n400', 
-               'SNR_n400','S_amplitude']
-
+categories = [
+              "P1_SNR",
+              "GFP_first100",
+              "GFP_baseline",
+              "GFP_fixation_onset",
+              "GFP_late",
+              "S_amplitude",
+              "S_auc",
+             ]
 for category in categories:
     scaler.fit(np.array(df_novr[category]).reshape(-1,1))
     norm_novr[category] = scaler.transform(np.array(df_novr[category]).reshape(-1,1))

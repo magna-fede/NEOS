@@ -12,22 +12,19 @@
 WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 
 # Path to script
-# SCRIPT="$WORKDIR/NEOS_eyeCA.py"
-# SCRIPT="$WORKDIR/main_over_participants.py"
-# SCRIPT="$WORKDIR/apply_ica_over_participants.py"
-# SCRIPT="plot_frps_over_participants.py"
-# SCRIPT="$WORKDIR/NEOS_synch_per_block.py"
-# SCRIPT="compare_overweighting_ica_over_participants.py"
-# SCRIPT2="compare_NOoverweighting_ica_over_participants.py"
-# SCRIPT="plt_frps_fileffects_icaboth_over_participants.py"
 
 # SCRIPT3="snr_compare_componentselection_ica_oveweighted_onsets_withplots.py"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
-SCRIPT="plt_frps_ic_n_filt.py"
+# SCRIPT="plt_frps_ic_n_filt.py"
+
 # SCRIPT="snr_compare_filtering_both.py"
-# SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
+
+# SCRIPT="snr_radarplot_component_selection.py"
+# SCRIPT2="snr_radarplot_filt_ovr_both.py"
+
+SCRIPT="NEOS_evokedasfactors.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -39,7 +36,7 @@ conda activate mne1.2.1_0
 echo "JOB $SLURM_JOB_ID STARTING"
 
 # Loop over range of arguments to script
-# array=(12 17 28 29)
+# array=(1 12)
 # for i in "${array[@]}"
 for i in {1..30}
 do
@@ -56,8 +53,8 @@ done
 # # Wait till everything has run
 wait
 
-# for i in "${array[@]}"
-# # for i in {25..30}
+# # # for i in "${array[@]}"
+# for i in {1..30}
 # do
 #     echo "TASK $i STARTING"
 
@@ -72,8 +69,8 @@ wait
 # # Wait till everything has run
 # wait
 
-# for i in "${array[@]}"
-# # for i in {25..30}
+# # for i in "${array[@]}"
+# for i in {1..30}
 # do
 #     echo "TASK $i STARTING"
 

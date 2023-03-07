@@ -118,7 +118,15 @@ df_ovr = pd.concat(ovr_metrics.values(), keys=ovr_metrics.keys())
 df_ovrons = pd.concat(ovrons_metrics.values(), keys=ovrons_metrics.keys())
 
 
-categories = ['P1_SNR', 'GFP_first100', 'SNR_n400','S_amplitude','S_auc']
+categories = [
+              "P1_SNR",
+              "GFP_first100",
+              "GFP_baseline",
+              "GFP_fixation_onset",
+              "GFP_late",
+              "S_amplitude",
+              "S_auc",
+             ]
 
 # SNR does not need to be normalised as it has not unit, but other values 
 # should be somehow scaled for comparison

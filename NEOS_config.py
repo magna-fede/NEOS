@@ -376,3 +376,31 @@ stc_morph = 'fsaverage'
 src_spacing = 5
 
 subjects_dir = '/imaging/hauk/users/fm02/MEG_NEOS/MRI'
+
+ovr_procedure = {1: 'ovrons',
+                 2: 'novr',
+                 3: 'ovr',
+                 5: 'ovrons',
+                 6: 'ovr',
+                 8: 'novr',
+                 9: 'ovrons',
+                 10: 'novr',
+                 11: 'ovrons',
+                 12: 'ovr',
+                 13: 'ovr',
+                 14: 'ovr',
+                 15: 'ovrons',
+                 16: 'novr',
+                 17: 'ovrons',
+                 18: 'novr',
+                 19: 'novr',
+                 21: 'ovrons',
+                 22: 'novr',
+                 23: 'ovrons',
+                 24: 'ovrons',
+                 25: 'ovrons',
+                 26: 'ovrons',
+                 27: 'ovrons',
+                 28: 'ovr',
+                 29: 'ovr',
+                 30: 'ovrons'}

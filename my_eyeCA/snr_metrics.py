@@ -21,6 +21,58 @@ import mne
 from scipy.integrate import simpson
 from matplotlib import pyplot as plt
 
+def overall_metrics(raw, evt, plot=False):
+
+    """
+    Compute P1 peak from fixation-locked epochs at posterior sensor EEG008, and
+    GFP in first 100ms of baseline and last 100ms of epoch.
+    Parameters
+
+    ----------
+    raw : mne.io.fiff.raw.Raw
+        MNE Raw object.
+    evt : np.ndarray
+        Event structure in MNE-format.
+    plot : bool, optional
+        To plot or not to plot. The default is False.
+    Returns
+    -------
+    dict or (dict, fig)
+        Returns dict with estimates or a tuple of dict with estimates and a
+        figure object with plot.
+    """
+
+    # Create evoked object with 901 (start Fixation) as event
+    evo = mne.Epochs(
+        raw,
+        evt,
+        picks=["eeg", "meg"],
+        event_id=901,
+        tmin=-0.3,
+        tmax=0.7,
+        baseline=(None, 0),
+    ).average()
+
+    # Get GFP
+    gfp_baseline = evo.get_data(tmin=-0.3, tmax=0).std(axis=0).mean()
+    gfp_first100 = evo.get_data(tmin=0, tmax=0.1).std(axis=0).mean()
+    gfp_around0 = evo.get_data(tmin=-0.05, tmax=0.05).std(axis=0).mean()
+    gfp_last300 = evo.get_data(tmin=0.4, tmax=0.7).std(axis=0).mean()
+
+    # Return dict of outputs
+    out = {
+        "GFP_baseline": gfp_baseline,
+        "GFP_first100": gfp_first100,
+        "GFP_fixation_onset": gfp_around0,
+        "GFP_late": gfp_last300,
+    }
+
+    # Plot if requested
+    if plot:
+        # don't plot anything
+        pass
+
+    return out
 
 def fixation_locked(raw, evt, plot=False):
     """
@@ -87,19 +139,16 @@ def fixation_locked(raw, evt, plot=False):
     # snr for P1
     snr = peak / noise_level
     # Get GFP
-    gfp_baseline = evo.get_data(tmin=-0.2, tmax=0).std(axis=0).mean()
+    #gfp_baseline = evo.get_data(tmin=-0.2, tmax=0).std(axis=0).mean()
     gfp_n400 = evo.get_data(tmin=0.25, tmax=0.4).std(axis=0).mean()
-    gfp_last100 = evo.get_data(tmin=0.9, tmax=1).std(axis=0).mean()
-    gfp_ratio = gfp_n400 / gfp_baseline
+    #gfp_last100 = evo.get_data(tmin=0.9, tmax=1).std(axis=0).mean()
+    #gfp_ratio = gfp_n400 / gfp_baseline
 
     # Return dict of outputs
     out = {
         "P1_SNR": snr,
         "P1_latency": lat,
-        "GFP_first100": gfp_baseline,
         "GFP_n400": gfp_n400,
-        "GFP_last100": gfp_last100,
-        "SNR_n400": gfp_ratio,
     }
 
     # Plot if requested
@@ -132,6 +181,7 @@ def fixation_locked(raw, evt, plot=False):
         return out, fig
 
     return out
+
 
 
 def saccade_locked(raw, evt, plot=False):
@@ -258,14 +308,22 @@ def compute_metrics(raw, evt, plot=False):
 
     # If plotting requested, return both estimates and figures
     if plot:
+
         out1, fig1 = fixation_locked(raw, evt, plot)
         out2, fig2 = saccade_locked(raw, evt, plot)
+        out3 = overall_metrics(raw, evt, plot)
         out1.update(out2)
+        out1.update(out3)
+
         return out1, [fig1, fig2]
 
     # Else return only estimates
     else:
+
         out1 = fixation_locked(raw, evt)
         out2 = saccade_locked(raw, evt)
+        out3 = overall_metrics(raw, evt)
         out1.update(out2)
+        out1.update(out3)
+
         return out1
