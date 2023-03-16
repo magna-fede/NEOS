@@ -126,33 +126,36 @@ def run_make_bem(sbj_id):
     mne.bem.write_bem_solution(bem_fname, bem, overwrite=True)
 
 sbj_ids = [
-        #     1, # run watershed
-        #     2,
-        #     3, # run watershed
-        # #   4,
-        #     5,
-        #     6,
-        # #   7,
-        #     8,
-        #     9, # run watershed
-        #     10,
-        #     11,
-        #     12,
-        #     13,
-        #     14,
+            1, # run watershed
+            2,
+            3, # run watershed
+        #   4,
+            5,
+            6,
+        #   7,
+            8,
+            9, # run watershed
+            10,
+            11,
+            12,
+            13,
+            14,
             15, # run watershed #BIG PROBLEM => occipital skull not aligned # changed series
-        #     16,
-        #     17, # corrected T1 for some extra points (probably the subject moved)
-        #     18, # run watershed
-        #     19, 
-        # #   20,
-        #     21,
-        #     22, 
-        #     23, 
-        #     24,
-            25
-        #     26,
-        #     27
+            16,
+            17, # corrected T1 for some extra points (probably the subject moved)
+            18, # run watershed
+            19, 
+        #   20,
+            21,
+            22, 
+            23, 
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
             ]
 
 for ss in sbj_ids:
