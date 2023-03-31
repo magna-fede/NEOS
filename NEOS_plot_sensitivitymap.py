@@ -11,6 +11,7 @@ import mne
 
 from mne.source_space import compute_distance_to_sensors
 from mne.source_estimate import SourceEstimate
+import matplotlib
 import matplotlib.pyplot as plt
 
 import sys
@@ -27,6 +28,9 @@ reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
 subjects_dir = config.subjects_dir
+
+# matplotlib.use('Agg')
+# mne.viz.set_3d_backend('pyvistaqt')
 
 def run_make_forward_solution(sbj_id):
 
@@ -46,7 +50,7 @@ def run_make_forward_solution(sbj_id):
     # coordinate transformation
     trans_fname = path.join(sbj_path, f'{raw_stem}-trans.fif')
 
-    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')
+    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd_solved.fif')
 
     fwd = mne.read_forward_solution(fname=fwd_fname)
     
@@ -70,7 +74,9 @@ def run_make_forward_solution(sbj_id):
         ax.set_xlabel('sources')
         ax.set_ylabel('sensors')
         fig.colorbar(im, ax=ax)
-    
+        
+    fig.savefig(path.join(sbj_path, 'Figures', 'leadfield_solved.png'))
+    plt.close('all')
     fig_2, ax = plt.subplots()
     ax.hist([grad_map.data.ravel(), mag_map.data.ravel(), eeg_map.data.ravel()],
             bins=20, label=['Gradiometers', 'Magnetometers', 'EEG'],
@@ -78,11 +84,14 @@ def run_make_forward_solution(sbj_id):
     fig_2.legend()
     ax.set(title='Normal orientation sensitivity',
            xlabel='sensitivity', ylabel='count')
+    fig_2.savefig(path.join(sbj_path, 'Figures', 'Normal Orientation Sensitivity_solved.png'))
     
     brain_sens = grad_map.plot(
         subjects_dir=subjects_dir, clim=dict(lims=[0, 50, 100]), figure=1)
     brain_sens.add_text(0.1, 0.9, 'Gradiometer sensitivity', 'title', font_size=16)
     
+    brain_sens.save_image(path.join(sbj_path, 'Figures', 'Gradiometers Sensitivity_solved.png'))
+    brain_sens.close()    
     # source space with vertices
     src = fwd['src']
     
@@ -100,11 +109,14 @@ def run_make_forward_solution(sbj_id):
         subject=subject, subjects_dir=subjects_dir,
         clim=dict(kind='value', lims=[0, maxdep / 2., maxdep]), figure=2)
     brain_dep.add_text(0.1, 0.9, 'Source depth (m)', 'title', font_size=16)
-    
+    brain_dep.save_image(path.join(sbj_path, 'Figures', 'Source depth_solved.png'))
+        
     corr = np.corrcoef(depths, grad_map.data[:, 0])[0, 1]
     print('Correlation between source depth and gradiomter sensitivity values: %f.'
           % corr)
-
+    brain_dep.close()
+    plt.close('all')
+    
 sbj_ids = [ 1,
             2,
             3,

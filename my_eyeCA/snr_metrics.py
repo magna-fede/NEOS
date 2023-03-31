@@ -46,7 +46,7 @@ def overall_metrics(raw, evt, plot=False):
     evo = mne.Epochs(
         raw,
         evt,
-        picks=["eeg", "meg"],
+        picks=["eeg"],
         event_id=901,
         tmin=-0.3,
         tmax=0.7,

@@ -88,6 +88,11 @@ def compute_covariance(sbj_id):
                                                 tmax=0, rank='info', return_estimators=True)
     winner = mne.Info(noise_cov_auto[0])['method']
     
+    fname = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                              '_covariancematrix_auto-cov.fif')
+    
+    mne.write_cov(fname, noise_cov_auto[0])
+    
     figs = noise_cov_auto[0].plot(raw_test.info, proj=True)
 
     for i, fig in zip(['matrix', 'eigenvalue_index'], figs):

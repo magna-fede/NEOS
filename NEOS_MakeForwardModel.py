@@ -45,12 +45,12 @@ def run_make_forward_solution(sbj_id):
     trans_fname = path.join(sbj_path, f'{raw_stem}-trans.fif')
 
     # # one-shell BEM for MEG
-    # bem_fname = op.join(subjects_dir, subject, 'bem', subject + '_MEG-bem.fif')
+    # bem_fname = path.join(subjects_dir, subject, 'bem', subject + '_MEG-bem.fif')
 
     # print('BEM: %s' % bem_fname)
     # bem = mne.bem.read_bem_solution(bem_fname)
 
-    # fwd_fname = op.join(sbj_path, subject + '_MEG-fwd.fif')
+    # fwd_fname = path.join(sbj_path, subject + '_MEG-fwd.fif')
     # print('Making forward solution: %s.' % fwd_fname)
 
     # fwd_meg = mne.make_forward_solution(raw_fname, trans=trans_fname, src=src, bem=bem,
@@ -58,23 +58,54 @@ def run_make_forward_solution(sbj_id):
 
     # mne.write_forward_solution(fname=fwd_fname, fwd=fwd_meg, overwrite=True)
 
+    # ### three-shell BEM for MEG
+    # bem_fname = path.join(subjects_dir, subject, 'bem', subject + '_EEGMEG-bem.fif')
+    # print('BEM: %s' % bem_fname)
+    # bem = mne.bem.read_bem_solution(bem_fname)
+
+    # fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')
+    # print('Making forward solution: %s.' % fwd_fname)
+
+    # fwd_eegmeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
+    #                                         meg=True, eeg=True, mindist=5.0, 
+    #                                         verbose=True)
+
+    # mne.write_forward_solution(fname=fwd_fname, fwd=fwd_eegmeg, overwrite=True)
     ### three-shell BEM for MEG
     bem_fname = path.join(subjects_dir, subject, 'bem', subject + '_EEGMEG-bem.fif')
     print('BEM: %s' % bem_fname)
     bem = mne.bem.read_bem_solution(bem_fname)
 
-    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')
+    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd_solved.fif')
     print('Making forward solution: %s.' % fwd_fname)
 
     fwd_eegmeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
-                                           meg=True, eeg=True, mindist=5.0, verbose=True)
+                                            meg=True, eeg=True, mindist=5.0, 
+                                            verbose=True)
+    
+    # fwd_eeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
+    #                                         meg=False, eeg=True, mindist=5.0, 
+    #                                         verbose=True)
+    
+    # fwd_meg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
+    #                                         meg=True, eeg=False, mindist=5.0, 
+    #                                         verbose=True)
+    
+    # from mne.forward import _merge_fwds
+    # fwd = _merge_fwds(dict(meg=fwd_meg, eeg=fwd_eeg))
+    
+    mislab_ch = fwd_eegmeg['sol']['row_names']
+    correct_ch = fwd_eegmeg['info']['ch_names']
+    
+    fwd_eegmeg['sol']['data'] = pd.DataFrame(fwd_eegmeg['sol']['data'], index=mislab_ch).loc[correct_ch, :].values
+    fwd_eegmeg['sol']['row_names'] = correct_ch    
 
     mne.write_forward_solution(fname=fwd_fname, fwd=fwd_eegmeg, overwrite=True)
-
 # get all input arguments except first
 if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, 30)
+    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+               21,22,23,24,25,26,27,28,29,30]
 
 else:
 

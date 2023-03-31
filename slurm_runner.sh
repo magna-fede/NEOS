@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=ica_testing  # Name this job
+#SBATCH --job-name=coherence_rois  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
 #SBATCH --ntasks=30
 #SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=2G
 #SBATCH --verbose                                   # Be verbose wherever possible
-#SBATCH --time=48:00:00                             # Request resources for 24 hours
+#SBATCH --time=72:00:00                             # Request resources for 24 hours
 #SBATCH --mail-type=end,fail                        # Email on job completion / failure
 
 # Set up environment
@@ -17,16 +17,16 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
-# SCRIPT="plt_frps_ic_n_filt.py"
+# SCRIPT="NEOS_rois_predictability_coherence.py"
 
-# SCRIPT="snr_compare_filtering_both.py"
+SCRIPT="NEOS_MorphStcsFsaverage.py"
 
 # SCRIPT="snr_radarplot_component_selection.py"
 # SCRIPT2="snr_radarplot_filt_ovr_both.py"
 
 # SCRIPT="NEOS_evokedasfactors.py"
 
-SCRIPT="NEOS_getbetas.py"
+# SCRIPT="NEOS_MorphStcsFsaverage.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -55,7 +55,7 @@ done
 # # Wait till everything has run
 wait
 
-# # # for i in "${array[@]}"
+# # for i in "${array[@]}"
 # for i in {1..30}
 # do
 #     echo "TASK $i STARTING"
