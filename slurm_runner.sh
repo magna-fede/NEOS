@@ -19,8 +19,9 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 
 # SCRIPT="NEOS_rois_predictability_coherence.py"
 
-SCRIPT="NEOS_MorphStcsFsaverage.py"
+# SCRIPT="NEOS_MorphStcsFsaverage.py"
 
+SCRIPT="NEOS_EEGonly_MorphStcsFsaverage.py"
 # SCRIPT="snr_radarplot_component_selection.py"
 # SCRIPT2="snr_radarplot_filt_ovr_both.py"
 

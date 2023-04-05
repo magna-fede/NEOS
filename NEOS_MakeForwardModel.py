@@ -76,16 +76,16 @@ def run_make_forward_solution(sbj_id):
     print('BEM: %s' % bem_fname)
     bem = mne.bem.read_bem_solution(bem_fname)
 
-    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd_solved.fif')
+    fwd_fname = path.join(sbj_path, subject + '_EEG-fwd_solved.fif')
     print('Making forward solution: %s.' % fwd_fname)
 
-    fwd_eegmeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
-                                            meg=True, eeg=True, mindist=5.0, 
-                                            verbose=True)
-    
-    # fwd_eeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
-    #                                         meg=False, eeg=True, mindist=5.0, 
+    # fwd_eegmeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
+    #                                         meg=True, eeg=True, mindist=5.0, 
     #                                         verbose=True)
+    
+    fwd_eeg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
+                                            meg=False, eeg=True, mindist=5.0, 
+                                            verbose=True)
     
     # fwd_meg = mne.make_forward_solution(info=raw_fname, trans=trans_fname, src=src, bem=bem,
     #                                         meg=True, eeg=False, mindist=5.0, 
@@ -94,13 +94,13 @@ def run_make_forward_solution(sbj_id):
     # from mne.forward import _merge_fwds
     # fwd = _merge_fwds(dict(meg=fwd_meg, eeg=fwd_eeg))
     
-    mislab_ch = fwd_eegmeg['sol']['row_names']
-    correct_ch = fwd_eegmeg['info']['ch_names']
+    # mislab_ch = fwd_eegmeg['sol']['row_names']
+    # correct_ch = fwd_eegmeg['info']['ch_names']
     
-    fwd_eegmeg['sol']['data'] = pd.DataFrame(fwd_eegmeg['sol']['data'], index=mislab_ch).loc[correct_ch, :].values
-    fwd_eegmeg['sol']['row_names'] = correct_ch    
+    # fwd_eegmeg['sol']['data'] = pd.DataFrame(fwd_eegmeg['sol']['data'], index=mislab_ch).loc[correct_ch, :].values
+    # fwd_eegmeg['sol']['row_names'] = correct_ch    
 
-    mne.write_forward_solution(fname=fwd_fname, fwd=fwd_eegmeg, overwrite=True)
+    mne.write_forward_solution(fname=fwd_fname, fwd=fwd_eeg, overwrite=True)
 # get all input arguments except first
 if len(sys.argv) == 1:
 

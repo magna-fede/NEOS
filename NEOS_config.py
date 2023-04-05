@@ -174,7 +174,9 @@ sss_map_fnames = {
 ###############################################################################
 # Bad channels
 
-bad_channels = {
+bad_channels = { ##### need to rename and rerun all
+# bad_channels_ica = {
+
     1 : {'eeg': [],
          'meg': []},
     2 : {'eeg': ['EEG017'],
@@ -237,6 +239,72 @@ bad_channels = {
          'meg': []},                
 }
 
+
+# include channels that stand out in empirical covariance computation
+# this is usually the electrode the closest to the right eye, so
+# we decided to drop that channel and the homologue for source estimation
+bad_channels_all = {
+    1 : {'eeg': ['EEG004', 'EEG008'],
+         'meg': []},
+    2 : {'eeg': ['EEG004', 'EEG008', 'EEG017'],
+        'meg': []},
+    3 : {'eeg': ['EEG004', 'EEG008', 'EEG029'], #check if need to add 4 (would prefer not as close to eyes)
+         'meg': []},
+    # 4 : {'eeg': [],
+    #      'meg': []},
+    5 : {'eeg': ['EEG004', 'EEG008', 'EEG017'],
+        'meg': []},
+    6 : {'eeg': ['EEG004', 'EEG008', 'EEG002', 'EEG029', 'EEG039'],
+         'meg': []},
+    7 : {'eeg': ['EEG004', 'EEG008', 'EEG054'],
+         'meg': []},
+    8 : {'eeg': ['EEG004', 'EEG008', 'EEG034'],
+        'meg': []},
+    9 : {'eeg': ['EEG004', 'EEG008'],
+         'meg': []},
+    10 : {'eeg': ['EEG004', 'EEG008'],
+         'meg': []},
+    11 : {'eeg': ['EEG004', 'EEG008', 'EEG037'],
+        'meg': []},
+    12 : {'eeg': ['EEG004', 'EEG008', 'EEG003', 'EEG045'], #check if need to add 8 (would prefer not as close to eyes)
+         'meg': []},         
+    13 : {'eeg': ['EEG004', 'EEG008', 'EEG029', 'EEG034', 'EEG061'],
+         'meg': []},
+    14 : {'eeg': ['EEG004', 'EEG008'],
+        'meg': []},
+    15 : {'eeg': ['EEG004', 'EEG008', 'EEG061'],
+         'meg': []},
+    16 : {'eeg': ['EEG004', 'EEG008', 'EEG002'],
+          'meg': []},
+    17 : {'eeg': ['EEG004', 'EEG008', 'EEG018', 'EEG039', 'EEG061'],
+        'meg': []},
+    18 : {'eeg': ['EEG004', 'EEG008', 'EEG045'],
+         'meg': []},
+    19 : {'eeg': ['EEG004', 'EEG008', 'EEG002', 'EEG063', 'EEG034'],
+         'meg': []},
+    # 20 : {'eeg': [],
+    #     'meg': []},
+    21 : {'eeg': ['EEG004', 'EEG008', 'EEG028', 'EEG029', 'EEG030', 'EEG040', 'EEG018'],
+         'meg': []},
+    22 : {'eeg': ['EEG004', 'EEG008', 'EEG040'],
+         'meg': []},
+    23 : {'eeg': ['EEG004', 'EEG008'],
+        'meg': []},
+    24 : {'eeg': ['EEG004', 'EEG008', 'EEG041', 'EEG050'],
+         'meg': []},    
+    25 : {'eeg': ['EEG004', 'EEG008', 'EEG040', 'EEG047'],
+          'meg': []},
+    26 : {'eeg': ['EEG004', 'EEG008', 'EEG028', 'EEG054', 'EEG002'],
+          'meg': []}, 
+    27 : {'eeg': ['EEG004', 'EEG008'],
+         'meg': []},
+    28 : {'eeg': ['EEG004', 'EEG008', 'EEG010', 'EEG029'], # participants bad channels are plenty (22,*29*,33,43,44,45,*63*) # the problem is that they are not always bad
+         'meg': []},  
+    29 : {'eeg': ['EEG004', 'EEG008', 'EEG034', 'EEG035', 'EEG045', 'EEG050'], # check if want to add also 50
+         'meg': []},         
+    30 : {'eeg': ['EEG004', 'EEG008', ],
+         'meg': []},                
+}
 
 # create subject-specific data directories if necessary
 for ss in map_subjects:
