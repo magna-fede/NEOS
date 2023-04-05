@@ -174,8 +174,7 @@ sss_map_fnames = {
 ###############################################################################
 # Bad channels
 
-bad_channels = { ##### need to rename and rerun all
-# bad_channels_ica = {
+bad_channels_ica = {
 
     1 : {'eeg': [],
          'meg': []},
@@ -415,7 +414,7 @@ MNE-2.7.3-3268-Linux-x86_64//bin/mne_check_eeg_locations \
 stim_channel = 'STI101'
 
 # bandpass filter frequencies
-l_freq, h_freq = 0.1, 40.
+l_freq, h_freq = 0.5, 40.
 
 raw_ICA_suff = 'ica_raw'
 
