@@ -35,40 +35,58 @@ depth = None
 
 def make_InverseOperator(sbj_id):
     subject = str(sbj_id)
+    
     ovr = config.ovr_procedure
+    
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    bad_eeg = config.bad_channels[sbj_id]['eeg']
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
     if ovr[sbj_id] == 'ovrons':
         over = '_ovrwonset'
+        ica_dir = path.join(sbj_path, 'ICA_ovr_w_onset')
     elif ovr[sbj_id] == 'ovr':
         over = '_ovrw'
+        ica_dir = path.join(sbj_path, 'ICA_ovr_w')
     elif ovr[sbj_id] == 'novr':
         over = ''
+        ica_dir = path.join(sbj_path, 'ICA')
     condition = 'both'
+
+    raw_test = []
     
-    raw_test = []   
-    
-    for i in range(1,6):
-        raw_test.append(mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_ica{over}_{condition}_raw.fif")))
-    
-    raw_test= mne.concatenate_raws(raw_test)
+    ica_sub = '_sss_f_raw_ICA_extinfomax_0.99_COV_None'
+    ica_sub_file = '_sss_f_raw_ICA_extinfomax_0.99_COV_None-ica_eogvar'
+            
+    for i in range(1, 6):
+        ica_fname = path.join(ica_dir,
+                              f'block{i}'+ica_sub,
+                              f'block{i}'+ica_sub_file) 
+        raw = mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif"))
+        evt_file = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                          f'_all_events_block_{i}.fif')
+        evt = mne.read_events(evt_file)
+        # hey, very important to keep overwrite_saved as false, or this will change
+        # the raw files saved for checking which approach is best for each participant
+        raw_ica, _, _ = apply_ica.apply_ica_pipeline(raw=raw,                                                                  
+                        evt=evt, thresh=1.1, method='both',
+						ica_filename=ica_fname, overwrite_saved=False)
+        raw_test.append(raw_ica)
+    raw_test = mne.concatenate_raws(raw_test)
     raw_test.load_data()
     raw_test.info['bads'] = bad_eeg
     
-    raw_test.interpolate_bads(reset_bads=True)
-    raw_test.filter(l_freq=0.5, h_freq=None)
-    
+    # pick_types operates in place
+    raw_test.pick_types(meg=True, eeg=True, exclude='bads')
     info = raw_test.info
 
 
-    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd_solved.fif')
+    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')
     print('Reading EEG/MEG forward solution: %s.' % fwd_fname)
 
     fwd_eegmeg = mne.read_forward_solution(fwd_fname)
 
     fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              '_covariancematrix_auto-cov.fif')
+                              '_covariancematrix_empirical_350150-cov.fif')
 
     print('Reading covariance matrix: %s.' % fname_cov)
     noise_cov = mne.read_cov(fname=fname_cov)
@@ -79,7 +97,7 @@ def make_InverseOperator(sbj_id):
                                                           fixed='auto', loose=loose, depth=depth,
                                                           rank='info')
 
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_solved.fif')
+    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
     print('Writing EEG/MEG inverse operator: %s.' % inv_fname)
     mne.minimum_norm.write_inverse_operator(fname=inv_fname, inv=invop_eegmeg)
 

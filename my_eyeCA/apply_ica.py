@@ -24,7 +24,8 @@ reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
 
-def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance=None, ovrw=False, ovrw_onset=False):
+def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, ica_instance=None, ovrw=False,
+                       ovrw_onset=False, overwrite_saved=False):
     # Handle folder/file management
     fpath = Path(raw.filenames[0])
 
@@ -63,22 +64,24 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         # generate_report(ic, ic_scores, raw, ica_filename, config.reject)
         
         ic.apply(raw)
-        if ovrw==False:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_eog_raw.fif",
-                overwrite=True)
-        elif ovrw==True:
-            if  ovrw_onset==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_eog_raw.fif",
-                         overwrite=True)
-            if  ovrw_onset==True:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_eog_raw.fif",
-                         overwrite=True)        
-            # Save fitted ICA
-        ic_file = ica_filename + '_eog.fif'
-        
-        ic.save(ic_file, overwrite=True)
-        
-        ### revert back 
+
+        if overwrite_saved:
+            if ovrw==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_eog_raw.fif",
+                    overwrite=True)
+            elif ovrw==True:
+                if  ovrw_onset==False:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_eog_raw.fif",
+                             overwrite=True)
+                if  ovrw_onset==True:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_eog_raw.fif",
+                             overwrite=True)        
+                # Save fitted ICA
+            ic_file = ica_filename + '_eog.fif'
+            
+            ic.save(ic_file, overwrite=True)
+            
+            ### revert back 
         raw.info['bads'] = bads
     
         return raw, ic, ic_scores
@@ -134,20 +137,21 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         # generate_report(ic, ic_scores, raw, ica_filename, config.reject)
         
         ic.apply(raw)
-        if ovrw==False:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_var_raw.fif",
-                overwrite=True)
-        elif ovrw==True:
-            if  ovrw_onset==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_var_raw.fif",
+        if overwrite_saved:            
+            if ovrw==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_var_raw.fif",
                     overwrite=True)
-            if  ovrw_onset==True:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_var_raw.fif",
-                    overwrite=True)    
-            # Save fitted ICA
-        ic_file = ica_filename + '_varcomp.fif'
-        
-        ic.save(ic_file, overwrite=True)
+            elif ovrw==True:
+                if  ovrw_onset==False:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_var_raw.fif",
+                        overwrite=True)
+                if  ovrw_onset==True:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_var_raw.fif",
+                        overwrite=True)    
+                # Save fitted ICA
+            ic_file = ica_filename + '_varcomp.fif'
+            
+            ic.save(ic_file, overwrite=True)
         ### revert back 
         raw.info['bads'] = bads
         
@@ -210,23 +214,26 @@ def apply_ica_pipeline(raw, evt, thresh, method, ica_filename=None, ica_instance
         # generate_report(ic, ic_scores_eog, raw, ica_filename, config.reject)
         
         ic.apply(raw)
-        if ovrw==False:
-            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_both_raw.fif",
-                overwrite=True)
-        elif ovrw==True:
-            if  ovrw_onset==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_both_raw.fif",
-                    overwrite=True)
-            if  ovrw_onset==True:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_both_raw.fif",
-                    overwrite=True)  
-                
+        
+        if overwrite_saved:
 
-        
-            # Save fitted ICA
-        ic_file = ica_filename + '_eogvar.fif'
-        
-        ic.save(ic_file, overwrite=True)
+            if ovrw==False:
+                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_both_raw.fif",
+                    overwrite=True)
+            elif ovrw==True:
+                if  ovrw_onset==False:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_both_raw.fif",
+                        overwrite=True)
+                if  ovrw_onset==True:
+                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_both_raw.fif",
+                        overwrite=True)  
+                    
+
+            
+                # Save fitted ICA
+            ic_file = ica_filename + '_eogvar.fif'
+            
+            ic.save(ic_file, overwrite=True)
             
         ### revert back 
         raw.info['bads'] = bads

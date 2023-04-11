@@ -24,7 +24,7 @@ method = "MNE"
 snr = 3.
 lambda2 = 1. / snr ** 2
 
-conditions = ['predictable', 'unpredictable', 'abstract', 'concrete']
+conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
 # conditions = ['abspred', 'absunpred', 'concpred', 'concunpred']
 
 subjects_dir = config.subjects_dir
@@ -41,13 +41,13 @@ def compute_morphed_stcs(sbj_id):
                           + '-src.fif')
     
     fname_fwd = path.join(sbj_path, 
-                          subject + '_EEGMEG-fwd_solved.fif')
+                          subject + '_EEGMEG-fwd.fif')
     fname_fsaverage_src = path.join(subjects_dir,
                                     'fsaverage',
                                     'bem', 
                                     'fsaverage-ico-5-src.fif')
     fname_stc = path.join(stc_path,
-                          f"{subject}_stc_predictable_solved")
+                          f"{subject}_stc_Predictable_emp3150")
     
     stc = mne.read_source_estimate(fname_stc, subject=subject)
     
@@ -67,14 +67,14 @@ def compute_morphed_stcs(sbj_id):
     for condition in conditions:
         print(f'Reading stc file for {condition} condition')
         fname_stc = path.join(stc_path,
-                              f"{subject}_stc_{condition}")
+                              f"{subject}_stc_{condition}_emp3150")
                        
         print(fname_stc)
         stc = mne.read_source_estimate(fname_stc, subject=subject)
         stc_mph = morph.apply(stc)
         print(f'Saving morphed stc file for {condition}')
         fname_mph = path.join(stc_path, 
-                              f"{subject}_stc_{condition}_solved_fsaverage")
+                              f"{subject}_stc_{condition}_emp3150_fsaverage")
         print(fname_mph)            
         stc_mph.save(fname_mph)
 

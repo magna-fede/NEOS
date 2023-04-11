@@ -418,11 +418,22 @@ l_freq, h_freq = 0.5, 40.
 
 raw_ICA_suff = 'ica_raw'
 
-
 # EDF Label start trial
 edf_start_trial = 'TRIGGER 94'
 # EDF Label end trial
 edf_end_trial = 'TRIGGER 95'
+
+# The values below are the triggers value that will be inserted in the event strucure.
+# This allows to have all eye events in the raw data.
+
+# Saccade triggers value 
+sac_trig_value = 801 # start
+
+# Fixation triggers value
+fix_trig_value = 901 # start
+
+# Blink triggers value
+blk_trig_value = 701 # start
 
 ########################################################
 # Edited for FPVS up to here
@@ -432,9 +443,6 @@ edf_end_trial = 'TRIGGER 95'
 
 # stimulus projector delay
 delay = 0.0345
-
-# separate triggers for target detection and localiser tasks
-event_id = {}
 
 # Source Space
 stc_morph = 'fsaverage'

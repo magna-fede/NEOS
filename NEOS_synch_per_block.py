@@ -19,16 +19,8 @@ import pickle
 import mne
 
 import matplotlib
-matplotlib.use('Agg')  #  for running graphics on cluster ### EDIT
-
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-print('MNE Version: %s\n\n' % mne.__version__)  # just in case
-print(mne)
-
-reload(config)
-
 
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
@@ -48,9 +40,36 @@ def trial_duration_ET(row):
 
 
 
-def synchronise(sbj_id):
-    # HEY! synchronise won't work with participant 0-1 bc of different
-    # coding of triggers. Will need to create one for them.
+def synchronise(sbj_id, plot_events=False):
+    """This function synchronise each MEG blockby incorporatin ET information.
+    It is assumed that the trigger for start end of the sentence is shared between
+        the MEG and the ET files.
+    It requires data already preprocessed using pygaze output (list of dicts,
+        where each element is a trial).
+    It is assumed that MEG and ET have the same sampling rate (1000 Hz in our case).
+    It is assumed that there is a unique identifier for each trials.
+    It is assumed that each block contains exactly 80 trials.
+    
+    There are probably other assumptions underlying this function.
+    
+    NB: if you want to have the events not divided per block, then run 
+        the fucntion synchronise_concat()
+    """
+    def trial_duration_ET(row):
+        return int(row[config.edf_end_trial]) - int(row[config.edf_start_trial])
+    
+    mne.viz.set_browser_backend("matplotlib")
+
+    sns.set(rc={"figure.dpi":300, 'savefig.dpi':300})
+
+    sns.set_theme(context="notebook",
+                  style="white",
+                  font="sans-serif")
+
+    sns.set_style("ticks")
+    
+    # HEY! synchronise won't work with participant 0 and 1 bc of different
+    # coding of triggers. You will need to create another synch for them.
 
     # path to participant folder
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
@@ -82,7 +101,16 @@ def synchronise(sbj_id):
     print('Retrieving trigger values for start and end of a sentence')
     start_trial_ET = config.edf_start_trial
     end_trial_ET = config.edf_end_trial
-
+     
+    print('Retrieving trigger values for ssaving eye events in events MEG structure.')
+    sac_trigger = config.sac_trig_value
+    fix_trigger = config.fix_trig_value
+    blk_trigger = config.blk_trig_value
+    
+    print('Store trigger values also as int for convenient access to MRI.')
+    start_trigger_value = int(config.edf_start_trial.split()[1])
+    end_trigger_value = int(config.edf_end_trial.split()[1])
+ 
     trials = dict()
     trials[start_trial_ET] = []
     trials[end_trial_ET] = []
@@ -96,7 +124,7 @@ def synchronise(sbj_id):
             trials[end_trial_ET].append(line.split()[1]) 
             
     # transform trials to DataFrame
-    all_pd_trials = pd.DataFrame(trials)
+    all_ET_trials = pd.DataFrame(trials)
 
     # load preprocessed ET file
     events_ET_file = os.path.join(
@@ -108,12 +136,10 @@ def synchronise(sbj_id):
     datafile_ET = os.path.join(sbj_path_ET,
                     'ET_info_'+config.map_subjects[sbj_id][0][-3:]+ '.csv')
     
-    # get info about fixations on target word
-    # only first-pass considered
-    
+    # get info about fixation durations on target word
+    # only first-pass considered   
     data_ET = pd.read_csv(datafile_ET)
-    data_ET = data_ET[data_ET['fixated'] == 1]  
-            
+    data_ET = data_ET[data_ET['fixated'] == 1]         
             
     print(f'Reading raw file {sss_map_fnames}')
 
@@ -123,19 +149,21 @@ def synchronise(sbj_id):
         print(f'Raw data: {drf}')
         data = mne.io.read_raw_fif(drf)
         
+        # note that the eyetracking data is not divided per block, we artificially divide it now
+        # as we know that we present exavtly 80 sentences per block, so we match them
+        # with the 80 trials contained in the MEG block
         events_ET = all_events_ET[block*80:(block+1)*80]
-        pd_trials = all_pd_trials[block*80:(block+1)*80].reset_index(drop=True)
+        trials_ET = all_ET_trials[block*80:(block+1)*80].reset_index(drop=True)
 
         print('Reading events from STI101 channel')
         devents = mne.find_events(data,
                                   stim_channel='STI101',
                                   min_duration=0.002,
-                                  consecutive=True)
-        
+                                  consecutive=True)      
         
         # Create DataFrame with meg info about trigger ID
         # note, column "previous" is now useless, because we introduced a delay
-        # with respect to the preceding trigger state
+        # with respect to the preceding trigger state in the presentation script
         # (while it was consecutive in previous versions)
         
         pd_events_meg = pd.DataFrame(devents)
@@ -153,42 +181,47 @@ def synchronise(sbj_id):
         for trial in events_ET:
             ids.append(int(trial['events']['msg'][2][1].split()[2]))
         
-        pd_trials['IDstim'] = ids
+        trials_ET['IDstim'] = ids
     
-        print('Calculating each trial')
-        pd_trials['meg_duration'] = 0
-    
+        print('Calculating each trials duration in MEG and ET.')
+        # add column from meg for comparison
+        trials_ET['meg_duration'] = 0
+ 
+        # create new column in MEG events DataFrame with real trial ID
         for i in range(0, len(pd_events_meg)-1):
             if pd_events_meg.loc[i, 'trigger'] in [1, 2, 3, 4, 5]:
                 pd_events_meg.loc[i, 'trig'] = pd_events_meg.loc[i, 'trigger']*100 + \
                     pd_events_meg.loc[i+1, 'trigger']
-    
-        for i, trial in enumerate(pd_trials['IDstim']):
+        
+        # get the MEG times
+        for i, trial in enumerate(trials_ET['IDstim']):
             try:
                 ix = pd_events_meg[pd_events_meg['trig'] == trial].index[0]
     
-                if ((pd_events_meg['trigger'].iloc[ix-1] == 94) and
-                        pd_events_meg['trigger'].iloc[ix+2] == 95):
-                    pd_trials.loc[i, 'meg_duration'] = pd_events_meg['time'].iloc[ix + \
+                if ((pd_events_meg['trigger'].iloc[ix-1] == start_trigger_value) and
+                        pd_events_meg['trigger'].iloc[ix+2] == end_trigger_value):
+                    trials_ET.loc[i, 'meg_duration'] = pd_events_meg['time'].iloc[ix + \
                         2] - pd_events_meg['time'].iloc[ix-1]
             except:
-                pass        
-    
-        pd_trials['eyelink_duration'] = pd_trials.apply(trial_duration_ET, axis=1)
-    
-        pd_trials['difference'] = pd_trials['meg_duration'] - \
-                                    pd_trials['eyelink_duration']
+                pass  
+            
+        # get the ET times
+        trials_ET['eyelink_duration'] = trials_ET.apply(trial_duration_ET, axis=1)
+        
+        # calculate difference 
+        trials_ET['difference'] = trials_ET['meg_duration'] - \
+                                    trials_ET['eyelink_duration']
         
         print(f"Saving trials duration for ET and MEG and their difference \n \
               {path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + f'_trial_synch_block_{block+1}.csv')}")                            
-        pd_trials.to_csv(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+        trials_ET.to_csv(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                                     f'_trial_synch_block_{block+1}.csv'), index=False)
     
-        print(f'MAX trial duration difference (ms) {pd_trials["difference"].max()}')
-        print(f'MIN trial duration difference (ms) {pd_trials["difference"].min()}')
-        print(f'AVERAGE trial duration difference (ms) {pd_trials["difference"].mean()}')
+        print(f'MAX trial duration difference (ms) {trials_ET["difference"].max()}')
+        print(f'MIN trial duration difference (ms) {trials_ET["difference"].min()}')
+        print(f'AVERAGE trial duration difference (ms) {trials_ET["difference"].mean()}')
         
-        sns.displot(pd_trials['difference'], discrete=True).set_titles('Trial duration offset MEG-ET (ms)')
+        sns.displot(trials_ET['difference'], discrete=True).set_titles('Trial duration offset MEG-ET (ms)')
             
         plt.savefig(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                               f'_trial_offset_block_{block+1}.png'), format='png');
@@ -213,10 +246,10 @@ def synchronise(sbj_id):
             starttime_ET_trials.append(int(trial['events']['msg'][0][0]))
     
         # get sentence end and start times in MEG
-        ix_94 = np.where(devents ==94)[0]
-        ix_95 = np.where(devents ==95)[0]
+        ix_start = np.where(devents == start_trigger_value)[0]
+        ix_end = np.where(devents ==end_trigger_value)[0]
     
-        startend = tuple(zip(ix_94, ix_95)) 
+        startend = tuple(zip(ix_start, ix_end)) 
         
         events = dict()
         
@@ -248,16 +281,16 @@ def synchronise(sbj_id):
                 events[event]['y'].append(y) 
     
         print('Got all eye tracker events.')    
-        events[901] = events.pop('Efix')
-        events[801] = events.pop('Esac')
-        events[701] = events.pop('Eblk')
+        events[fix_trigger] = events.pop('Efix')
+        events[sac_trigger] = events.pop('Esac')
+        events[blk_trigger] = events.pop('Eblk')
         
         print('Now adding all ET events as MEG triggers.')
         # note, triggers should be int that don't overlap with other events.
         # at the moment:
-        print('Fixation start = 901.\nFixation end = 902.')
-        print('Saccade start = 801.\nSaccade end = 802.')
-        print('Blink start = 701.\nBlink end = 702.')
+        print(f'Fixation start = {fix_trigger}.\nFixation end = {fix_trigger+1}.')
+        print(f'Saccade start = {sac_trigger}.\nSaccade end = {sac_trigger+1}.')
+        print(f'Blink start = {blk_trigger}.\nBlink end = {blk_trigger+1}.')
         
         events_with_eye= pd.DataFrame(devents)
         events_with_eye[[3, 4]] = np.nan
@@ -297,7 +330,7 @@ def synchronise(sbj_id):
         
         events_with_eye.to_csv(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                                   f'_all_events_xy_block_{block+1}.csv'), index=False)
-            
+             
         # print(f"Uncorrected fixations plot {path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')}")
         # event_dict = {'fixation': 901}
         # epochs = mne.Epochs(data, mne_events_with_eye, picks=['meg', 'eeg', 'eog'],
@@ -330,18 +363,18 @@ def synchronise(sbj_id):
         #     fig.savefig(fname_fig)        
         
         
-# get all input arguments except first
-if len(sys.argv) == 1:
+# # get all input arguments except first
+# if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, len(config.map_subjects)) + 1
+#     sbj_ids = np.arange(0, len(config.map_subjects)) + 1
 
-else:
+# else:
 
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
-    synchronise(ss)
+# for ss in sbj_ids:
+#     synchronise(ss)
         
 

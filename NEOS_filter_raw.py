@@ -14,7 +14,6 @@ from os import path
 import numpy as np
 
 import matplotlib
-matplotlib.use('Agg')  # for running graphics on cluster ### EDIT
 from matplotlib import pyplot as plt
 
 from importlib import reload
@@ -46,7 +45,7 @@ def run_filter_raw(sbj_id):
 
     print(sss_map_fnames)
 
-    bad_eeg = config.bad_channels[sbj_id]['eeg']  # bad EEG channels
+    bad_eeg = config.bad_channels_ica[sbj_id]['eeg']  # bad EEG channels
 
     for raw_stem_in in sss_map_fnames:
 
@@ -99,108 +98,59 @@ def run_filter_raw(sbj_id):
         print('Saving data to %s.' % raw_fname_out)
         raw.save(raw_fname_out, overwrite=True)
 
-        print('Finding events.')
-        # note: short event duration
-        events = mne.find_events(raw, stim_channel='STI101',
-                                 consecutive='increasing', min_duration=0.002,
-                                 verbose=True)
+        if plot_events:
+            print('Finding events.')
+            # note: short event duration
+            events = mne.find_events(raw, stim_channel='STI101',
+                                     consecutive='increasing', min_duration=0.002,
+                                     verbose=True)
 
-        # correct for stimulus presentation delay
-        stim_delay = int(config.delay * raw.info['sfreq'])
-        events[:, 0] = events[:, 0] + stim_delay
+            # correct for stimulus presentation delay
+            stim_delay = int(config.delay * raw.info['sfreq'])
+            events[:, 0] = events[:, 0] + stim_delay
 
-##########################################################################################################################
-##########################################################################################################################
-### HEY! THINK ABOUT THIS! the sentences actually appear (and disappear) 30ms after what's reported on stim channel
-### However in theory we don't care about this, because need to know the activity in real time (not locked to stimulus)
-### this might be relevant only when estimating erp activity (to avoid 34ms difference) 
-##########################################################################################################################
-##########################################################################################################################
-        
-        # event_file = path.join(sbj_path, raw_stem_in + '_sss_f_raw-eve.fif')
-        # print('Saving events to %s.' % event_file)
-        # #mne.write_events(event_file, events)
+            ##########################################################################################################################
+            ##########################################################################################################################
+            ### HEY! the sentences actually appear (and disappear) 30ms after what's reported on stim channel
+            ### However we don't care about this for eye events, we need to know the activity in real time (not locked to stimulus)
+            ### We care about stim delay only for sentence presentation.
+            ##########################################################################################################################
+            ##########################################################################################################################
+                
+            # event_file = path.join(sbj_path, raw_stem_in + '_sss_f_raw-eve.fif')
+            # print('Saving events to %s.' % event_file)
+            # #mne.write_events(event_file, events)
 
-        # plot only if events were found
-        if events.size != 0:
+            # plot only if events were found
+            if events.size != 0:
 
-            fig = mne.viz.plot_events(events, raw.info['sfreq'], show=show)
+                fig = mne.viz.plot_events(events, raw.info['sfreq'], show=show)
 
-            fname_fig = path.join(sbj_path, 'Figures',
-                                raw_stem_in + '_sss_f_raw_eve.pdf')
-            print('Saving figure to %s' % fname_fig)
+                fname_fig = path.join(sbj_path, 'Figures',
+                                    raw_stem_in + '_sss_f_raw_eve.pdf')
+                print('Saving figure to %s' % fname_fig)
 
-            fig.savefig(fname_fig)
+                fig.savefig(fname_fig)
 
-            plt.close(fig)
+                plt.close(fig)
 
-        else:
+            else:
 
-            print('No events found in file %s.' % raw_fname_in)
-
-        # # get response latencies for target stimuli (colour changes)
-
-        # # find target events (colour changes, trigger value 8)
-        # targ_eves = np.where(events[:, 2] == 8)[0]
-
-        # if len(targ_eves) > 0:  # only if target events present (not rest)
-
-        #     rts = []  # collect response times for this fiff-file
-
-        #     # find response events (triggers >= 4096, allowing trigger overlap)
-        #     resp_eves = np.where(events[:, 2] >= 4096)[0]
-
-        #     # find responses closest following targets, compute time difference
-        #     for tt in targ_eves:
-
-        #         rt = []  # rt for this particular target
-
-        #         # find first response that follows target
-        #         for rr in resp_eves:
-
-        #             if rr > tt:
-
-        #                 # subtract samples response - target
-        #                 rt = events[rr, 0] - events[tt, 0]
-
-        #                 # turn samples to latency (ms)
-        #                 rt = 1000. * (rt / raw.info['sfreq'])
-
-        #                 # only count if RT below a threshold
-        #                 if rt <= 2000.:
-
-        #                     rts.append(rt)
-
-        #                 break  # leave this loop
-
-        #     if rts == []:  # if no good responses found
-
-        #         print('\nNo good target responses found!\n')
-
-        #     else:
-
-        #         print('\nResponse times to targets:\n')
-        #         print(*rts)
-        #         print('Mean: %f.' % np.mean(rts))
-
-        # else:
-
-        #     print('No target events present.')
-
-    return raw, events
+                print('No events found in file %s.' % raw_fname_in)
 
 
-# get all input arguments except first
-if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, len(config.map_subjects)) + 1
+# # get all input arguments except first
+# if len(sys.argv) == 1:
 
-else:
+#     sbj_ids = np.arange(0, len(config.map_subjects)) + 1
 
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
+# for ss in sbj_ids:
 
-    [raw, events] = run_filter_raw(ss)
+#     [raw, events] = run_filter_raw(ss)

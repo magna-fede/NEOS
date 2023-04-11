@@ -19,16 +19,8 @@ import pickle
 import mne
 
 import matplotlib
-matplotlib.use('Agg')  #  for running graphics on cluster ### EDIT
-
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-print('MNE Version: %s\n\n' % mne.__version__)  # just in case
-print(mne)
-
-reload(config)
-
 
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
@@ -43,13 +35,34 @@ sns.set_theme(context="notebook",
 
 sns.set_style("ticks")
 
-def trial_duration_ET(row):
-    return int(row['TRIGGER 95']) - int(row['TRIGGER 94'])
-
-def synchronise(sbj_id):
+def synchronise_concat(sbj_id, plot=False):
+    """This function synchronise each MEG blockby incorporatin ET information.
+    It is assumed that the trigger for start end of the sentence is shared between
+        the MEG and the ET files.
+    It requires data already preprocessed using pygaze output (list of dicts,
+        where each element is a trial).
+    It is assumed that MEG and ET have the same sampling rate (1000 Hz in our case).
+    It is assumed that there is a unique identifier for each trials.
+    It is assumed that each block contains exactly 80 trials.
+    
+    There are probably other assumptions underlying this function.
+    
+    NB: if you want to have the events divided per block, then run 
+        the fucntion synchronise_per_block()
+    """
     # HEY! synchronise won't work with participant 0-1 bc of different
     # coding of triggers. Will need to create one for them.
-
+    def trial_duration_ET(row):
+        return int(row[config.edf_end_trial]) - int(row[config.edf_start_trial])
+    
+    start_trigger_value = int(config.edf_start_trial.split()[1])
+    end_trigger_value = int(config.edf_end_trial.split()[1])
+    
+    print('Retrieving trigger values for ssaving eye events in events MEG structure.')
+    sac_trigger = config.sac_trig_value
+    fix_trigger = config.fix_trig_value
+    blk_trigger = config.blk_trig_value
+    
     # path to participant folder
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     sbj_path_ET = path.join(
@@ -150,8 +163,8 @@ def synchronise(sbj_id):
         try:
             ix = pd_events_meg[pd_events_meg['trig'] == trial].index[0]
 
-            if ((pd_events_meg['trigger'].iloc[ix-1] == 94) and
-                    pd_events_meg['trigger'].iloc[ix+2] == 95):
+            if ((pd_events_meg['trigger'].iloc[ix-1] == start_trigger_value) and
+                    pd_events_meg['trigger'].iloc[ix+2] == end_trigger_value):
                 pd_trials.loc[i, 'meg_duration'] = pd_events_meg['time'].iloc[ix + \
                     2] - pd_events_meg['time'].iloc[ix-1]
         except:
@@ -204,10 +217,10 @@ def synchronise(sbj_id):
         starttime_ET_trials.append(int(trial['events']['msg'][0][0]))
 
     # get sentence end and start times in MEG
-    ix_94 = np.where(devents ==94)[0]
-    ix_95 = np.where(devents ==95)[0]
+    ix_start = np.where(devents == start_trigger_value)[0]
+    ix_end = np.where(devents ==end_trigger_value)[0]
 
-    startend = tuple(zip(ix_94, ix_95)) 
+    startend = tuple(zip(ix_start, ix_end)) 
     
     events = dict()
     
@@ -239,16 +252,16 @@ def synchronise(sbj_id):
             events[event]['y'].append(y) 
 
     print('Got all eye tracker events.')    
-    events[901] = events.pop('Efix')
-    events[801] = events.pop('Esac')
-    events[701] = events.pop('Eblk')
+    events[fix_trigger] = events.pop('Efix')
+    events[sac_trigger] = events.pop('Esac')
+    events[blk_trigger] = events.pop('Eblk')
     
     print('Now adding all ET events as MEG triggers.')
     # note, triggers should be int that don't overlap with other events.
     # at the moment:
-    print('Fixation start = 901.\nFixation end = 902.')
-    print('Saccade start = 801.\nSaccade end = 802.')
-    print('Blink start = 701.\nBlink end = 702.')
+    print(f'Fixation start = {fix_trigger}.\nFixation end = {fix_trigger+1}.')
+    print(f'Saccade start = {sac_trigger}.\nSaccade end = {sac_trigger+1}.')
+    print(f'Blink start = {blk_trigger}.\nBlink end = {blk_trigger+1}.')
     
     events_with_eye= pd.DataFrame(devents)
     events_with_eye[[3, 4]] = np.nan
@@ -288,51 +301,53 @@ def synchronise(sbj_id):
     
     events_with_eye.to_csv(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                               '_all_events_xy.csv'), index=False)
-        
-    print(f"Uncorrected fixations plot {path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')}")
-    event_dict = {'fixation': 901}
-    epochs = mne.Epochs(data, mne_events_with_eye, picks=['meg', 'eeg', 'eog'],
-                        tmin=-0.3, tmax=0.7, event_id=event_dict,
-                        reject=reject_criteria, flat=flat_criteria,
-                        preload=True)
-    evoked = epochs['fixation'].average()
-    print('Do Plots')
-    fixation_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
     
-    print('Save Plots')
-    for i, fig in zip(['EEG','MAG','GRAD'], fixation_fig):
-        fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')
-        fig.savefig(fname_fig)    
-    
+    if plot:
         
-    print(f"Uncorrected saccades plot {path.join(sbj_path, 'Figures', f'uncorrected_saccade_{i}.jpg')}")    
-    event_dict = {'saccade': 801}
-    epochs = mne.Epochs(data, mne_events_with_eye, picks=['meg', 'eeg', 'eog'],
-                        tmin=-0.1, tmax=0.7, event_id=event_dict,
-                        reject=reject_criteria, flat=flat_criteria,
-                        preload=True)
-    evoked = epochs['saccade'].average()
-    print('Do PLots.')
-    saccade_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
-    
-    print('Save Plots.')
-    for i, fig in zip(['EEG','MAG','GRAD'], saccade_fig):
-        fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_saccade_{i}.jpg')
-        fig.savefig(fname_fig)        
+        print(f"Uncorrected fixations plot {path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')}")
+        event_dict = {'fixation': fix_trigger}
+        epochs = mne.Epochs(data, mne_events_with_eye, picks=['meg', 'eeg', 'eog'],
+                            tmin=-0.3, tmax=0.7, event_id=event_dict,
+                            reject=config.reject_criteria, flat=config.flat_criteria,
+                            preload=True)
+        evoked = epochs['fixation'].average()
+        print('Do Plots')
+        fixation_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
         
+        print('Save Plots')
+        for i, fig in zip(['EEG','MAG','GRAD'], fixation_fig):
+            fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_fixation_{i}.jpg')
+            fig.savefig(fname_fig)    
         
-# get all input arguments except first
-if len(sys.argv) == 1:
+            
+        print(f"Uncorrected saccades plot {path.join(sbj_path, 'Figures', f'uncorrected_saccade_{i}.jpg')}")    
+        event_dict = {'saccade': sac_trigger}
+        epochs = mne.Epochs(data, mne_events_with_eye, picks=['meg', 'eeg', 'eog'],
+                            tmin=-0.1, tmax=0.7, event_id=event_dict,
+                            reject=config.reject_criteria, flat=config.flat_criteria,
+                            preload=True)
+        evoked = epochs['saccade'].average()
+        print('Do PLots.')
+        saccade_fig = evoked.plot_joint(times=[0, .100, .167, .210, .266, .330, .430])
+        
+        print('Save Plots.')
+        for i, fig in zip(['EEG','MAG','GRAD'], saccade_fig):
+            fname_fig = path.join(sbj_path, 'Figures', f'uncorrected_saccade_{i}.jpg')
+            fig.savefig(fname_fig)        
+ 
+        
+# # get all input arguments except first
+# if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, len(config.map_subjects)) + 1
+#     sbj_ids = np.arange(0, len(config.map_subjects)) + 1
 
-else:
+# else:
 
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
-    synchronise(ss)
+# for ss in sbj_ids:
+#     synchronise(ss)
         
 

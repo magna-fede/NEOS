@@ -17,6 +17,8 @@ import mne
 os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
 
+import re
+
 
 ave_path = path.join(config.data_path, "AVE")
 stc_path = path.join(config.data_path, "stcs")
@@ -25,23 +27,36 @@ snr = 3.
 lambda2 = 1. / snr ** 2
 orientation=None
 # orientation = 'normal'
-conditions = ['predictable', 'unpredictable', 'abstract', 'concrete']
+conditions = [['Predictable', 'Unpredictable'], ['Abstract', 'Concrete']]
 # conditions = ['abspred', 'absunpred', 'concpred', 'concunpred']
 
 
 def compute_stcs(sbj_id):
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_solved.fif')
+    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
+    evs=dict()
     for condition in conditions:
-        fname = path.join(ave_path, f"{subject}_evoked_{condition}.fif")
-        evoked = mne.read_evokeds(fname)
-            
-        stc = mne.minimum_norm.apply_inverse(evoked[0], inverse_operator,
+        fname = path.join(ave_path, f"{subject}_evokeds_nochan_4_8.fif")
+        evokeds = mne.read_evokeds(fname)
+        ev_0 = list()
+        ev_1 = list()
+        for e, evoked in enumerate(evokeds):
+            if re.match(f'([a-z]*\/)?{condition[0]}(\/[a-z]*)?', evoked.comment, re.IGNORECASE):
+                ev_0.append(evoked)
+            elif re.match(f'([a-z]*\/)?{condition[1]}(\/[a-z]*)?', evoked.comment, re.IGNORECASE):
+                ev_1.append(evoked)  
+                
+        evs[condition[0]] = mne.combine_evoked(ev_0, weights='nave')
+        evs[condition[1]] = mne.combine_evoked(ev_1, weights='nave')
+        
+    for ev in evs.keys():
+        stc = mne.minimum_norm.apply_inverse(evs[ev], inverse_operator,
                                              lambda2, method=method,
                                              pick_ori=orientation, verbose=True)
-        stc_fname = path.join(stc_path, f"{subject}_stc_{condition}_solved")
+        
+        stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_emp3150")
         stc.save(stc_fname)
 
 if len(sys.argv) == 1:

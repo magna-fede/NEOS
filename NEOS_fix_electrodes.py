@@ -32,17 +32,17 @@ def run_fix_electrodes(sbj_id):
         print('Fixing electrode locations for %s.' % fname_sss)
         os.system(config.check_cmd % fname_sss)
 
-# get all input arguments except first
-if len(sys.argv) == 1:
+# # get all input arguments except first
+# if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, len(config.map_subjects)) + 1
+#     sbj_ids = np.arange(0, len(config.map_subjects)) + 1
 
-else:
+# else:
 
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
+# for ss in sbj_ids:
 
-    run_fix_electrodes(ss)
+#     run_fix_electrodes(ss)
