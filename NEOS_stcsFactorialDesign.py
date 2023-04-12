@@ -22,16 +22,14 @@ import re
 
 ave_path = path.join(config.data_path, "AVE")
 stc_path = path.join(config.data_path, "stcs")
-method = "MNE"
 snr = 3.
 lambda2 = 1. / snr ** 2
-orientation=None
 # orientation = 'normal'
 conditions = [['Predictable', 'Unpredictable'], ['Abstract', 'Concrete']]
 # conditions = ['abspred', 'absunpred', 'concpred', 'concunpred']
 
 
-def compute_stcs(sbj_id):
+def compute_stcs(sbj_id, method="MNE", orientation=None):
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
@@ -56,21 +54,21 @@ def compute_stcs(sbj_id):
                                              lambda2, method=method,
                                              pick_ori=orientation, verbose=True)
         
-        stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_emp3150")
+        stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_{method}")
         stc.save(stc_fname)
 
-if len(sys.argv) == 1:
+# if len(sys.argv) == 1:
 
-    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-               21,22,23,24,25,26,27,28,29,30]
-
-
-else:
-
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                21,22,23,24,25,26,27,28,29,30]
 
 
-for ss in sbj_ids:
-    compute_stcs(ss)    
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+# for ss in sbj_ids:
+#     compute_stcs(ss)    
     

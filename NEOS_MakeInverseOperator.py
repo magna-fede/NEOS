@@ -33,7 +33,8 @@ depth = None
 
 # %%
 
-def make_InverseOperator(sbj_id):
+def make_InverseOperator(sbj_id, cov='covariancematrix_empirical_350150',
+                         fwd='EEGMEG', inv_suf=''):
     subject = str(sbj_id)
     
     ovr = config.ovr_procedure
@@ -80,13 +81,13 @@ def make_InverseOperator(sbj_id):
     info = raw_test.info
 
 
-    fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')
+    fwd_fname = path.join(sbj_path, subject + f'_{fwd}-fwd.fif')
     print('Reading EEG/MEG forward solution: %s.' % fwd_fname)
 
     fwd_eegmeg = mne.read_forward_solution(fwd_fname)
 
     fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              '_covariancematrix_empirical_350150-cov.fif')
+                              f'_{cov}-cov.fif')
 
     print('Reading covariance matrix: %s.' % fname_cov)
     noise_cov = mne.read_cov(fname=fname_cov)
@@ -97,23 +98,23 @@ def make_InverseOperator(sbj_id):
                                                           fixed='auto', loose=loose, depth=depth,
                                                           rank='info')
 
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
+    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
     print('Writing EEG/MEG inverse operator: %s.' % inv_fname)
     mne.minimum_norm.write_inverse_operator(fname=inv_fname, inv=invop_eegmeg)
 
 
-if len(sys.argv) == 1:
+# if len(sys.argv) == 1:
 
-    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-               21,22,23,24,25,26,27,28,29,30]
-
-
-else:
-
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                21,22,23,24,25,26,27,28,29,30]
 
 
-for ss in sbj_ids:
-    make_InverseOperator(ss)    
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+# for ss in sbj_ids:
+#     make_InverseOperator(ss)    
     

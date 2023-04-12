@@ -20,16 +20,15 @@ import NEOS_config as config
 
 ave_path = path.join(config.data_path, "AVE")
 stc_path = path.join(config.data_path, "stcs")
-method = "MNE"
 snr = 3.
 lambda2 = 1. / snr ** 2
 
-conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
-# conditions = ['abspred', 'absunpred', 'concpred', 'concunpred']
+# conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
+conditions = ['AP', 'AU', 'CP', 'CU']
 
 subjects_dir = config.subjects_dir
 
-def compute_morphed_stcs(sbj_id):
+def compute_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='MNE'):
 
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])    
     subject = str(sbj_id)
@@ -41,13 +40,13 @@ def compute_morphed_stcs(sbj_id):
                           + '-src.fif')
     
     fname_fwd = path.join(sbj_path, 
-                          subject + '_EEGMEG-fwd.fif')
+                          subject + f'_{fwd}-fwd.fif')
     fname_fsaverage_src = path.join(subjects_dir,
                                     'fsaverage',
                                     'bem', 
                                     'fsaverage-ico-5-src.fif')
     fname_stc = path.join(stc_path,
-                          f"{subject}_stc_Predictable_emp3150")
+                          f"{subject}_stc_{conditions[0]}_{stc_sub}")
     
     stc = mne.read_source_estimate(fname_stc, subject=subject)
     
@@ -67,29 +66,29 @@ def compute_morphed_stcs(sbj_id):
     for condition in conditions:
         print(f'Reading stc file for {condition} condition')
         fname_stc = path.join(stc_path,
-                              f"{subject}_stc_{condition}_emp3150")
+                              f"{subject}_stc_{condition}_{stc_sub}")
                        
         print(fname_stc)
         stc = mne.read_source_estimate(fname_stc, subject=subject)
         stc_mph = morph.apply(stc)
         print(f'Saving morphed stc file for {condition}')
         fname_mph = path.join(stc_path, 
-                              f"{subject}_stc_{condition}_emp3150_fsaverage")
+                              f"{subject}_stc_{condition}_{stc_sub}_fsaverage")
         print(fname_mph)            
         stc_mph.save(fname_mph)
 
-if len(sys.argv) == 1:
+# if len(sys.argv) == 1:
 
-    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-               21,22,23,24,25,26,27,28,29,30]
-
-
-else:
-
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                21,22,23,24,25,26,27,28,29,30]
 
 
-for ss in sbj_ids:
-    compute_morphed_stcs(ss) 
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+# for ss in sbj_ids:
+#     compute_morphed_stcs(ss) 
     

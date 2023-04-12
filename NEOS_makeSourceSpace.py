@@ -66,40 +66,40 @@ def make_source_space(sbj_id):
 #     # get list of subjects IDs to process
 #     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
-sbj_ids = [
-             1,
-             2,
-             3,
-         #   4,
-             5,
-             6,
-        #    7,
-             8,
-             9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18, 
-            19, 
-        #   20,
-            21,
-            22, 
-            23, 
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30
-            ]
-for ss in sbj_ids:
+# sbj_ids = [
+#              1,
+#              2,
+#              3,
+#          #   4,
+#              5,
+#              6,
+#         #    7,
+#              8,
+#              9,
+#             10,
+#             11,
+#             12,
+#             13,
+#             14,
+#             15,
+#             16,
+#             17,
+#             18, 
+#             19, 
+#         #   20,
+#             21,
+#             22, 
+#             23, 
+#             24,
+#             25,
+#             26,
+#             27,
+#             28,
+#             29,
+#             30
+#             ]
+# for ss in sbj_ids:
 
-    make_source_space(ss)
+#     make_source_space(ss)
 
-print('Done.')
+# print('Done.')

@@ -43,7 +43,7 @@ fsave_vertices = [src[0]['vertno'], []]
 sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
            21,22,23,24,25,26,27,28,29,30]
 
-conditions = ['abspred', 'absunpred', 'concpred', 'concunpred'] 
+conditions = ['AP', 'AU', 'CP', 'CU'] 
 stcs = dict()
 
 for condition in conditions:
@@ -52,7 +52,7 @@ for condition in conditions:
         subject = str(sbj_id)
         # path to subject's data
         stc_fname = path.join(stc_path, 
-                              f"{subject}_stc_{condition}_fsaverage")
+                              f"{subject}_stc_{condition}_eLORETA_fsaverage")
     
         print('Reading source estimate from %s.' % stc_fname)
     
@@ -61,10 +61,10 @@ for condition in conditions:
         stcs[condition].append(stc)
         # stcs[condition].append(stc.data)
 
-cond1 = np.stack([stcs['abspred'][i].data for i in range(len(stcs['abspred']))])
-cond2 = np.stack([stcs['absunpred'][i].data for i in range(len(stcs['absunpred']))])
-cond3 = np.stack([stcs['concpred'][i].data for i in range(len(stcs['abspred']))])
-cond4 = np.stack([stcs['concunpred'][i].data for i in range(len(stcs['concunpred']))])
+cond1 = np.stack([stcs['AP'][i].data for i in range(len(stcs['AP']))])
+cond2 = np.stack([stcs['AU'][i].data for i in range(len(stcs['AU']))])
+cond3 = np.stack([stcs['CP'][i].data for i in range(len(stcs['AP']))])
+cond4 = np.stack([stcs['CU'][i].data for i in range(len(stcs['CU']))])
 
 
 X = np.stack([cond1, cond2, cond3, cond4], axis =-1)
@@ -105,12 +105,12 @@ pthresh = 0.005
 f_thresh = f_threshold_mway_rm(n_subjects, factor_levels, effects, pthresh)
 
 F_obs, clusters, cluster_p_values, H0 = clu = \
-    spatio_temporal_cluster_test(X, adjacency=adjacency, n_jobs=None,
+    spatio_temporal_cluster_test(X, adjacency=adjacency, n_jobs=-1,
                                  threshold=f_thresh, stat_fun=stat_fun,
                                  n_permutations=n_permutations,
                                  buffer_size=None)
     
-with open('/imaging/hauk/users/fm02/MEG_NEOS/data/misc/interaction_noabs.P', 'wb') as f:
+with open('/imaging/hauk/users/fm02/MEG_NEOS/data/misc/interaction_eLORETA.P', 'wb') as f:
     pickle.dump(clu, f)
 
     

@@ -23,7 +23,7 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="plt_frps_ic_n_filt.py"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
-SCRIPT="NEOS_permutationTtest.py"
+SCRIPT="NEOS_permutationFtest.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"

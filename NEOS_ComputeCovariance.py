@@ -30,9 +30,7 @@ mne.viz.set_browser_backend("matplotlib")
 
 # %%
 
-cov_method = 'empirical'
-
-def compute_covariance(sbj_id):
+def compute_covariance(sbj_id, cov_method='empirical'):
     ovr = config.ovr_procedure
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
@@ -105,36 +103,39 @@ def compute_covariance(sbj_id):
                         flat=None, picks=picks, reject_by_annotation=False, 
                         reject=None, preload=True)
 
-    noise_cov_empirical = mne.compute_covariance(epochs, method='empirical', 
+    noise_cov = mne.compute_covariance(epochs, method=cov_method, 
                                                 tmax=-0.150, rank='info', return_estimators=True)
-    noise_cov = mne.cov.regularize(noise_cov_empirical, epochs.info, mag=0.1, grad=0.1,
+    if cov_method=='empirical':
+        noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
                                    eeg=0.1, rank='info')
     fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          "_covariancematrix_empirical_350150-cov.fif")
+                          f"_covariancematrix_{cov_method}-cov.fif")
     mne.write_cov(fname_cov, noise_cov)
     
-    figs = noise_cov.plot(epochs.info, proj=True)
-
+    if cov_method=='auto':
+        figs = noise_cov[0].plot(epochs.info, proj=True)
+    else:
+        figs = noise_cov.plot(epochs.info, proj=True)
     for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-        fname_fig = path.join(sbj_path, 'Figures', f'covariance_emp_350150_{i}.png')
+        fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
         fig.savefig(fname_fig)
 
 
 
-if len(sys.argv) == 1:
+# if len(sys.argv) == 1:
 
-    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-               21,22,23,24,25,26,27,28,29,30]
-
-
-else:
-
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                21,22,23,24,25,26,27,28,29,30]
 
 
-for ss in sbj_ids:
-    compute_covariance(ss)    
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+# for ss in sbj_ids:
+#     compute_covariance(ss)    
     
 # this was used to check the epoch duration, keeping it for record
 # and in case it's useful in the future     
