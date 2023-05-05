@@ -36,7 +36,7 @@ print(mne)
 
 # # This script takes care of filtering and saving the filtered data
 
-# from NEOS_filter_raw import run_filter_raw
+from NEOS_filter_raw import run_filter_raw
 # # These scripts synch the MEG and ET data, either per block or concatenating each block
 
 # from NEOS_synch_per_block import synchronise as synchronise_per_block
@@ -48,22 +48,22 @@ print(mne)
 
 # #  THIS will run through all the scripts above, careful is going to take time
 
-# if len(sys.argv) == 1:
+if len(sys.argv) == 1:
 
-#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-#                21,22,23,24,25,26,27,28,29,30]
+    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+                21,22,23,24,25,26,27,28,29,30]
 
-# else:
+else:
 
-#     # get list of subjects IDs to process
-#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+    # get list of subjects IDs to process
+    sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-# for ss in sbj_ids:
+for ss in sbj_ids:
 #     run_fix_electrodes(ss)
-#     run_filter_raw(ss)    
-#     synchronise_per_block(ss)
-#     synchronise_concat(ss)
+    run_filter_raw(ss)    
+    # synchronise_per_block(ss)
+    # synchronise_concat(ss)
 #     create_evoked(ss)
     
 # # %% SOURCE SPACE PREPARATION
@@ -77,6 +77,35 @@ print(mne)
 # if len(sys.argv) == 1:
 
 #     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                 21,22,23,24,25,26,27,28,29,30]
+
+# else:
+
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
+
+
+# for ss in sbj_ids:
+# #     make_source_space(ss)
+# #     run_make_bem(ss)    
+# #     run_make_forward_solution(ss)
+#     compute_covariance(ss, cov_method='empirical', save_covmat=True, plot_covmat=True)
+# #     make_InverseOperator(ss)
+    
+# %% SOURCE SPACE ANALYSIS
+
+# from NEOS_stcsFactorialDesign import compute_stcs
+# from NEOS_MorphStcsFsaverage import compute_morphed_stcs
+# from NEOS_stcsFactorialDesign_forFtest import compute_stcs as compute_stcs_forF
+# from NEOS_MakeStcsROIs_SingleEpochs import make_stcsEpochs
+
+# from NEOS_permutation_Ttest import 
+# from NEOS_permutationFtest import 
+
+
+# if len(sys.argv) == 1:
+
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
 #                21,22,23,24,25,26,27,28,29,30]
 
 # else:
@@ -86,34 +115,24 @@ print(mne)
 
 
 # for ss in sbj_ids:
-#     make_source_space(ss)
-#     run_make_bem(ss)    
-#     run_make_forward_solution(ss)
-#     compute_covariance(ss)
-#     make_InverseOperator(ss)
+#     # compute_stcs(ss, method='eLORETA')
+#     make_stcsEpochs(ss, method='eLORETA')
+# #    compute_morphed_stcs(ss, stc_sub='eLORETA')    
     
-# %% SOURCE SPACE ANALYSIS
+# %% ADDITIONAL SCRIPTS
 
-from NEOS_stcsFactorialDesign import compute_stcs
-from NEOS_MorphStcsFsaverage import compute_morphed_stcs
-from NEOS_stcsFactorialDesign_forFtest import compute_stcs as compute_stcs_forF
-# from NEOS_permutation_Ttest import 
-# from NEOS_permutationFtest import 
+# from NEOS_getbetas_forsource import get_betas
 
+# if len(sys.argv) == 1:
 
-if len(sys.argv) == 1:
+#     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
+#                21,22,23,24,25,26,27,28,29,30]
 
-    sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
-               21,22,23,24,25,26,27,28,29,30]
+# else:
 
-else:
-
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
-    # compute_stcs(ss, method='eLORETA')
-    compute_stcs_forF(ss, method='eLORETA')
-    compute_morphed_stcs(ss, stc_sub='eLORETA')    
-    
+# for ss in sbj_ids:
+#     get_betas(ss)

@@ -21,7 +21,7 @@ os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
 
 from my_eyeCA import apply_ica
-
+from sklearn.preprocessing import StandardScaler
 # import seaborn as sns
 
 
@@ -30,12 +30,23 @@ flat_criteria = config.epo_flat
 
 ovr = config.ovr_procedure
 
+meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
+
+pred = ['ID', 'Word', 'ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']
+meta = meta[pred]
+
+scaler = StandardScaler()
+meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']] = scaler.fit_transform(meta[['ConcM', 
+                                                                                        'LEN', 
+                                                                                        'LogFreq(Zipf)', 
+                                                                                        'Position', 
+                                                                                        'Sim']])
+
 # %%
 # Set MNE's log level to DEBUG
 def get_betas(sbj_id, factors=['ConcM', 'Sim']):
     
-    meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
-    
+        
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
@@ -74,11 +85,12 @@ def get_betas(sbj_id, factors=['ConcM', 'Sim']):
     raw_test.info['bads'] = bad_eeg
     
     ################ try to drop all bad channels ################ 
-    # raw_test.interpolate_bads(reset_bads=True)
-    # raw_test.drop_channels(['EEG004', 'EEG008'])
-    raw_test.drop_channels(bad_eeg)
-    ################  ################  ################  ################ 
-     
+    raw_test.interpolate_bads(reset_bads=True)
+    raw_test.drop_channels(['EEG004', 'EEG008'])
+    
+    # raw_test.drop_channels(bad_eeg)
+    # ################  ################  ################  ################ 
+  
     # sentences = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/Sentences_forMEG_factorised.txt', sep='\t', header=0)
     # stimuli_ALL = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/stimuli_all_onewordsemsim.csv', sep=',')
     # stimuli_ALL = stimuli_ALL.drop(['ID', 'Sentence'], axis=1)
@@ -97,7 +109,7 @@ def get_betas(sbj_id, factors=['ConcM', 'Sim']):
         # regular epoching
     
     epochs = mne.Epochs(raw_test, target_evts, event_dict, tmin=tmin, tmax=tmax,
-                        reject=None, preload=True)
+                        picks=['meg', 'eeg'], reject=reject_criteria, preload=True)
     
     metadata = pd.DataFrame(columns=meta.columns)
     
@@ -106,27 +118,49 @@ def get_betas(sbj_id, factors=['ConcM', 'Sim']):
         metadata = pd.concat([metadata,
                               meta[meta['ID']==index]])
     
+    drop_log = pd.Series(epochs.drop_log)
+
+    good_ones = drop_log!=('IGNORED',)
+
+    kept_log = drop_log[good_ones].reset_index(drop=True)
+
+    len_kl = kept_log.apply(lambda x: len(x))
+    metadata.reset_index(drop=True, inplace=True)
+    
+    metadata = metadata[len_kl==0]
+    
     epochs.metadata = metadata
     
-    factors = ['ConcM', 'Sim']
+    epochs.resample(250, npad='auto')
     
-    for factor in factors:
-        df = epochs.metadata.copy()
-        # df[factor] = pd.cut(df[factor], 4, labels=False)
-        
-        # colors = {str(val): val for val in df[factor].unique()}    
-        epochs.metadata = df.assign(Intercept=1)  # Add an intercept for later
-        # evokeds = {val: epochs[factor + " == " + val].average() for val in colors}
-        # plot_compare_evokeds(evokeds, colors=colors, split_legend=True,
-        #                      cmap=(factor + " Percentile", "viridis"))	               
-        names = ["Intercept", factor]
-        res = linear_regression(epochs, epochs.metadata[names], names=names)
-        # for cond in names:
-            # res[cond].beta.plot_joint(title=cond, ts_args=dict(time_unit='s'),
-            #                           topomap_args=dict(time_unit='s'))
-        mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/data/AVE/{sbj_id}_evokedbetas_dropbad_{factor}.fif",
-                          res[factor].beta, overwrite=True)  
+    factors = ['ConcM', 'Sim', 'ConcPred']
     
+    df = epochs.metadata.copy()
+    df['ConcPred'] = df['ConcM']*df['Sim']
+    # df[factor] = pd.cut(df[factor], 4, labels=False)
+    
+    # colors = {str(val): val for val in df[factor].unique()}    
+    epochs.metadata = df.assign(Intercept=1)  # Add an intercept for later
+    # evokeds = {val: epochs[factor + " == " + val].average() for val in colors}
+    # plot_compare_evokeds(evokeds, colors=colors, split_legend=True,
+    #                      cmap=(factor + " Percentile", "viridis"))	               
+    names = ["Intercept"] + factors
+    res = linear_regression(epochs, epochs.metadata[names], names=names)
+    evoked_list_betas = list()
+    evoked_list_tvals = list()
+    
+    for cond in names:
+        # res[cond].beta.plot_joint(title=cond, ts_args=dict(time_unit='s'),
+        #                           topomap_args=dict(time_unit='s'))
+        evoked_list_betas.append(res[cond].beta)
+        evoked_list_betas[-1].comment = cond
+        evoked_list_tvals.append(res[cond].t_val)
+        evoked_list_tvals[-1].comment = cond
+    mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/data/AVE/{sbj_id}_evoked-betas_forsource.fif",
+                          evoked_list_betas, overwrite=True)  
+    mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/data/AVE/{sbj_id}_evoked-tvals_forsource.fif",
+                          evoked_list_tvals, overwrite=True)  
+                
 # if len(sys.argv) == 1:
 
 #     sbj_ids = np.arange(0, 30) + 1

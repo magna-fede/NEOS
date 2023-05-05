@@ -26,8 +26,6 @@ import NEOS_config as config
 # os.chdir("/home/fm02/MEG_NEOS/NEOS/my_eyeCA")
 from my_eyeCA import preprocess, ica, snr_metrics, apply_ica
 
-os.chdir("/home/fm02/MEG_NEOS/NEOS")
-
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
@@ -36,7 +34,7 @@ flat_criteria = config.epo_flat
 def plot_ICA(sbj_id):
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    bad_eeg = config.bad_channels[sbj_id]['eeg']
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
     for over in [
                 '_ovrw',
@@ -48,7 +46,7 @@ def plot_ICA(sbj_id):
             raw_test = []   
             
             for i in range(1,6):
-                raw_test.append(mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_ica{over}_{condition}_raw.fif")))
+                raw_test.append(mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif")))
                 
             raw_test= mne.concatenate_raws(raw_test)
             raw_test.load_data()

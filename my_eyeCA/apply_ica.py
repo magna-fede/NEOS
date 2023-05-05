@@ -23,9 +23,15 @@ from my_eyeCA import preprocess as pp
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
+VALID_STATUS = {'', '_ovrw', '_ovrwonset'}
+ 
+def over_input(status):
+    if status not in VALID_STATUS:
+        raise ValueError("results: status must be one of %r." % VALID_STATUS)
 
-def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, ica_instance=None, ovrw=False,
-                       ovrw_onset=False, overwrite_saved=False):
+def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, ica_instance=None, over=False, plot_overlay=False,
+                       overwrite_saved=False):
+    over_input(over)
     # Handle folder/file management
     fpath = Path(raw.filenames[0])
 
@@ -36,16 +42,15 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         ic = mp.read_ica(ica_filename + ".fif")
     elif ica_instance:
         ic = ica_instance
-        if ovrw==True:
-            if ovrw_onset==False:
-                ica_filename = path.join(fpath.parent, 'ICA_ovr_w',
-                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
-                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
-            elif ovrw_onset==True:
-                ica_filename = path.join(fpath.parent, 'ICA_ovr_w_onset',
-                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
-                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')    
-        elif ovrw==False:            
+        if over == '_ovrw':
+            ica_filename = path.join(fpath.parent, 'ICA_ovr_w',
+                                     f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                                     f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
+        elif over == '_ovrwonset':
+            ica_filename = path.join(fpath.parent, 'ICA_ovr_w_onset',
+                             f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                             f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')    
+        elif over=='':            
             ica_filename = path.join(fpath.parent, 'ICA',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
@@ -58,6 +63,20 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         # fig.show()
         ic.exclude = eog_idx
         
+        if plot_overlay:
+            ic.plot_overlay(raw, eog_idx, picks='eeg')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_eeg.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, eog_idx, picks='mag')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_mag.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, eog_idx, picks='grad')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_grad.png'
+            plt.savefig(fname_fig)    
+
+        
         ### hacky solution for now 
         bads, raw.info['bads'] = raw.info['bads'], []
         
@@ -66,18 +85,10 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         ic.apply(raw)
 
         if overwrite_saved:
-            if ovrw==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_eog_raw.fif",
-                    overwrite=True)
-            elif ovrw==True:
-                if  ovrw_onset==False:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_eog_raw.fif",
-                             overwrite=True)
-                if  ovrw_onset==True:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_eog_raw.fif",
-                             overwrite=True)        
-                # Save fitted ICA
-            ic_file = ica_filename + '_eog.fif'
+            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica{over}_eog_raw.fif",
+                    overwrite=True)   
+            # Save fitted ICA
+            ic_file = ica_filename + 'fitted_eog.fif'
             
             ic.save(ic_file, overwrite=True)
             
@@ -131,6 +142,20 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         to_exclude = np.where(ic_scores > 1.1)[0]
         ic.exclude = to_exclude
         
+        if plot_overlay:
+            ic.plot_overlay(raw, to_exclude, picks='eeg')
+            fname_fig =  Path(ica_filename).parent /  f'overlay{over}_{method}_eeg.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, to_exclude, picks='mag')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_mag.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, to_exclude, picks='grad')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_grad.png'
+            plt.savefig(fname_fig)    
+
+        
         ### hacky solution for now 
         bads, raw.info['bads'] = raw.info['bads'], []
         
@@ -138,18 +163,10 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         
         ic.apply(raw)
         if overwrite_saved:            
-            if ovrw==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_var_raw.fif",
+            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica{over}_var_raw.fif",
                     overwrite=True)
-            elif ovrw==True:
-                if  ovrw_onset==False:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_var_raw.fif",
-                        overwrite=True)
-                if  ovrw_onset==True:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_var_raw.fif",
-                        overwrite=True)    
                 # Save fitted ICA
-            ic_file = ica_filename + '_varcomp.fif'
+            ic_file = ica_filename + 'fitted_varcomp.fif'
             
             ic.save(ic_file, overwrite=True)
         ### revert back 
@@ -207,6 +224,19 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         
         ic.exclude = list(set(eog_idx) | set(to_exclude))
         
+        if plot_overlay:
+            ic.plot_overlay(raw, list(set(eog_idx) | set(to_exclude)), picks='eeg')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_eeg.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, list(set(eog_idx) | set(to_exclude)), picks='mag')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_mag.png'
+            plt.savefig(fname_fig)
+            
+            ic.plot_overlay(raw, list(set(eog_idx) | set(to_exclude)), picks='grad')
+            fname_fig =  Path(ica_filename).parent / f'overlay{over}_{method}_grad.png'
+            plt.savefig(fname_fig)    
+
         ### hacky solution for now 
         bads, raw.info['bads'] = raw.info['bads'], []
         
@@ -216,22 +246,10 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         ic.apply(raw)
         
         if overwrite_saved:
-
-            if ovrw==False:
-                raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_both_raw.fif",
+            raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica{over}_both_raw.fif",
                     overwrite=True)
-            elif ovrw==True:
-                if  ovrw_onset==False:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrw_both_raw.fif",
-                        overwrite=True)
-                if  ovrw_onset==True:
-                    raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica_ovrwonset_both_raw.fif",
-                        overwrite=True)  
-                    
-
-            
                 # Save fitted ICA
-            ic_file = ica_filename + '_eogvar.fif'
+            ic_file = ica_filename + 'fitted_eogvar.fif'
             
             ic.save(ic_file, overwrite=True)
             
@@ -254,11 +272,11 @@ def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rej
     fpath = Path(data.filenames[0])
     event_dict = {'FRP': 999}
     if standard_rejection:
-        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
+        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg'], tmin=-0.3, tmax=0.7, event_id=event_dict,
                     reject=reject_criteria, flat=flat_criteria,
                     preload=True)
     else:
-        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg', 'eog'], tmin=-0.3, tmax=0.7, event_id=event_dict,
+        epochs = mne.Epochs(data, loc_events, picks=['meg', 'eeg'], tmin=-0.3, tmax=0.7, event_id=event_dict,
                     reject=None, flat=None, reject_by_annotation=False,
                     preload=True)    
         

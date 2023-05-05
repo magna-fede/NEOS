@@ -24,7 +24,7 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 # SCRIPT="NEOS_permutationFtest.py"
-SCRIPT="NEOS_plot_sourcelocalised_betas.py"
+SCRIPT="NEOS_plot_sourcelocalised_tvalss.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -54,6 +54,3 @@ echo "JOB $SLURM_JOB_ID STARTING"
 wait
 
 echo "JOB $SLURM_JOB_ID COMPLETED"
-
-
-

@@ -10,7 +10,10 @@ import os
 from os import path
 
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
+import pickle
 
 import mne
 from mne.minimum_norm import apply_inverse_epochs
@@ -19,7 +22,7 @@ os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
 
 #os.chdir("/home/fm02/MEG_NEOS/NEOS/my_eyeCA")
-from my_eyeCA import preprocess, ica, snr_metrics, apply_ica
+from my_eyeCA import apply_ica
 
 os.chdir("/home/fm02/MEG_NEOS/NEOS")
 
@@ -49,8 +52,6 @@ AG = mne.read_label(path.join(labels_path, 'AG_fsaverage-lh.label'),
 PTC = mne.read_label(path.join(labels_path, 'PTC_fsaverage-lh.label'),
                       subject='fsaverage')
 
-times=np.arange(-300,701,1)
-
 rois = [lATL,
         rATL, 
         PVA,
@@ -58,9 +59,21 @@ rois = [lATL,
         AG,
         PTC]
 
+meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
+pred = ['ID', 'Word', 'ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']
+meta = meta[pred]
+
+scaler = StandardScaler()
+meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']] = scaler.fit_transform(meta[['ConcM', 
+                                                                                        'LEN', 
+                                                                                        'LogFreq(Zipf)', 
+                                                                                        'Position', 
+                                                                                        'Sim']])
+
 # %%
 
 def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='emp3150'):
+    
     subject = str(sbj_id)
     
     ovr = config.ovr_procedure
@@ -107,58 +120,73 @@ def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='emp3150'):
     info = raw_test.info
 
     target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              '_target_events.fif'))
-            
+                             '_target_events.fif'))
+   
     rows = np.where(target_evts[:,2]==999)[0]
-    for row in rows:
-        if target_evts[row-2, 2] == 1:
-            target_evts[row, 2] = 991
-        elif target_evts[row-2, 2] == 2:
-            target_evts[row, 2] = 992
-        elif target_evts[row-2, 2] == 3:
-            target_evts[row, 2] = 993
-        elif target_evts[row-2, 2] == 4:
-            target_evts[row, 2] = 994
-        elif target_evts[row-2, 2] == 5:
-            target_evts[row, 2] = 995
-            
-    event_dict = {'Abstract/Predictable': 991, 
-                  'Concrete/Predictable': 992,
-                  'Abstract/Unpredictable': 993, 
-                  'Concrete/Unpredictable': 994}
+   
+    event_dict = {'FRP': 999}
+   
     tmin, tmax = -.3, .7
-    
-    # regular epoching
-
+       
     epochs = mne.Epochs(raw_test, target_evts, event_dict, tmin=tmin, tmax=tmax,
-                        reject=reject_criteria, preload=True)
+                       reject=None, preload=True)
+   
+    metadata = pd.DataFrame(columns=meta.columns)
+   
+    for row in rows: 
+        index = target_evts[row-2, 2]*100 + target_evts[row-1, 2]
+        metadata = pd.concat([metadata,
+                             meta[meta['ID']==index]])
+   
+    epochs.metadata = metadata
     
-    subject = str(sbj_id)
+    epochs.resample(250, npad='auto')
+    
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     inv_fname = path.join(sbj_path, subject + f'_EEGMEG-inv_{inv_suf}.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
 
+    rois_subject = mne.morph_labels(rois, subject_to=subject, 
+                                    subject_from='fsaverage', 
+                                    subjects_dir=config.subjects_dir)
+    
     rois_lab = ['lATL',
                 'rATL', 
                 'PVA',
                 'IFG',
                 'AG',
                 'PTC']
-    
-
-    stc= dict()
-    for i, roi in enumerate(rois):
-        stc[rois_lab[i]] = apply_inverse_epochs(epochs, inverse_operator, lambda2, method, roi,
-                                pick_ori="normal", nave=len(epochs))
-    for roi in rois_lab:
-        stc_fname = path.join(stc_path, f"{subject}_stc_{roi}_{method}")
-        stc[roi].save(stc_fname)
         
-        !!!! does not work, you lose info about epoch ID this way
-        it would be better to estimate timecourses for each condition
-        for each roi separately, and save that date:
-            that way you can also read it in R and do a mixed model.
+    stc = apply_inverse_epochs(epochs, inverse_operator, lambda2, method,
+                                pick_ori="normal", nave=len(epochs))
+   
+    stc_epochs = dict()
+    epoch_rois = dict()
+    for i, roi in enumerate(rois_subject):
+        stc_epochs[rois_lab[i]] = [epoch.extract_label_time_course(roi,
+                                                  inverse_operator['src'],
+                                                  mode='mean_flip').squeeze() for epoch in stc]
+        epoch_rois[rois_lab[i]] = np.array(stc_epochs[rois_lab[i]])
+    
+    times = epochs.times
+    
+    one_subj = dict()
+    
+    for j, t in enumerate(times):
+        df_t = pd.DataFrame(columns=['ID', 'Word', 'ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim', 'sbj', 'activity', 'roi'])
+        for i, roi in enumerate(rois_subject):
+            df = metadata.copy().reset_index(drop=True) 
+            df['sbj'] = subject
+            rois_act = pd.DataFrame(epoch_rois[rois_lab[i]][:, j], columns=['activity'])
+            rois_act['roi'] = rois_lab[i]            
+            df = pd.concat([df, rois_act], axis=1)
+            df_t = pd. concat([df_t, df])
+            
+        one_subj[round(t*10e2)] = df_t
 
+    with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/data_for_mixed_models/sbj_{subject}.P', 'wb') as handle:
+        pickle.dump(one_subj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
 # if len(sys.argv) == 1:
 
 #     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,

@@ -1,4 +1,5 @@
-#!/imaging/local/software/miniconda/envs/mne0.20/bin/python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 ==========================================
 Try to submit sbatch jobs for Eye On Semantics
@@ -9,15 +10,18 @@ fm02
 """
 
 import subprocess
+import os
 from os import path
 
-from importlib import reload
+# from importlib import reload
 
-# import study parameters
+os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
-reload(config)
+# import study parameters
+# import NEOS_config as config
+# reload(config)
 
-print(__doc__)
+# print(__doc__)
 
 # wrapper to run python script via qsub. Python3
 fname_wrap = path.join('/', 'home', 'fm02', 'MEG_NEOS', 'NEOS',
@@ -32,7 +36,7 @@ job_list = [
     # {'N':   'F_MF',                  # job name
     #  'Py':  'NEOS_Maxfilter',  # Python script
     #  'Ss':  subjs,                    # subject indices
-    #  'mem': '16G',                   # memory for qsub process
+    #  'mem': '8G',                   # memory for qsub process
     #  'dep': '',                       # name of preceeding process (optional)
     #  'node': '--constraint=maxfilter'},  # node constraint for MF, just picked one
 
@@ -47,18 +51,18 @@ job_list = [
     # ### Pre-processing
 
     # ### Filter raw data
-    # {'N':   'F_FR',                  # job name
-    #  'Py':  'NEOS_filter_raw',          # Python script
-    #  'Ss':  subjs,                    # subject indices
-    #  'mem': '16G',                    # memory for qsub process
-    #  'dep': ''},                      # name of preceeding process (optional)
-
-    {'N':   'synch_all',                  # job name
-     'Py':  'NEOS_synchronisation_includeEDF',          # Python script
+    {'N':   'F_FR',                  # job name
+     'Py':  'NEOS_filter_raw',          # Python script
      'Ss':  subjs,                    # subject indices
      'mem': '16G',                    # memory for qsub process
      'dep': ''},                      # name of preceeding process (optional)
-    # {'N':   'sentence_ICA',
+
+    # {'N':   'synch_all',                  # job name
+    #  'Py':  'NEOS_synchronisation_includeEDF',          # Python script
+    #  'Ss':  subjs,                    # subject indices
+    #  'mem': '16G',                    # memory for qsub process
+    #  'dep': ''},                      # name of preceeding process (optional)
+    # # {'N':   'sentence_ICA',
     #  'Py':  'NEOS_sentencesICA',          # Python script
     #  'Ss':  subjs,                    # subject indices
     #  'mem': '96G',                    # memory for qsub process

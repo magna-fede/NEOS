@@ -21,6 +21,11 @@ import mne
 from scipy.integrate import simpson
 from matplotlib import pyplot as plt
 
+import NEOS_config as config
+
+reject_criteria = config.epo_reject
+flat_criteria = config.epo_flat
+
 def overall_metrics(raw, evt, plot=False):
 
     """
@@ -74,7 +79,7 @@ def overall_metrics(raw, evt, plot=False):
 
     return out
 
-def fixation_locked(raw, evt, plot=False):
+def fixation_locked(raw, evt, standard_rejection=True, plot=False):
     """
     Compute P1 peak from fixation-locked epochs at posterior sensor EEG008, and
     GFP in first 100ms of baseline and last 100ms of epoch.
@@ -93,16 +98,32 @@ def fixation_locked(raw, evt, plot=False):
         figure object with plot.
     """
     # Create evoked object with 901 (start Fixation) as event
-    evo = mne.Epochs(
-        raw,
-        evt,
-        picks=["eeg"],
-        event_id=901,
-        tmin=-0.2,
-        tmax=1,
-        baseline=(None, 0),
-    ).average()
-    
+    if standard_rejection:
+        evo = mne.Epochs(
+            raw,
+            evt,
+    #        picks="eeg",
+            event_id=901,
+            tmin=-0.2,
+            tmax=1,
+            reject = {k: reject_criteria[k] for k in ['eeg']},
+            flat = {k: flat_criteria[k] for k in ['eeg']},
+            baseline=(None, 0),
+        ).average()
+    else:
+        evo = mne.Epochs(
+            raw,
+            evt,
+    #        picks="eeg",
+            event_id=901,
+            tmin=-0.2,
+            tmax=1,
+            reject = None,
+            flat = None,
+            baseline=(None, 0),
+        ).average()
+        
+        
     posterior_chs = ["EEG001",
                      "EEG062",
                      "EEG063",
@@ -286,7 +307,7 @@ def saccade_locked(raw, evt, plot=False):
     return out
 
 
-def compute_metrics(raw, evt, plot=False):
+def compute_metrics(raw, evt, standard_rejection=True, plot=False):
     """
     Compute both fixation and saccade locked metrics. Wrapper around the
     functions fixation_locked and saccade_locked. See their respective docs for
@@ -309,7 +330,7 @@ def compute_metrics(raw, evt, plot=False):
     # If plotting requested, return both estimates and figures
     if plot:
 
-        out1, fig1 = fixation_locked(raw, evt, plot)
+        out1, fig1 = fixation_locked(raw, evt, standard_rejection, plot)
         out2, fig2 = saccade_locked(raw, evt, plot)
         out3 = overall_metrics(raw, evt, plot)
         out1.update(out2)

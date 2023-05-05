@@ -35,10 +35,6 @@ sns.set_theme(context="notebook",
 
 sns.set_style("ticks")
 
-def trial_duration_ET(row):
-    return int(row['TRIGGER 95']) - int(row['TRIGGER 94'])
-
-
 
 def synchronise(sbj_id, plot_events=False):
     """This function synchronise each MEG blockby incorporatin ET information.
@@ -57,16 +53,6 @@ def synchronise(sbj_id, plot_events=False):
     """
     def trial_duration_ET(row):
         return int(row[config.edf_end_trial]) - int(row[config.edf_start_trial])
-    
-    mne.viz.set_browser_backend("matplotlib")
-
-    sns.set(rc={"figure.dpi":300, 'savefig.dpi':300})
-
-    sns.set_theme(context="notebook",
-                  style="white",
-                  font="sans-serif")
-
-    sns.set_style("ticks")
     
     # HEY! synchronise won't work with participant 0 and 1 bc of different
     # coding of triggers. You will need to create another synch for them.
@@ -126,6 +112,11 @@ def synchronise(sbj_id, plot_events=False):
     # transform trials to DataFrame
     all_ET_trials = pd.DataFrame(trials)
 
+    # Check that this is correct
+    test_trials = pd.to_numeric(all_ET_trials[end_trial_ET]) - \
+                    pd.to_numeric(all_ET_trials[start_trial_ET])
+    assert all(test_trials) > 0, f"Trial ends before it starts at index: {test_trials[test_trials < 0].index[0]}"
+    
     # load preprocessed ET file
     events_ET_file = os.path.join(
         sbj_path_ET, 'data_'+config.map_subjects[sbj_id][0][-3:]+'.P')
@@ -193,11 +184,12 @@ def synchronise(sbj_id, plot_events=False):
                 pd_events_meg.loc[i, 'trig'] = pd_events_meg.loc[i, 'trigger']*100 + \
                     pd_events_meg.loc[i+1, 'trigger']
         
+        del trial
         # get the MEG times
         for i, trial in enumerate(trials_ET['IDstim']):
             try:
                 ix = pd_events_meg[pd_events_meg['trig'] == trial].index[0]
-    
+                # check that ID sentence trigger is preceded by start and followed by end of sentence trigger
                 if ((pd_events_meg['trigger'].iloc[ix-1] == start_trigger_value) and
                         pd_events_meg['trigger'].iloc[ix+2] == end_trigger_value):
                     trials_ET.loc[i, 'meg_duration'] = pd_events_meg['time'].iloc[ix + \
@@ -292,7 +284,7 @@ def synchronise(sbj_id, plot_events=False):
         print(f'Saccade start = {sac_trigger}.\nSaccade end = {sac_trigger+1}.')
         print(f'Blink start = {blk_trigger}.\nBlink end = {blk_trigger+1}.')
         
-        events_with_eye= pd.DataFrame(devents)
+        events_with_eye = pd.DataFrame(devents)
         events_with_eye[[3, 4]] = np.nan
         
         for i, indices in enumerate(startend):
@@ -305,11 +297,15 @@ def synchronise(sbj_id, plot_events=False):
                 ys = events[event]['y'][i]
                 ends = [start_time + time for time in events[event]['end'][i]]
                 for start, x, y in zip(starts, xs, ys):
-                    events_with_eye = pd.concat([events_with_eye, pd.DataFrame([[start, 0, event, x, y]],
-                                                                               columns=[0,1,2,3,4])])
+                    events_with_eye = pd.concat([events_with_eye,
+                                                 pd.DataFrame([
+                                                     [start, 0, event, x, y]],
+                                                     columns=[0,1,2,3,4])])
                 for end, x, y in zip(ends, xs, ys):
-                    events_with_eye = pd.concat([events_with_eye, pd.DataFrame([[end, 0, event+1, x, y]],
-                                                                               columns=[0,1,2,3,4])])
+                    events_with_eye = pd.concat([events_with_eye,
+                                                 pd.DataFrame([
+                                                     [end, 0, event+1, x, y]],
+                                                     columns=[0,1,2,3,4])])
                     
         events_with_eye = events_with_eye.sort_values(by=[0]).reset_index(drop=True)      
         

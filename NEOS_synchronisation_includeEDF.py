@@ -288,7 +288,7 @@ def synchronise_concat(sbj_id, plot=False):
     events_with_eye.columns = ['time', 'previous', 'trigger', 'x', 'y']
     
     print(f"Save mne compatible events:\n only fixations on target : \
-          {path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + '_FIX_eve.fif')}")
+          {path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + '_target_events.fif')}")
     mne.write_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                           '_target_events.fif'), devents, overwrite=True)
     print(f"Save mne compatible events:\n all ET events : \

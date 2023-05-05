@@ -15,34 +15,34 @@ import numpy as np
 
 # IDs of subjects to process (SLURM and Grand-Average)
 do_subjs = [
-        #     1,
-        #     2,
-        #     3,
-        # #   4,
-        #     5,
-        #     6,
-        # #    7,
-        #     8,
-        #     9,
-        #     10,
-        #     11,
-        #     12,
-        #     13,
-        #     14,
-        #     15,
-        #     16,
-        #     17,
-        #     18, 
-        #     19, 
-        # #   20,
-        #     21,
-        #     22, 
-        #     23, 
-        #     24,
-            # 25,
-            # 26,
-            # 27,
-            # 28,
+            1,
+            2,
+            3,
+        #   4,
+            5,
+            6,
+        #    7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18, 
+            19, 
+        #   20,
+            21,
+            22, 
+            23, 
+            24,
+            25,
+            26,
+            27,
+            28,
             29,
             30
             ]
@@ -53,6 +53,8 @@ cbu_path = '/megdata/cbu/eyeonsemantics'
 
 # path to data for pre-processing
 data_path = '/imaging/hauk/users/fm02/MEG_NEOS/data'
+dataold_path = '/imaging/hauk/users/fm02/MEG_NEOS/data_old'
+
 
 path_ET = '/imaging/hauk/users/fm02/MEG_NEOS/ET_data'
 
@@ -174,74 +176,10 @@ sss_map_fnames = {
 ###############################################################################
 # Bad channels
 
-bad_channels_ica = {
-
-    1 : {'eeg': [],
-         'meg': []},
-    2 : {'eeg': ['EEG017'],
-        'meg': []},
-    3 : {'eeg': ['EEG029'], #check if need to add 4 (would prefer not as close to eyes)
-         'meg': []},
-    # 4 : {'eeg': [],
-    #      'meg': []},
-    5 : {'eeg': ['EEG017'],
-        'meg': []},
-    6 : {'eeg': ['EEG002', 'EEG029', 'EEG039'],
-         'meg': []},
-    7 : {'eeg': ['EEG054'],
-         'meg': []},
-    8 : {'eeg': ['EEG034'],
-        'meg': []},
-    9 : {'eeg': [],
-         'meg': []},
-    10 : {'eeg': [],
-         'meg': []},
-    11 : {'eeg': [],
-        'meg': []},
-    12 : {'eeg': ['EEG003', 'EEG045'], #check if need to add 8 (would prefer not as close to eyes)
-         'meg': []},         
-    13 : {'eeg': ['EEG029', 'EEG034', 'EEG061'],
-         'meg': []},
-    14 : {'eeg': [],
-        'meg': []},
-    15 : {'eeg': [],
-         'meg': []},
-    16 : {'eeg': ['EEG002'],
-          'meg': []},
-    17 : {'eeg': ['EEG018', 'EEG039'],
-        'meg': []},
-    18 : {'eeg': [],
-         'meg': []},
-    19 : {'eeg': ['EEG002', 'EEG063'],
-         'meg': []},
-    # 20 : {'eeg': [],
-    #     'meg': []},
-    21 : {'eeg': ['EEG028', 'EEG029', 'EEG030', 'EEG040'],
-         'meg': []},
-    22 : {'eeg': [],
-         'meg': []},
-    23 : {'eeg': [],
-        'meg': []},
-    24 : {'eeg': ['EEG041', 'EEG050'],
-         'meg': []},    
-    25 : {'eeg': ['EEG040', 'EEG047'],
-          'meg': []},
-    26 : {'eeg': ['EEG028', 'EEG054'],
-          'meg': []}, 
-    27 : {'eeg': [],
-         'meg': []},
-    28 : {'eeg': ['EEG010'], # participants bad channels are plenty (22,*29*,33,43,44,45,*63*) # the problem is that they are not always bad
-         'meg': []},  
-    29 : {'eeg': ['EEG034', 'EEG035', 'EEG045'], # check if want to add also 50
-         'meg': []},         
-    30 : {'eeg': [],
-         'meg': []},                
-}
-
-
 # include channels that stand out in empirical covariance computation
 # this is usually the electrode the closest to the right eye, so
 # we decided to drop that channel and the homologue for source estimation
+
 bad_channels_all = {
     1 : {'eeg': ['EEG004', 'EEG008'],
          'meg': []},

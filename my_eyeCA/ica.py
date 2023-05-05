@@ -61,7 +61,7 @@ def compute_ica(inst, cov, time_win, picks, method, n_comp=50):
     return ica
 
 def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp, over_type=None, drf=None):
-
+    raw.load_data()
     # Handle folder/file management
     if over_type==None:
         fpath = Path(raw.filenames[0])    
@@ -86,12 +86,14 @@ def run_ica_pipeline(raw, evt, method, cov_estimator, n_comp, over_type=None, dr
     # Take subset of events for this instance of Raw
     #evt = pp.subset_events(raw, evt)
 
-    # Filter and downsample
-    draw, devt = pp.downsample_and_filter(raw, evt, lf=2, hf=40)
+    # # Filter and downsample
+    # draw, devt = pp.downsample_and_filter(raw, evt, lf=2, hf=40)
 
-       # %%
-    draw.interpolate_bads(mode='accurate', reset_bads=True)
-
+    #    # %%
+    # draw.interpolate_bads(mode='accurate', reset_bads=True)
+    
+    draw = raw.filter(l_freq=2.0, h_freq=100.)
+    devt = evt
 
     # Compute noise covariance if requested, and generate plots
     if cov_estimator:

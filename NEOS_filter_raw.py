@@ -1,15 +1,17 @@
 #!/imaging/local/software/miniconda/envs/mne0.20/bin/python
 """
-Filter and clean data from FPVS Frequency Sweep.
+Filter.
+Average Reference
+Interpolate bad channels.
 
-Get event information, interpolate bad
 EEG channels, (notch) filter.
 ==========================================
 
-fm02 based on OH
+fm02 based on OH FPVS
 """
 
 import sys
+import os
 from os import path
 import numpy as np
 
@@ -20,8 +22,8 @@ from importlib import reload
 
 import mne
 
+os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
-reload(config)
 
 print('MNE Version: %s\n\n' % mne.__version__)  # just in case
 print(mne)
@@ -29,7 +31,7 @@ print(mne)
 # whether to show figures on screen or just write to file
 show = False
 
-def run_filter_raw(sbj_id):
+def run_filter_raw(sbj_id, plot_events=False):
     """Clean data for one subject."""
     # path to subject's data
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
@@ -45,7 +47,7 @@ def run_filter_raw(sbj_id):
 
     print(sss_map_fnames)
 
-    bad_eeg = config.bad_channels_ica[sbj_id]['eeg']  # bad EEG channels
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']  # bad EEG channels
 
     for raw_stem_in in sss_map_fnames:
 
@@ -59,7 +61,8 @@ def run_filter_raw(sbj_id):
 
         raw = mne.io.read_raw_fif(raw_fname_in, preload=True)
 
-        raw = raw.pick_types(meg=True, eeg=True, eog=True, stim=True, ecg=True, emg=True)
+        raw = raw.pick_types(meg=True, eeg=True, eog=True, stim=True, 
+                             ecg=False, emg=False)
 
         print('Fixing coil types.')
         raw.fix_mag_coil_types()
@@ -70,8 +73,12 @@ def run_filter_raw(sbj_id):
             print('Marking bad EEG channels: %s' % bad_eeg)
             raw.info['bads'] = bad_eeg
 
-            print('Interpolating bad EEG channels.')
-            raw.interpolate_bads(mode='accurate', reset_bads=True)
+            print('Interpolating bad channels.')
+            print('We are note interpolating EEG004 and EEG008, because they \
+                  are not actually bad, but just we want to exlude them later \
+                  for source estimation.')
+            raw.interpolate_bads(mode='accurate', exclude=['EEG004', 'EEG008'],
+                                 reset_bads=True)
 
             print('Setting EEG reference.')
             raw.set_eeg_reference(ref_channels='average', projection=True)

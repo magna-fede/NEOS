@@ -30,7 +30,10 @@ mne.viz.set_browser_backend("matplotlib")
 
 # %%
 
-def compute_covariance(sbj_id, cov_method='empirical'):
+def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_covmat=False):
+    
+    subject = str(sbj_id)
+    
     ovr = config.ovr_procedure
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
@@ -66,9 +69,14 @@ def compute_covariance(sbj_id, cov_method='empirical'):
                         evt=evt, thresh=1.1, method='both',
 						ica_filename=ica_fname, overwrite_saved=False)
         raw_test.append(raw_ica)
+    
     raw_test = mne.concatenate_raws(raw_test)
+    raw_test = raw_test.set_eeg_reference(ref_channels='average', projection=True)
     raw_test.load_data()
     raw_test.info['bads'] = bad_eeg
+    raw_test.interpolate_bads(reset_bads=True)
+    
+    raw_test.drop_channels(['EEG004', 'EEG008'])
     
     picks = mne.pick_types(raw_test.info, meg=True, eeg=True, exclude='bads')
 
@@ -99,7 +107,8 @@ def compute_covariance(sbj_id, cov_method='empirical'):
     
     event_dict = {'Stim_on': 94}
     
-    epochs = mne.Epochs(raw_test, evt, tmin=-0.350, tmax=0., event_id=event_dict,
+    epochs = mne.Epochs(raw_test, evt, tmin=-0.350, tmax=-0.150, event_id=event_dict,
+                        baseline=(-0.350, -0.150),
                         flat=None, picks=picks, reject_by_annotation=False, 
                         reject=None, preload=True)
 
@@ -108,18 +117,30 @@ def compute_covariance(sbj_id, cov_method='empirical'):
     if cov_method=='empirical':
         noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
                                    eeg=0.1, rank='info')
-    fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          f"_covariancematrix_{cov_method}-cov.fif")
-    mne.write_cov(fname_cov, noise_cov)
-    
-    if cov_method=='auto':
-        figs = noise_cov[0].plot(epochs.info, proj=True)
-    else:
-        figs = noise_cov.plot(epochs.info, proj=True)
-    for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-        fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
-        fig.savefig(fname_fig)
 
+    if save_covmat:
+        fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                              f"_covariancematrix_{cov_method}-cov.fif")
+        mne.write_cov(fname_cov, noise_cov, overwrite=True)
+    if plot_covmat:
+        if cov_method=='auto':
+            figs = noise_cov[0].plot(epochs.info, proj=True)
+        else:
+            figs = noise_cov.plot(epochs.info, proj=True)
+        for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
+            fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
+            fig.savefig(fname_fig)
+    
+            figs = noise_cov.plot(epochs.info, proj=True)
+            plt.show()
+            for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
+                fname_fig = f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/empirical_covariance/{subject}_covariance_{i}.png'
+                fig.savefig(fname_fig)
+    
+            evoked = epochs.average()
+            fig = evoked.plot_white(noise_cov, time_unit='s')
+            fname_fig = f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/empirical_covariance/{subject}_whitened_empirical.png'
+            fig.savefig(fname_fig)
 
 
 # if len(sys.argv) == 1:

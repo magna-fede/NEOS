@@ -15,6 +15,8 @@ import mne
 import numpy as np
 import pandas as pd
 
+import NEOS_config as config
+
 def load_data(inst):
     if inst.preload:
         pass
@@ -119,20 +121,6 @@ def find_bad_channels(raw, evt):
     return bad_ch
 
 
-def remove_bad_channels(inst, bad_ch):
-
-    # Make a copy
-    # inst = inst.copy()
-
-    # Mark bad channels
-    inst.info["bads"] = bad_ch
-
-    # Interpolate, apply average ref to EEG and return
-    inst.interpolate_bads(reset_bads=True, mode="accurate", origin="auto")
-    inst = inst.set_eeg_reference("average")
-
-    return inst
-
 
 def overweight_saccades(data, all_events):
     """all_events is the xy all events pandas dataframe"""
@@ -154,8 +142,8 @@ def overweight_saccades(data, all_events):
     for i, indices in enumerate(sac_times):
         # adding -20 ms prior to saccade onset and +10ms after saccade offset
         # 20 is fine as long as th
-        d, t = data[:,(all_events.iloc[indices[0]][0] - int(20*1e-3*data.info['sfreq']) - t0) : \
-                        (all_events.iloc[indices[1]][0] + int(10*1e-3*data.info['sfreq']) - t0)]
+        d, t = data[:,int(all_events.iloc[indices[0]][0] - int(20*1e-3*data.info['sfreq']) - t0) : \
+                        int(all_events.iloc[indices[1]][0] + int(10*1e-3*data.info['sfreq']) - t0)]
         # mean centre each saccade epoch
         d -= d.mean(axis=1).reshape(-1,1)    
         sac_selection['data'].append(d)    
@@ -180,13 +168,19 @@ def overweight_saccades(data, all_events):
 
 def overweight_saccades_onset(data, all_events):
     """all_events is the xy all events pandas dataframe"""
+
+    sac_trigger = config.sac_trig_value
+    fix_trigger = config.fix_trig_value
+    blk_trigger = config.blk_trig_value
+
     t0 = data.first_samp
+
 
     # extract Raw Data
     raw = data.get_data()
     
     # get times of saccades trigger
-    ix_801 = np.where((all_events['trigger']==801) & (all_events['y'] < 700))[0]
+    ix_801 = np.where((all_events['trigger']==sac_trigger) & (all_events['y'] < 700))[0]
 #    ix_802 = np.where((all_events['trigger']==802) & (all_events['y'] < 700))[0]
     
     sac_selection = dict.fromkeys(['data', 'time'])
@@ -196,8 +190,8 @@ def overweight_saccades_onset(data, all_events):
     for i, index in enumerate(ix_801):
         # adding -20 ms prior to saccade onset and +10ms after saccade offset
         # 20 is fine as long as th
-        d, t = data[:,(all_events.iloc[index][0] - int(20*1e-3*data.info['sfreq']) - t0) : \
-                        (all_events.iloc[index][0] + int(10*1e-3*data.info['sfreq']) - t0)]
+        d, t = data[:,int(all_events.iloc[index][0] - int(20*1e-3*data.info['sfreq']) - t0) : \
+                        int(all_events.iloc[index][0] + int(10*1e-3*data.info['sfreq']) - t0)]
         # mean centre each saccade epoch
         d -= d.mean(axis=1).reshape(-1,1)    
         sac_selection['data'].append(d)    
