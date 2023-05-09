@@ -97,100 +97,106 @@ over = {"overweighted" : "ovrw_",
         "onset overweighted" : "ovrwonset_"
         }
 
-filtering =  {
-        '0.1': "01Hz",
-        '0.5': "05Hz",
-        '1.0': "10Hz",
-        }   
+# uncorrected = {
+#      'eeg': 'uncorrected_fixation_EEG.png',
+#      'grad': 'uncorrected_fixation_GRAD.png',
+#      'mag': 'uncorrected_fixation_MAG.png',
+#     # 'uncorrected_saccade_EEG.png',
+#     # 'uncorrected_saccade_GRAD.png',
+#     # 'uncorrected_saccade_MAG.png',
+#     }
 
-uncorrected = {
-     'eeg': 'uncorrected_fixation_EEG.png',
-     'grad': 'uncorrected_fixation_GRAD.png',
-     'mag': 'uncorrected_fixation_MAG.png',
-    # 'uncorrected_saccade_EEG.png',
-    # 'uncorrected_saccade_GRAD.png',
-    # 'uncorrected_saccade_MAG.png',
-    }
+# radar_plots = {
+#     'filtering' : 'snr_EEG_filtering.png',
+#     'component_selection' : 'snr_EEG_all_01Hz.png'
+#     }
 
-radar_plots = {
-    'filtering' : 'snr_EEG_filtering.png',
-    'component_selection' : 'snr_EEG_all_01Hz.png'
-    }
-
+sbjs = [1,2]
 for sbj_id in subjs:
     print(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0], 'Figures')
 
-    figs = []
-    captions= []    
-    for unc in uncorrected.values():
-        section = f'Subject {sbj_id} - uncorrected'
+    # figs = []
+    # captions= []    
+    # for unc in uncorrected.values():
+    #     section = f'Subject {sbj_id} - uncorrected'
 
-        image_path = sbj_path + '/' + unc
+    #     image_path = sbj_path + '/' + unc
             
-        try:
-            fig, ax = plt.subplots()
-            img = mpimg.imread(image_path)
-            ax.imshow(img)
-            ax.set_axis_off()
+    #     try:
+    #         fig, ax = plt.subplots()
+    #         img = mpimg.imread(image_path)
+    #         ax.imshow(img)
+    #         ax.set_axis_off()
 
-            figs.append(fig)
-            captions.append(unc)
-        except:
-            image_path = image_path[:-3]+'jpg'
-            fig, ax = plt.subplots()
-            img = mpimg.imread(image_path)
-            ax.imshow(img)
-            ax.set_axis_off()
+    #         figs.append(fig)
+    #         captions.append(unc)
+    #     except:
+    #         image_path = image_path[:-3]+'jpg'
+    #         fig, ax = plt.subplots()
+    #         img = mpimg.imread(image_path)
+    #         ax.imshow(img)
+    #         ax.set_axis_off()
 
-            figs.append(fig)
-            captions.append(unc)
+    #         figs.append(fig)
+    #         captions.append(unc)
         
-    report.add_figure(
-        fig=figs, title='Uncorrected', section = section,
-        caption=captions
-        )
-    plt.close('all')
+    # report.add_figure(
+    #     fig=figs, title='Uncorrected', section = section,
+    #     caption=captions
+    #     )
+    # plt.close('all')
     
     figs = []
     captions= []    
-    for rplot in radar_plots.values():
-        section = f'Subject {sbj_id} - summary'
+    # for rplot in radar_plots.values():
+    #     section = f'Subject {sbj_id} - summary'
 
-        image_path = sbj_path + '/' + rplot
+    #     image_path = sbj_path + '/' + rplot
             
-        try:
-            fig, ax = plt.subplots()
-            img = mpimg.imread(image_path)
-            ax.imshow(img)
-            ax.set_axis_off()
+    #     try:
+    #         fig, ax = plt.subplots()
+    #         img = mpimg.imread(image_path)
+    #         ax.imshow(img)
+    #         ax.set_axis_off()
 
-            figs.append(fig)
-            captions.append(rplot)
-        except:
-            image_path = image_path[:-3]+'jpg'
-            fig, ax = plt.subplots()
-            img = mpimg.imread(image_path)
-            ax.imshow(img)
-            ax.set_axis_off()
+    #         figs.append(fig)
+    #         captions.append(rplot)
+    #     except:
+    #         image_path = image_path[:-3]+'jpg'
+    #         fig, ax = plt.subplots()
+    #         img = mpimg.imread(image_path)
+    #         ax.imshow(img)
+    #         ax.set_axis_off()
 
-            figs.append(fig)
-            captions.append(rplot)
+    #         figs.append(fig)
+    #         captions.append(rplot)
         
-    report.add_figure(
-        fig=figs, title='Summary', section = section,
-        caption=captions
-        )
-    plt.close('all')    
+    # report.add_figure(
+    #     fig=figs, title='Summary', section = section,
+    #     caption=captions
+    #     )
+    # plt.close('all')    
 
     for ch in ch_type.keys():
         for ovr in over.keys():
             section = f'Subject {sbj_id} - ICA {ch} {ovr}'
             figs = []
             captions= []
-            for filt in filtering.keys():
-                for condition in conditions.keys():                                  
-                    image_path = sbj_path + '/' + ch_type[ch]+conditions[condition]+over[ovr]+filtering[filt]+end
+            for condition in conditions.keys():                                  
+                image_path = sbj_path + '/' + ch_type[ch]+conditions[condition]+over[ovr]+end
+                    
+                try:
+                    fig, ax = plt.subplots()
+                    img = mpimg.imread(image_path)
+                    ax.imshow(img)
+                    ax.set_axis_off()
+        
+                    figs.append(fig)
+                    captions.append(condition)
+                except:
+                    
+                    image_path = sbj_path + '/' + ch_type01[ch]+conditions[condition]+over[ovr]++end
                     
                     try:
                         fig, ax = plt.subplots()
@@ -199,22 +205,10 @@ for sbj_id in subjs:
                         ax.set_axis_off()
             
                         figs.append(fig)
-                        captions.append(condition+' '+filt+' Hz')
+                        captions.append(condition)
                     except:
+                        print('None of the worked')
                         
-                        image_path = sbj_path + '/' + ch_type01[ch]+conditions[condition]+over[ovr]+filtering[filt]+end
-                        
-                        try:
-                            fig, ax = plt.subplots()
-                            img = mpimg.imread(image_path)
-                            ax.imshow(img)
-                            ax.set_axis_off()
-                
-                            figs.append(fig)
-                            captions.append(condition+' '+filt+' Hz')
-                        except:
-                            print('None of the worked')
-                            
             report.add_figure(
                 fig=figs, title=ovr, section = section,
                 caption=captions
