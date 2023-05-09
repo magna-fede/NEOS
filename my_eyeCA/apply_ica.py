@@ -345,6 +345,86 @@ def plot_evoked_sensors(data, devents, comp_sel, all_factors=False, standard_rej
         fname_fig =  fpath.parent / 'Figures' / f'FRP_concreteness_ovrw_{comp_sel}.png'
         plt.savefig(fname_fig)
         
+def get_ica_raw(sbj_id, condition='both', overweighting='best', interpolate=True, drop_EEG_4_8=True):
+    """
+    Return the concatenated blocks with the specified ICA procedure applied.
+
+    Parameters
+    ----------
+    sbj_id : subject id.
+    condition : ['eog', 'variance', 'both']
+        
+    overweighting : overweighting procedure
+        DESCRIPTION. The default is 'best'.
+    interpolate : interpolate bad channels
+        DESCRIPTION. The default is True.
+    drop_EEG_4_8 : drop very frontal channels
+        DESCRIPTION. The default is True.
+
+    Returns
+    -------
+    raws : TYPE
+        DESCRIPTION.
+
+    """
+    if overweighting=='best':
+        ovr = config.ovr_procedure[sbj_id]
+        if ovr=='ovrons':
+            ovr = '_ovrwonset'
+        elif ovr=='ovrw':
+            ovr = '_ovrw'
+        elif ovr=='novr':
+            ovr = ''
+        
+    else:
+        over_input(overweighting)
+        ovr = overweighting
+    
+    sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
+    
+    raws = list()
+    
+    for i in range(1,6):          
+        raw = mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif"))  
+        raw.info['bads'] = bad_eeg
+        
+        fpath = Path(raw.filenames[0])    
+        if ovr in ['_ovrwonset', 'ovrons']:
+                        ic_path = path.join(fpath.parent, 'ICA_ovr_w_onset',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
+        elif ovr in ['_ovrw', 'ovrw']:
+                        ic_path = path.join(fpath.parent, 'ICA_ovr_w',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
+        elif ovr in ['', 'novr']:
+                        ic_path = path.join(fpath.parent, 'ICA',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
+                                                 f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
+        
+        [raw.info['bads'].remove(too_close_to_the_eyes) for too_close_to_the_eyes in ['EEG004', 'EEG008']]    
+        
+        ic = mne.preprocessing.read_ica(ic_path+'.fif')
+    
+        evt_file = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                                  f'_all_events_block_{i}.fif')
+        evt = mne.read_events(evt_file)
+    
+        variance_threshold = 1.1        
+        raw, _, _ = apply_ica_pipeline(raw=raw,                                                                  
+                            evt=evt, thresh=variance_threshold,
+        						ica_instance=ic, method=condition, over=ovr, plot_overlay=False)
+        raws.append(raw)
+        
+    raws =  mne.concatenate_raws(raws)
+    raw
+    if interpolate:
+        raws.interpolate_bads(reset_bads=True)
+    if drop_EEG_4_8:
+        raws.drop_channels(['EEG004', 'EEG008'])
+        
+    return raws
 
 # def generate_report(inst, ic_scores, raw, file_ica, reject):
     
