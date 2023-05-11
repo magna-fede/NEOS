@@ -13,15 +13,15 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 
 # Path to script
 
-SCRIPT3="snr_compare_componentselection_ica_oveweighted_onsets_withplots.py"
-SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
-SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
+# SCRIPT3="snr_compare_componentselection_ica_oveweighted_onsets_withplots.py"
+# SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
+# SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
 
 # SCRIPT="NEOS_rois_predictability_coherence.py"
 
 # SCRIPT="NEOS_MorphStcsFsaverage.py"
 
-# SCRIPT="NEOS_fromstarttofinish.py"
+SCRIPT="NEOS_fromstarttofinish.py"
 # SCRIPT="snr_radarplot_component_selection.py"
 # SCRIPT2="snr_radarplot_filt_ovr_both.py"
 
@@ -56,37 +56,37 @@ done
 # # Wait till everything has run
 wait
 
-# for i in "${array[@]}"
-for i in {1..30}
-do
-    echo "TASK $i STARTING"
+# # for i in "${array[@]}"
+# for i in {1..30}
+# do
+#     echo "TASK $i STARTING"
 
-    # Run task on node
-    srun --ntasks=1 \
-        --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
-        --exclusive "python" $SCRIPT2 $i &
+#     # Run task on node
+#     srun --ntasks=1 \
+#         --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
+#         --exclusive "python" $SCRIPT2 $i &
     
-    echo "TASK $i PUSHED TO BACKGROUND"
-done
+#     echo "TASK $i PUSHED TO BACKGROUND"
+# done
 
-# Wait till everything has run
-wait
+# # Wait till everything has run
+# wait
 
-# for i in "${array[@]}"
-for i in {1..30}
-do
-    echo "TASK $i STARTING"
+# # for i in "${array[@]}"
+# for i in {1..30}
+# do
+#     echo "TASK $i STARTING"
 
-    # Run task on node
-    srun --ntasks=1 \
-        --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
-        --exclusive "python" $SCRIPT3 $i &
+#     # Run task on node
+#     srun --ntasks=1 \
+#         --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
+#         --exclusive "python" $SCRIPT3 $i &
     
-    echo "TASK $i PUSHED TO BACKGROUND"
-done
+#     echo "TASK $i PUSHED TO BACKGROUND"
+# done
 
-# Wait till everything has run
-wait
+# # Wait till everything has run
+# wait
 
 echo "JOB $SLURM_JOB_ID COMPLETED"
 

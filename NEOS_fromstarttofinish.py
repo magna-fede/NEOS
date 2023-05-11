@@ -46,6 +46,8 @@ from NEOS_filter_raw import run_filter_raw
 
 # from NEOS_applyICA_evoked import create_evoked
 
+# # PLot various ICA procedures and save plots
+from plot_conditionoverweighting_procedure import plot_evoked_for_comparisons
 # #  THIS will run through all the scripts above, careful is going to take time
 
 if len(sys.argv) == 1:
@@ -60,11 +62,14 @@ else:
 
 
 for ss in sbj_ids:
-#     run_fix_electrodes(ss)
-    run_filter_raw(ss)    
+    # run_fix_electrodes(ss)
+    # run_filter_raw(ss)    
     # synchronise_per_block(ss)
     # synchronise_concat(ss)
-#     create_evoked(ss)
+    # create_evoked(ss)
+    plot_evoked_for_comparisons(ss)
+    
+    
     
 # # %% SOURCE SPACE PREPARATION
 
