@@ -381,13 +381,13 @@ def get_ica_raw(sbj_id, condition='both', overweighting='best', interpolate=True
         ovr = overweighting
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg'].copy()
     
     raws = list()
     
     for i in range(1,6):          
         raw = mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif"))  
-        raw.info['bads'] = bad_eeg
+        raw.info['bads'] = bad_eeg.copy()
         
         fpath = Path(raw.filenames[0])    
         if ovr in ['_ovrwonset', 'ovrons']:
