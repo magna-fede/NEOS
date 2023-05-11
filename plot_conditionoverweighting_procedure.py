@@ -37,10 +37,10 @@ flat_criteria = config.epo_flat
 def plot_evoked_for_comparisons(sbj_id):
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     
-    for condition in ['eog', 'var', 'both']:
+    for condition in ['eog', 'variance', 'both']:
         for over in ['_ovrw', '', '_ovrwonset']:
             raws = apply_ica.get_ica_raw(sbj_id, condition=condition,
-                                                         overweighting=over)
+                                         overweighting=over)
 
             target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                       '_target_events.fif'))
