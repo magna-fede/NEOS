@@ -30,17 +30,17 @@ VALID_METHOD = {'eog', 'variance', 'both'}
  
 def over_input(status):
     if status not in VALID_STATUS:
-        raise ValueError("overweighting: must be one of %r." % VALID_STATUS)
+        raise ValueError(f"{status}: overweighting must be one of %r." % VALID_STATUS)
 
 def method_input(status):
     if status not in VALID_STATUS:
-        raise ValueError("method: must be one of %r." % VALID_METHOD)
+        raise ValueError(f"{status} method must be one of %r." % VALID_METHOD)
 
 
 def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, ica_instance=None, over=False, plot_overlay=False,
                        overwrite_saved=False):
     over_input(over)
-    method_input(method)
+    # method_input(method)
     # Handle folder/file management
     fpath = Path(raw.filenames[0])
 
