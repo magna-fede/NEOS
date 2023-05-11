@@ -87,14 +87,14 @@ ch_type01 = {
      }     
         
 conditions = {#"preica" : "_pre-ICA_",
-             "eog" : "eog_",
-             "var" : "var_",
-             "both" : "both_"
+             "eog" : "eog",
+             "var" : "variance",
+             "both" : "both"
              }
 
-over = {"overweighted" : "ovrw_",
+over = {"overweighted" : "_ovrw",
         "non-overweighted" : "",
-        "onset overweighted" : "ovrwonset_"
+        "onset overweighted" : "_ovrwonset"
         }
 
 # uncorrected = {
@@ -196,7 +196,7 @@ for sbj_id in subjs:
                     captions.append(condition)
                 except:
                     
-                    image_path = sbj_path + '/' + ch_type01[ch]+conditions[condition]+over[ovr]++end
+                    image_path = sbj_path + '/' + ch_type01[ch]+conditions[condition]+over[ovr]+end
                     
                     try:
                         fig, ax = plt.subplots()
@@ -215,5 +215,5 @@ for sbj_id in subjs:
                 )
             plt.close('all')
 
-report.save(path.join(config.data_path, 'misc', 'systematic_comparison.html'), overwrite=True)
+report.save(path.join(config.data_path, 'systematic_comparison.html'), overwrite=True)
 
