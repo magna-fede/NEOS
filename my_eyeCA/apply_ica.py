@@ -3,7 +3,8 @@
 """
 Created on Tue Nov 29 12:10:45 2022
 
-@author: py01
+@author: fm02
+based on py01
 """
 from os import path
 import mne
@@ -24,14 +25,22 @@ reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
 
 VALID_STATUS = {'', '_ovrw', '_ovrwonset'}
+VALID_METHOD = {'eog', 'variance', 'both'}
+
  
 def over_input(status):
     if status not in VALID_STATUS:
-        raise ValueError("results: status must be one of %r." % VALID_STATUS)
+        raise ValueError("overweighting: must be one of %r." % VALID_STATUS)
+
+def method_input(status):
+    if status not in VALID_STATUS:
+        raise ValueError("method: must be one of %r." % VALID_METHOD)
+
 
 def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, ica_instance=None, over=False, plot_overlay=False,
                        overwrite_saved=False):
     over_input(over)
+    method_input(method)
     # Handle folder/file management
     fpath = Path(raw.filenames[0])
 
@@ -249,7 +258,7 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
             raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica{over}_both_raw.fif",
                     overwrite=True)
                 # Save fitted ICA
-            ic_file = ica_filename + 'fitted_eogvar.fif'
+            ic_file = ica_filename + 'fitted_both.fif'
             
             ic.save(ic_file, overwrite=True)
             
@@ -257,6 +266,10 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
         raw.info['bads'] = bads
     
         return raw, ic, ic_scores
+    
+    else:
+        problem_method = f"Wrong method {method}, must be in ['eog', 'variance'. 'both']"
+        return problem_method
 
 
 
@@ -413,8 +426,8 @@ def get_ica_raw(sbj_id, condition='both', overweighting='best', interpolate=True
     
         variance_threshold = 1.1        
         raw, _, _ = apply_ica_pipeline(raw=raw,                                                                  
-                            evt=evt, thresh=variance_threshold,
-        						ica_instance=ic, method=condition, over=ovr, plot_overlay=False)
+                            evt=evt, thresh=variance_threshold, method=condition,
+        						ica_instance=ic, over=ovr, plot_overlay=False)
         raws.append(raw)
         
     raws =  mne.concatenate_raws(raws)
