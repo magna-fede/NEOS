@@ -224,15 +224,28 @@ def saccade_locked(raw, evt, plot=False):
         figure object with plot.
     """
     # Create evoked object with 801 (start Saccade) as event
-    evo = mne.Epochs(
-        raw,
-        evt,
-        picks=["eeg"],
-        event_id=801,
-        tmin=-0.02,
-        tmax=0.05,
-        baseline=(None, 0),
-    ).average()
+    try: 
+        evo = mne.Epochs(
+            raw,
+            evt,
+            picks=["eeg"],
+            event_id=801,
+            tmin=-0.02,
+            tmax=0.05,
+            baseline=(None, 0),
+        ).average()
+    except:
+         evo = mne.Epochs(
+             raw,
+             evt,
+             picks=["eeg"],
+             event_id=801,
+             tmin=-0.02,
+             tmax=0.05,
+             baseline=(None, 0),
+             event_repeated='drop'
+         ).average()
+   
 
     # Get Area-under-curve for saccade
     tmin = 0
