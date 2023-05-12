@@ -30,64 +30,44 @@ mne.viz.set_browser_backend("matplotlib")
 
 # %%
 
+def ovr_sub(ovr):
+    if ovr in ['nover', 'novr', 'novrw']:
+        ovr = ''
+    elif ovr in ['ovrw', 'ovr', 'over', 'overw']:
+        ovr = '_ovrw'
+    elif ovr in ['ovrwonset', 'ovrons', 'overonset']:
+        ovr = '_ovrwonset'
+    return ovr
+
 def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_covmat=False):
     
     subject = str(sbj_id)
     
-    ovr = config.ovr_procedure
+    ovr = config.ovr_procedure[sbj_id]
+    
+    ovr = ovr_sub(ovr)
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
-    if ovr[sbj_id] == 'ovrons':
-        over = '_ovrwonset'
-        ica_dir = path.join(sbj_path, 'ICA_ovr_w_onset')
-    elif ovr[sbj_id] == 'ovr':
-        over = '_ovrw'
-        ica_dir = path.join(sbj_path, 'ICA_ovr_w')
-    elif ovr[sbj_id] == 'novr':
-        over = ''
-        ica_dir = path.join(sbj_path, 'ICA')
-    condition = 'both'
-
-    raw_test = []
+    raw_test = apply_ica.get_ica_raw(sbj_id, 
+                                     condition='both',
+                                     overweighting=ovr,
+                                     interpolate=False, 
+                                     drop_EEG_4_8=False)
     
-    ica_sub = '_sss_f_raw_ICA_extinfomax_0.99_COV_None'
-    ica_sub_file = '_sss_f_raw_ICA_extinfomax_0.99_COV_None-ica_eogvar'
-            
-    for i in range(1, 6):
-        ica_fname = path.join(ica_dir,
-                              f'block{i}'+ica_sub,
-                              f'block{i}'+ica_sub_file) 
-        raw = mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif"))
-        evt_file = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          f'_all_events_block_{i}.fif')
-        evt = mne.read_events(evt_file)
-        # hey, very important to keep overwrite_saved as false, or this will change
-        # the raw files saved for checking which approach is best for each participant
-        raw_ica, _, _ = apply_ica.apply_ica_pipeline(raw=raw,                                                                  
-                        evt=evt, thresh=1.1, method='both',
-						ica_filename=ica_fname, overwrite_saved=False)
-        raw_test.append(raw_ica)
-    
-    raw_test = mne.concatenate_raws(raw_test)
     raw_test = raw_test.set_eeg_reference(ref_channels='average', projection=True)
     raw_test.load_data()
     raw_test.info['bads'] = bad_eeg
+   
+    raw_test.drop_channels(['EEG004', 'EEG008'])
     raw_test.interpolate_bads(reset_bads=True)
     
-    raw_test.drop_channels(['EEG004', 'EEG008'])
-    
-    picks = mne.pick_types(raw_test.info, meg=True, eeg=True, exclude='bads')
+    picks = mne.pick_types(raw_test.info, meg=True, eeg=True)
 
     target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                               '_target_events.fif'))
-    
-
-    target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              '_target_events.fif'))
-  
-
+ 
     # manually checked for the shortest possible time the fixation cross was on
     # this is 
     evt = pd.DataFrame(target_evts, columns=['time','n','trigger'])
@@ -117,30 +97,52 @@ def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_c
     if cov_method=='empirical':
         noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
                                    eeg=0.1, rank='info')
-
+    elif len(noise_cov)>1:
+        for i_nc, nc in enumerate(noise_cov):
+            if nc['method']=='empirical':
+                noise_cov[i_nc] = mne.cov.regularize(nc, epochs.info, mag=0.1, grad=0.1,
+                                           eeg=0.1, rank='info')
+                
     if save_covmat:
-        fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                              f"_covariancematrix_{cov_method}-cov.fif")
-        mne.write_cov(fname_cov, noise_cov, overwrite=True)
+        if len(noise_cov)==1:
+            fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                                  f"_covariancematrix_{cov_method}-cov.fif")
+            mne.write_cov(fname_cov, noise_cov, overwrite=True)
+        elif len(noise_cov)>1:
+            for nc in noise_cov:
+                fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                                      f"_covariancematrix_{nc['method']}-cov.fif")
+                mne.write_cov(fname_cov, nc, overwrite=True)
+                
     if plot_covmat:
-        if cov_method=='auto':
-            figs = noise_cov[0].plot(epochs.info, proj=True)
-        else:
-            figs = noise_cov.plot(epochs.info, proj=True)
-        for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-            fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
-            fig.savefig(fname_fig)
-    
-            figs = noise_cov.plot(epochs.info, proj=True)
-            plt.show()
+        if len(cov_method)==1:
+            if cov_method=='auto':
+                figs = noise_cov[0].plot(epochs.info, proj=True)
+            else:
+                figs = noise_cov.plot(epochs.info, proj=True)
+            
             for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-                fname_fig = f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/empirical_covariance/{subject}_covariance_{i}.png'
+                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
                 fig.savefig(fname_fig)
-    
+        
             evoked = epochs.average()
             fig = evoked.plot_white(noise_cov, time_unit='s')
-            fname_fig = f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/empirical_covariance/{subject}_whitened_empirical.png'
+            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method}.png')
             fig.savefig(fname_fig)
+                
+        elif len(cov_method)>1:
+            for nc in noise_cov:
+                figs = nc.plot(epochs.info, proj=True)
+                
+                for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
+                    fname_fig = path.join(sbj_path, 'Figures', f'covariance_{nc["method"]}_{i}.png')
+                    fig.savefig(fname_fig)
+        
+        
+                evoked = epochs.average()
+                fig = evoked.plot_white(nc, time_unit='s')
+                fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{nc["method"]}.png')
+                fig.savefig(fname_fig)
 
 
 # if len(sys.argv) == 1:
