@@ -108,12 +108,12 @@ def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_c
     if save_covmat:
         if len(noise_cov)==1:
             fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                                  f"_covariancematrix_{cov_method}-cov.fif")
+                                  f"_covariancematrix_{cov_method}_dropbads-cov.fif")
             mne.write_cov(fname_cov, noise_cov, overwrite=True)
         elif len(noise_cov)>1:
             for nc in noise_cov:
                 fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                                      f"_covariancematrix_{nc['method']}-cov.fif")
+                                      f"_covariancematrix_{nc['method']}_dropbads-cov.fif")
                 mne.write_cov(fname_cov, nc, overwrite=True)
                 
     if plot_covmat:
@@ -124,12 +124,12 @@ def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_c
                 figs = noise_cov.plot(epochs.info, proj=True)
             
             for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_{i}.png')
+                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_dropbads_{i}.png')
                 fig.savefig(fname_fig)
         
             evoked = epochs.average()
             fig = evoked.plot_white(noise_cov, time_unit='s')
-            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method}.png')
+            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method}_dropbads.png')
             fig.savefig(fname_fig)
                 
         elif len(cov_method)>1:
@@ -137,13 +137,13 @@ def compute_covariance(sbj_id, cov_method='empirical', save_covmat=False, plot_c
                 figs = nc.plot(epochs.info, proj=True)
                 
                 for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-                    fname_fig = path.join(sbj_path, 'Figures', f'covariance_{nc["method"]}_{i}.png')
+                    fname_fig = path.join(sbj_path, 'Figures', f'covariance_{nc["method"]}_dropbads_{i}.png')
                     fig.savefig(fname_fig)
         
         
                 evoked = epochs.average()
                 fig = evoked.plot_white(nc, time_unit='s')
-                fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{nc["method"]}.png')
+                fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{nc["method"]}_dropbads.png')
                 fig.savefig(fname_fig)
 
 
