@@ -29,10 +29,10 @@ conditions = [['Predictable', 'Unpredictable'], ['Abstract', 'Concrete']]
 # conditions = ['abspred', 'absunpred', 'concpred', 'concunpred']
 
 
-def compute_stcs(sbj_id, method="MNE", orientation=None):
+def compute_stcs(sbj_id, method="MNE", inv_suf='', orientation=None):
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
+    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
     evs=dict()
     for condition in conditions:
@@ -53,8 +53,10 @@ def compute_stcs(sbj_id, method="MNE", orientation=None):
         stc = mne.minimum_norm.apply_inverse(evs[ev], inverse_operator,
                                              lambda2, method=method,
                                              pick_ori=orientation, verbose=True)
-        
-        stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_{method}")
+        if len(inv_suf)==0:
+            stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_{method}")
+        elif len(inv_suf)>0:
+            stc_fname = path.join(stc_path, f"{subject}_stc_{ev}_{method}_{inv_suf}")
         stc.save(stc_fname)
 
 # if len(sys.argv) == 1:
