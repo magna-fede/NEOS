@@ -65,9 +65,12 @@ def make_InverseOperator(sbj_id, cov='empirical',
     raw_test = raw_test.set_eeg_reference(ref_channels='average', projection=True)
     raw_test.load_data()
     raw_test.info['bads'] = bad_eeg
-   
-    raw_test.drop_channels(['EEG004', 'EEG008'])
-    raw_test.interpolate_bads(reset_bads=True)
+    
+    if "_dropbads" in cov:
+        raw_test.pick_types(meg=True, eeg=True, exclude='bads')
+    else:
+        raw_test.drop_channels(['EEG004', 'EEG008'])
+        raw_test.interpolate_bads(reset_bads=True)
     
     info = raw_test.info
 
