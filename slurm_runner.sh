@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=compare_icas  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
-#SBATCH --ntasks=30
+#SBATCH --ntasks=27
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=2G
 #SBATCH --verbose                                   # Be verbose wherever possible
@@ -39,9 +39,10 @@ conda activate mne1.2.1_0
 echo "JOB $SLURM_JOB_ID STARTING"
 
 # Loop over range of arguments to script
-# array=(1 12)
-# for i in "${array[@]}"
-for i in {1..30}
+array=(1 2 3 5 6 8 9 10 11 12 13 14 15 16 17 18 19 
+           21 22 23 24 25 26 27 28 29 30)
+for i in "${array[@]}"
+# for i in {1..30}
 do
     echo "TASK $i STARTING"
 
