@@ -34,41 +34,39 @@ sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
 all_leak = list()
 all_leak_norm = list()
 
-sbj_ids = [1,2]
+# sbj_ids = [1,2]
 
 for sbj_id in sbj_ids:
     subject = str(sbj_id)
     subjects_dir = config.subjects_dir
     
-    #### THIS MUST BE CONVERTED TO DATA_PATH NOT DATA***OLD***PATH
-    sbj_path = path.join(config.dataold_path, config.map_subjects[sbj_id][0])
+    sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     
     info = mne.io.read_info(path.join(sbj_path, "block1_sss_f_raw.fif"))  
     
     fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')    
     cov_fname =   fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] \
-                                        + '_covariancematrix_empirical-cov.fif')
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
+                                        + '_covariancematrix_shrunk_dropbads-cov.fif')
+    inv_fname = path.join(sbj_path, subject + '_EEGMEGshrunk_dropbads-inv.fif')
     
     cov = mne.read_cov(cov_fname)
     
     forward_loose = mne.read_forward_solution(fwd_fname)
-    forward_fixed = forward_loose.copy()
-    forward_fixed = mne.convert_forward_solution(
-        forward_fixed, surf_ori=True, force_fixed=True, copy=False)
+    # forward_fixed = forward_loose.copy()
+    # forward_fixed = mne.convert_forward_solution(
+    #     forward_fixed, surf_ori=True, force_fixed=True, copy=False)
     
     inverse_operator_loose = mne.minimum_norm.read_inverse_operator(inv_fname)
-    inverse_operator_fixed = mne.minimum_norm.make_inverse_operator(info, forward_fixed, noise_cov=cov,
-                                   fixed=True, loose=0., depth=None,
-                                   verbose=None)
+    # inverse_operator_fixed = mne.minimum_norm.make_inverse_operator(info, forward_fixed, noise_cov=cov,
+    #                                 fixed=True, loose=0., depth=None,
+    #                                 verbose=None)
     
     rm_mne = make_inverse_resolution_matrix(forward_loose, inverse_operator_loose,
                                             method='eLORETA', lambda2=1. / 3.**2)
     
-    src = inverse_operator_fixed['src']
+    src = inverse_operator_loose['src']
     
-    #### THIS MUST BE CONVERTED TO DATA_PATH NOT DATA***OLD***PATH
-    labels_path = path.join(config.dataold_path, "my_ROIs")
+    labels_path = path.join(config.data_path, "my_ROIs")
     
     lATL = mne.read_label(path.join(labels_path, 'l_ATL_fsaverage-lh.label'),
                           subject='fsaverage')
@@ -112,23 +110,23 @@ for sbj_id in sbj_ids:
 
 # %% THIS IS FOR PLOTTING FIRST 5 PC on BRAIN
     
-    n_comp = 5
-    stcs_psf_mne, pca_vars_mne = get_point_spread(
-        rm_mne, src, rois_subject, mode='pca', n_comp=n_comp, norm=None,
-        return_pca_vars=True)
+    # n_comp = 5
+    # stcs_psf_mne, pca_vars_mne = get_point_spread(
+    #     rm_mne, src, rois_subject, mode='pca', n_comp=n_comp, norm=None,
+    #     return_pca_vars=True)
 
     
-    with np.printoptions(precision=1):
-        for [name, var] in zip(label_names, pca_vars_mne):
-            print(f'{name}: {var.sum():.1f}% {var}')
+    # with np.printoptions(precision=1):
+    #     for [name, var] in zip(label_names, pca_vars_mne):
+    #         print(f'{name}: {var.sum():.1f}% {var}')
     
-    Brain = mne.viz.get_brain_class()
+    # Brain = mne.viz.get_brain_class()
     
-    brain = Brain('2', 'both', 'inflated', subjects_dir=subjects_dir,
-              cortex='low_contrast', background='white', size=(800, 600))
-    [brain.add_label(roi) for roi in rois_subject]
-    for i in range(0, n_labels):
-        brain_psf = stcs_psf_mne[i].plot(subject, 'inflated', 'lh', subjects_dir=subjects_dir)
+    # brain = Brain(subject, 'both', 'inflated', subjects_dir=subjects_dir,
+    #           cortex='low_contrast', background='white', size=(800, 600))
+    # [brain.add_label(roi) for roi in rois_subject]
+    # for i in range(0, n_labels):
+    #     brain_psf = stcs_psf_mne[i].plot(subject, 'inflated', 'lh', subjects_dir=subjects_dir)
 
  # %% THIS IS FOR ACTUAL LEAKAGE COMPUTATION
     stcs_psf_mne = get_point_spread(
