@@ -89,7 +89,7 @@ for roi in rois_lab:
 for sbj_id in sbj_ids:
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    inv_fname = path.join(sbj_path, subject + '_EEGMEG-inv_emp3150.fif')
+    inv_fname = path.join(sbj_path, subject + '_EEGMEGshrunk_dropbads-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
 
     for cond in stc_conditions:
