@@ -33,8 +33,18 @@ snr = 3.0  # Standard assumption for average data but using it for single trial
 lambda2 = 1.0 / snr ** 2
 loose = 0.2
 depth = None
+
 reject_criteria = config.epo_reject
 flat_criteria = config.epo_flat
+
+def ovr_sub(ovr):
+    if ovr in ['nover', 'novr', 'novrw']:
+        ovr = ''
+    elif ovr in ['ovrw', 'ovr', 'over', 'overw']:
+        ovr = '_ovrw'
+    elif ovr in ['ovrwonset', 'ovrons', 'overonset']:
+        ovr = '_ovrwonset'
+    return ovr
 
 labels_path = path.join(config.data_path, "my_ROIs")
 stc_path = path.join(config.data_path, "stcs")
@@ -64,60 +74,31 @@ pred = ['ID', 'Word', 'ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']
 meta = meta[pred]
 
 scaler = StandardScaler()
-meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']] = scaler.fit_transform(meta[['ConcM', 
-                                                                                        'LEN', 
-                                                                                        'LogFreq(Zipf)', 
-                                                                                        'Position', 
-                                                                                        'Sim']])
+meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']] = scaler.fit_transform(
+    meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']])
 
 # %%
 
-def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='emp3150'):
+def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='shrunk_dropbads'):
     
     subject = str(sbj_id)
-    
-    ovr = config.ovr_procedure
-    
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
-    if ovr[sbj_id] == 'ovrons':
-        over = '_ovrwonset'
-        ica_dir = path.join(sbj_path, 'ICA_ovr_w_onset')
-    elif ovr[sbj_id] == 'ovr':
-        over = '_ovrw'
-        ica_dir = path.join(sbj_path, 'ICA_ovr_w')
-    elif ovr[sbj_id] == 'novr':
-        over = ''
-        ica_dir = path.join(sbj_path, 'ICA')
-    condition = 'both'
+    ovr = config.ovr_procedure[sbj_id]
+    ovr = ovr_sub(ovr)
 
-    raw_test = []
+    raw_test = apply_ica.get_ica_raw(sbj_id, 
+                                     condition='both',
+                                     overweighting=ovr,
+                                     interpolate=False, 
+                                     drop_EEG_4_8=False)
     
-    ica_sub = '_sss_f_raw_ICA_extinfomax_0.99_COV_None'
-    ica_sub_file = '_sss_f_raw_ICA_extinfomax_0.99_COV_None-ica_eogvar'
-            
-    for i in range(1, 6):
-        ica_fname = path.join(ica_dir,
-                              f'block{i}'+ica_sub,
-                              f'block{i}'+ica_sub_file) 
-        raw = mne.io.read_raw(path.join(sbj_path, f"block{i}_sss_f_raw.fif"))
-        evt_file = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                          f'_all_events_block_{i}.fif')
-        evt = mne.read_events(evt_file)
-        # hey, very important to keep overwrite_saved as false, or this will change
-        # the raw files saved for checking which approach is best for each participant
-        raw_ica, _, _ = apply_ica.apply_ica_pipeline(raw=raw,                                                                  
-                        evt=evt, thresh=1.1, method='both',
-						ica_filename=ica_fname, overwrite_saved=False)
-        raw_test.append(raw_ica)
-    raw_test = mne.concatenate_raws(raw_test)
+    raw_test = raw_test.set_eeg_reference(ref_channels='average', projection=True)
     raw_test.load_data()
     raw_test.info['bads'] = bad_eeg
     
-    # pick_types operates in place
-    raw_test.pick_types(meg=True, eeg=True, exclude='bads')
-    info = raw_test.info
+    picks = mne.pick_types(raw_test.info, meg=True, eeg=True, exclude='bads')
 
     target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                              '_target_events.fif'))
@@ -129,7 +110,7 @@ def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='emp3150'):
     tmin, tmax = -.3, .7
        
     epochs = mne.Epochs(raw_test, target_evts, event_dict, tmin=tmin, tmax=tmax,
-                       reject=None, preload=True)
+                       picks=picks, reject=None, preload=True)
    
     metadata = pd.DataFrame(columns=meta.columns)
    
@@ -143,7 +124,7 @@ def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='emp3150'):
     epochs.resample(250, npad='auto')
     
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
-    inv_fname = path.join(sbj_path, subject + f'_EEGMEG-inv_{inv_suf}.fif')
+    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
 
     rois_subject = mne.morph_labels(rois, subject_to=subject, 
