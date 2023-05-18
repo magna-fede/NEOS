@@ -23,8 +23,8 @@ stc_path = path.join(config.data_path, "stcs")
 snr = 3.
 lambda2 = 1. / snr ** 2
 
-# conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
-conditions = ['AP', 'AU', 'CP', 'CU']
+conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
+# conditions = ['AP', 'AU', 'CP', 'CU']
 
 subjects_dir = config.subjects_dir
 
