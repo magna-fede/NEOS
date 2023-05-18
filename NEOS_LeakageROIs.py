@@ -24,6 +24,7 @@ from os import path
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
 os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
@@ -168,9 +169,11 @@ for sbj_id in sbj_ids:
     all_leak.append(leakage)
     all_leak_norm.append(leakage_norm)
    
-avg_leak_norm = np.stack(all_leak_norm).mean(axis=0)
-sns.heatmap(avg_leak_norm, annot=True, cmap='viridis', xticklabels=label_names, yticklabels=label_names)
-   
+avg_leak_norm = np.stack(all_leak_norm)
+#sns.heatmap(avg_leak_norm, annot=True, cmap='viridis', xticklabels=label_names, yticklabels=label_names)
+with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', 'wb') as handle:
+    pickle.dump(avg_leak_norm, handle, protocol=pickle.HIGHEST_PROTOCOL)
+      
 # overall = np.stack(overall)
 # overall.shape
 # avg_leak = overall.mean(axis=0)
