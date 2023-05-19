@@ -29,7 +29,7 @@ os.chdir("/home/fm02/MEG_NEOS/NEOS")
 mne.viz.set_browser_backend("matplotlib")
 
 
-snr = 3.0  # Standard assumption for average data but using it for single trial
+snr = 1.0  # snr should be 1 for single epoch inversion
 lambda2 = 1.0 / snr ** 2
 loose = 0.2
 depth = None
