@@ -91,12 +91,12 @@ rois = [lATL,
         PTC]
 
 meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
-pred = ['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']
+pred = ['ID', 'ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']
 meta = meta[pred]
 
 est = KBinsDiscretizer(n_bins=4, encode='ordinal', strategy='uniform')
-est.fit(meta)
-Xt = est.transform(meta)
+est.fit(meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']])
+Xt = est.transform(meta[['ConcM', 'LEN', 'LogFreq(Zipf)', 'Position', 'Sim']])
 
 cols = ['ConcCont', 'Length', 'Zipf', 'Position', 'PredCont']
 
