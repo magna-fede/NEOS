@@ -179,6 +179,7 @@ def make_stcsEpochs(sbj_id, method='eLORETA', inv_suf='shrunk_dropbads'):
     with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/data_for_mixed_models/sbj_{subject}.P', 'wb') as handle:
         pickle.dump(one_subj, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
+    
 def make_stcsEpochs_intensities(sbj_id, method='eLORETA', inv_suf='shrunk_dropbads'):
     """In this function, stcs for mixed models are computed as intensities."""
     subject = str(sbj_id)
@@ -276,8 +277,9 @@ def make_stcsEpochs_intensities(sbj_id, method='eLORETA', inv_suf='shrunk_dropba
     with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/data_for_mixed_models/sbj_{subject}_intensities.P', 'wb') as handle:
         pickle.dump(one_subj, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
+        
 def make_stcsEpochs_factorial(sbj_id, method='eLORETA', inv_suf='shrunk_dropbads'):
-    """In this function, stcs for mixed models are computed as intensities."""
+    """In this function, stcs for mixed models are computed as signed activity."""
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     bad_eeg = config.bad_channels_all[sbj_id]['eeg']
@@ -360,25 +362,28 @@ def make_stcsEpochs_factorial(sbj_id, method='eLORETA', inv_suf='shrunk_dropbads
                                                   inverse_operator['src'],
                                                   mode='mean_flip').squeeze() for epoch in stc]
         epoch_rois[rois_lab[i]] = np.array(stc_epochs[rois_lab[i]])
-
+        
+    avg = np.array([epoch_rois[key] for key in epoch_rois.keys()]).mean(axis=0)
+    epoch_rois['avg'] = avg
+    
     times = epochs.times
 
-    for roi in rois_lab:
+    for roi in epoch_rois.keys():
         sns.lineplot(x=times, y=epoch_rois[roi].mean(axis=0), label=roi)
     plt.axvline(0, color='k');
     plt.axhline(0, color='k', alpha=0.3, linewidth = 0.5);
     plt.legend()
     plt.savefig(path.join(config.data_path, "plots", "stcs",
-                         f"{sbj_id}_data_for_mixed_intensities.png"))
+                         f"{sbj_id}_data_for_mixed_factorial.png"))
     one_subj = dict()
     
     for j, t in enumerate(times):
         df_t = pd.DataFrame(columns=['Conc', 'Pred', 'Interaction', 'sbj', 'activity', 'roi'])
-        for i, roi in enumerate(rois_subject):
+        for i, roi in enumerate(epoch_rois.keys()):
             df = info.copy().reset_index(drop=True) 
             df['sbj'] = subject
-            rois_act = pd.DataFrame(epoch_rois[rois_lab[i]][:, j], columns=['activity'])
-            rois_act['roi'] = rois_lab[i]            
+            rois_act = pd.DataFrame(epoch_rois[roi][:, j], columns=['activity'])
+            rois_act['roi'] = roi      
             df = pd.concat([df, rois_act], axis=1)
             df_t = pd. concat([df_t, df])
             
