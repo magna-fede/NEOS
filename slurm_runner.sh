@@ -21,7 +21,9 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 
 # SCRIPT="NEOS_MorphStcsFsaverage.py"
 
-SCRIPT="NEOS_fromstarttofinish.py"
+# SCRIPT="NEOS_fromstarttofinish.py"
+
+SCRIPT="prep_data_unfold.py"
 # SCRIPT="snr_radarplot_component_selection.py"
 # SCRIPT2="snr_radarplot_filt_ovr_both.py"
 

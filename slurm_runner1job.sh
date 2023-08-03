@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=ica_testing  # Name this job
+#SBATCH --job-name=leakage  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=28
 #SBATCH --mem-per-cpu=4G
 #SBATCH --verbose                                   # Be verbose wherever possible
 #SBATCH --time=48:00:00                             # Request resources for 24 hours
@@ -23,8 +23,10 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="plt_frps_ic_n_filt.py"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
-# SCRIPT="NEOS_permutationFtest.py"
-SCRIPT="NEOS_plot_sourcelocalised_betas.py"
+# SCRIPT="NEOS_permutationTtest.py"
+# SCRIPT="NEOS_plot_sourcelocalised_betas.py"
+# SCRIPT="NEOS_LeakageROIs.py"
+SCRIPT="temp_dataforunfold.py "
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"

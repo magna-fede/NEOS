@@ -40,12 +40,12 @@ src = mne.read_source_spaces(fname_fsaverage_src)
 
 stc = mne.read_source_estimate(path.join(stc_path, '1_stc_predictable_normalorientation_fsaverage'))
 
-lATL = mne.read_label(path.join(labels_path, 'l_ATL-lh.label'))
-rATL = mne.read_label(path.join(labels_path, 'r_ATL-rh.label'))
-PVA = mne.read_label(path.join(labels_path, 'PVA-lh.label'))
-IFG = mne.read_label(path.join(labels_path, 'IFG-lh.label'))
-AG = mne.read_label(path.join(labels_path, 'AG-lh.label'))
-PTC = mne.read_label(path.join(labels_path, 'PTC-lh.label'))
+lATL = mne.read_label(path.join(labels_path, 'l_ATL_fsaverage-lh.label'))
+rATL = mne.read_label(path.join(labels_path, 'r_ATL_fsaverage-rh.label'))
+PVA = mne.read_label(path.join(labels_path, 'PVA_fsaverage-lh.label'))
+IFG = mne.read_label(path.join(labels_path, 'IFG_fsaverage-lh.label'))
+AG = mne.read_label(path.join(labels_path, 'AG_fsaverage-lh.label'))
+PTC = mne.read_label(path.join(labels_path, 'PTC_fsaverage-lh.label'))
 
 times=np.arange(-300,701,1)
 
