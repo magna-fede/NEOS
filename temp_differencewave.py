@@ -27,7 +27,7 @@ from my_eyeCA import apply_ica
 from sklearn.preprocessing import OneHotEncoder
 import h5py
 
-sbj_id =1
+sbj_id =2
 
 
 meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
