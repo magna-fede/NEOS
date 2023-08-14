@@ -67,25 +67,25 @@ def run_filter_raw(sbj_id, plot_events=False):
         print('Fixing coil types.')
         raw.fix_mag_coil_types()
 
-        # ONLY FOR EEG
-        if any('EEG' in ch for ch in raw.info['ch_names']):
+        # # DO this later
+        # if any('EEG' in ch for ch in raw.info['ch_names']):
 
-            print('Marking bad EEG channels: %s' % bad_eeg)
-            raw.info['bads'] = bad_eeg
+        #     print('Marking bad EEG channels: %s' % bad_eeg)
+        #     raw.info['bads'] = bad_eeg
 
-            print('Interpolating bad channels.')
-            print('We are note interpolating EEG004 and EEG008, because they \
-                  are not actually bad, but just we want to exlude them later \
-                  for source estimation.')
-            raw.interpolate_bads(mode='accurate', exclude=['EEG004', 'EEG008'],
-                                 reset_bads=True)
+        #     print('Interpolating bad channels.')
+        #     print('We are note interpolating EEG004 and EEG008, because they \
+        #           are not actually bad, but just we want to exlude them later \
+        #           for source estimation.')
+        #     raw.interpolate_bads(mode='accurate', exclude=['EEG004', 'EEG008'],
+        #                          reset_bads=True)
 
-            print('Setting EEG reference.')
-            raw.set_eeg_reference(ref_channels='average', projection=True)
+        #     print('Setting EEG reference.')
+        #     raw.set_eeg_reference(ref_channels='average', projection=True)
 
-        else:
+        # else:
 
-            print('No EEG channels found.\n')
+        #     print('No EEG channels found.\n')
 
         print('Applying Notch filter.')
 
@@ -115,15 +115,7 @@ def run_filter_raw(sbj_id, plot_events=False):
             # correct for stimulus presentation delay
             stim_delay = int(config.delay * raw.info['sfreq'])
             events[:, 0] = events[:, 0] + stim_delay
-
-            ##########################################################################################################################
-            ##########################################################################################################################
-            ### HEY! the sentences actually appear (and disappear) 30ms after what's reported on stim channel
-            ### However we don't care about this for eye events, we need to know the activity in real time (not locked to stimulus)
-            ### We care about stim delay only for sentence presentation.
-            ##########################################################################################################################
-            ##########################################################################################################################
-                
+ 
             # event_file = path.join(sbj_path, raw_stem_in + '_sss_f_raw-eve.fif')
             # print('Saving events to %s.' % event_file)
             # #mne.write_events(event_file, events)

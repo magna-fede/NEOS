@@ -257,7 +257,7 @@ for ss in map_subjects:
                          'Figures')  # subject figure dir
     if not path.isdir(fig_dir):
         print('Creating directory %s.' % fig_dir)
-        os.mkdir(fig_dir)
+        os.mkdir(fig_dir, exist_ok=True)
 
 
 # For subjects without clean ECG channel,
@@ -329,8 +329,8 @@ epo_flat = dict(grad=1e-13,
 # Make sure to use Vectorview files!
 MF = {
     'NM_cmd': '/imaging/local/software/neuromag/bin/util/maxfilter-2.2.12',
-    'cal': '/neuro/databases_vectorview/sss/sss_cal.dat',
-    'ctc': '/neuro/databases_vectorview/ctc/ct_sparse.fif',
+    'cal': '/neuro_triux/databases/sss/sss_cal.dat',
+    'ctc': '/neuro_triux/databases/ctc/ct_sparse.fif',
     'st_duration': 10.,
     'st_correlation': 0.98,
     'origin': (0., 0., 0.045),
