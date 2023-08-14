@@ -77,7 +77,7 @@ for block, drf in enumerate(data_raw_files):
     raw.fix_mag_coil_types()
 
     raw.info['bads'] = bad_eeg
-
+    raw.interpolate_bads(mode='accurate', reset_bads=True)
     print('Setting EEG reference.')
     raw.set_eeg_reference(ref_channels='average', projection=True)
 
@@ -99,6 +99,7 @@ for block, drf in enumerate(data_raw_files):
 
     # ICA solution will be applied to filtered data
     raw_filt = mne.io.read_raw(data_filtered_files[block], preload = True)
+    raw_filt.interpolate_bads(mode='accurate', reset_bads=True)
     raw_filt.info['bads'] = bad_eeg
     raw_filt.set_eeg_reference(ref_channels='average', projection=True)
 
@@ -157,7 +158,7 @@ for block, drf in enumerate(data_raw_files):
                       f'_target_events_block_{block+1}.fif'))
     raw_bothica, ic_both, ic_both_scores = apply_ica.apply_ica_pipeline(raw=raw_recon,                                                                  
                             evt=evt, thresh=variance_threshold, plot_overlay=True,
-    						ica_instance=ic, method='both',  over='_ovrw')
+    						ica_instance=ic, method='both',  over='_ovrw', overwrite_saved=True)
     apply_ica.plot_evoked_sensors(data=raw_bothica, devents=target_evts, 
                                   comp_sel=f'_{block+1}_both_overweight',
                                   standard_rejection=True)

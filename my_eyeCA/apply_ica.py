@@ -6,6 +6,8 @@ Created on Tue Nov 29 12:10:45 2022
 @author: fm02
 based on py01
 """
+
+import os
 from os import path
 import mne
 from mne import preprocessing as mp
@@ -63,7 +65,11 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
             ica_filename = path.join(fpath.parent, 'ICA',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None',
                                  f'{fpath.stem}_ICA_extinfomax_0.99_COV_None-ica')
-
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(Path(ica_filename).parent)
+    if not isExist:
+       # Create a new directory because it does not exist
+       os.makedirs(Path(ica_filename).parent)
     #evt = pp.subset_events(raw, evt)
     if method=='eog': 
         
@@ -258,7 +264,7 @@ def apply_ica_pipeline(raw, evt, thresh=1.1, method='both', ica_filename=None, i
             raw.save(fpath.parent / f"{fpath.stem[:-4]}_ica{over}_both_raw.fif",
                     overwrite=True)
                 # Save fitted ICA
-            ic_file = ica_filename + 'fitted_both.fif'
+            ic_file = ica_filename + '_fitted_both.fif'
             
             ic.save(ic_file, overwrite=True)
             
