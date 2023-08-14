@@ -1,9 +1,7 @@
 #!/imaging/local/software/miniconda/envs/mne0.20/bin/python
 """
-Maxfilter data from FPVS with Frequency Sweep.
+Maxfilter data TRIUX
 
-=============================================
-OH, modified October 2019
 """
 import sys
 import os
@@ -113,16 +111,16 @@ def run_maxfilter(sbj_id):
         # Execute maxfilter command
         os.system(mf_cmd)
 
-# get all input arguments except first
-if len(sys.argv) == 1:
+# # get all input arguments except first
+# if len(sys.argv) == 1:
 
-    sbj_ids = np.arange(0, len(config.map_subjects)) + 1
+#     sbj_ids = np.arange(0, len(config.map_subjects)) + 1
 
-else:
+# else:
 
-    # get list of subjects IDs to process
-    sbj_ids = [int(aa) for aa in sys.argv[1:]]
+#     # get list of subjects IDs to process
+#     sbj_ids = [int(aa) for aa in sys.argv[1:]]
 
 
-for ss in sbj_ids:
-    run_maxfilter(ss)
+# for ss in sbj_ids:
+#     run_maxfilter(ss)
