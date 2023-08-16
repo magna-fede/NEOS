@@ -99,8 +99,8 @@ for block, drf in enumerate(data_raw_files):
 
     # ICA solution will be applied to filtered data
     raw_filt = mne.io.read_raw(data_filtered_files[block], preload = True)
-    raw_filt.interpolate_bads(mode='accurate', reset_bads=True)
     raw_filt.info['bads'] = bad_eeg
+    raw_filt.interpolate_bads(mode='accurate', reset_bads=True)
     raw_filt.set_eeg_reference(ref_channels='average', projection=True)
 
     raw_recon = raw_filt.copy()
