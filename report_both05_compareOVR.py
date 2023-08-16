@@ -36,7 +36,7 @@ print(mne)
 
 reload(config)
 
-report = mne.Report(title='Systematic comparison of ICA pipelines')
+report = mne.Report(title='Somparison of overweighting procedures in ICA pipelines')
 
 subjs = [
             1,
@@ -80,15 +80,15 @@ ch_type = {
      'mag': 'FRP_all_MAG_',   
      }     
 
-conditions = {#"preica" : "_pre-ICA_",
-             # "eog" : "eog_",
-             # "var" : "var_",
-             "both" : "both_"
-             }
+# conditions = {#"preica" : "_pre-ICA_",
+#              # "eog" : "eog_",
+#              # "var" : "var_",
+#              "both" : "both_"
+#              }
 
-over = {"overweighted" : "ovrw_",
+over = {"overweighted" : "_ovrw",
         "non-overweighted" : "",
-        "onset overweighted" : "ovrwonset_"
+        "onset overweighted" : "_ovrwonset"
         }
 
 filtering =  {
@@ -129,7 +129,7 @@ for sbj_id in subjs:
         section = f'Subject {sbj_id} - ICA {ch}'
         for ovr in over.keys():
                                      
-            image_path = sbj_path + '/' + ch_type[ch]+conditions[condition]+over[ovr]+filtering[filt]+end
+            image_path = sbj_path + '/' + ch_type[ch]+over[ovr]+end
 
             fig, ax = plt.subplots()
             img = mpimg.imread(image_path)
@@ -137,13 +137,13 @@ for sbj_id in subjs:
             ax.set_axis_off()
 
             figs.append(fig)
-            captions.append(condition+' '+filt+' Hz')
+            captions.append(ovr)
 
         report.add_figure(
-            fig=figs, title=ovr, section = section,
+            fig=figs, title='Comparing oveweighting', section = section, tags=ch,
             caption=captions
             )
         plt.close('all')
 
-report.save(path.join(config.data_path, 'misc', 'OVR_comparison_both05.html'), overwrite=True)
+report.save(path.join(config.data_path, 'misc', 'ovr_comparison_both05.html'), overwrite=True)
 
