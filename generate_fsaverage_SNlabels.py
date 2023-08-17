@@ -18,6 +18,9 @@ subjects_dir = config.subjects_dir
 
 labels_path = path.join(config.data_path, "my_ROIs")
 
+if not path.exists(labels_path):
+    # If it doesn't exist, create it
+    os.makedirs(labels_path)
 
 def create_fsaverage_rois():
     # Loading Human Connectom Project parcellation
