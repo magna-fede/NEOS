@@ -56,14 +56,13 @@ def make_InverseOperator(sbj_id, cov='empirical',
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
-    raw_test = apply_ica.get_ica_raw(sbj_id, 
-                                     condition='both',
-                                     overweighting=ovr,
-                                     interpolate=False, 
-                                     drop_EEG_4_8=False)
+    raw = list()
+    for i in range(1,6):
+        fpath = path.join(sbj_path, f'block{i}_sss_f_ica{ovr}_both_raw.fif')
+        raw_block = mne.io.read_raw(fpath)
+        raw.append(raw_block)
     
-    raw_test = raw_test.set_eeg_reference(ref_channels='average', projection=True)
-    raw_test.load_data()
+    raw_test = mne.concatenate_raws(raw, preload=True)
     raw_test.info['bads'] = bad_eeg
     
     if "_dropbads" in cov:

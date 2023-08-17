@@ -28,7 +28,7 @@ conditions = ['Predictable', 'Unpredictable', 'Abstract', 'Concrete']
 
 subjects_dir = config.subjects_dir
 
-def compute_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='MNE'):
+def compute_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='eLORETA_empirical_dropbads'):
 
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])    
     subject = str(sbj_id)

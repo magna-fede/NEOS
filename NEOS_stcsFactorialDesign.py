@@ -156,7 +156,39 @@ def stcs_inlabel_dropbads(sbj_id, method="MNE", inv_suf='', orientation=None, mo
         activity.to_csv(path.join(ave_path, "in_labels", f"{sbj_id}_{ev}_in_labels.csv"))
         
         
+def save_stcs_condition(fpath_evoked, inverse_operator, method, 
+                        inv_suf, orientation=None):
     
+    evoked = mne.read_evokeds(fpath_evoked)[0]
+    stc = mne.minimum_norm.apply_inverse(evoked, inverse_operator,
+                                         lambda2, method=method,
+                                         pick_ori=orientation, verbose=True)
+    # THIS WORKS ONLY IF YOU USE THE STANDARD NAMING, USE WITH CARE
+    # ideally you'd want to use evoked.comment
+    
+    subject, condition = fpath_evoked.split('/')[-1].split('_')[0:2]
+    
+    stc_fname = path.join(stc_path, f"{subject}_stc_{condition}_{method}_{inv_suf}")
+    stc.save(stc_fname)    
+    return stc
+
+def compute_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empirical_dropbads',
+                          orientation=None):
+    
+    subject = str(sbj_id)
+    sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
+    
+    # PARTICIPANT 12 PROBLEMS WITH EEG DURING RECORDING
+    if sbj_id==12:
+        inv_fname = path.join(sbj_path, subject + f'_EEG{inv_suf}-inv.fif')
+    else:
+        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+    inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)    
+    for condition in ['Abstract', 'Concrete', 'Predictable', 'Unpredictable']:
+        filename = path.join(ave_path, f"{subject}_{condition}_evokeds_dropbads-ave.fif")
+        save_stcs_condition(filename, inverse_operator, method, inv_suf, orientation)
+        
+
 
 # if len(sys.argv) == 1:
 
