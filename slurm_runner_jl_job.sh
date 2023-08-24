@@ -13,7 +13,8 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 
 
 
-SCRIPT="$WORKDIR/unfold_one_participant.jl"
+SCRIPT1="$WORKDIR/unfold_eeg.jl"
+SCRIPT2="$WORKDIR/unfold_meg.jl"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -27,7 +28,17 @@ echo "JOB $SLURM_JOB_ID STARTING"
 # Run task on node
 srun --ntasks=1 \
     --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_ $SLURM_ARRAY_TASK_ID.log" \
-    julia $SCRIPT $SLURM_ARRAY_TASK_ID &
+    julia $SCRIPT1 $SLURM_ARRAY_TASK_ID &
+
+
+# # Wait till everything has run
+wait
+
+
+# Run task on node
+srun --ntasks=1 \
+    --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_ $SLURM_ARRAY_TASK_ID.log" \
+    julia $SCRIPT2 $SLURM_ARRAY_TASK_ID &
 
 
 # # Wait till everything has run

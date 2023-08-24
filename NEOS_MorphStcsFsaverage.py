@@ -77,6 +77,55 @@ def compute_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='eLORETA_empirical_dropba
         print(fname_mph)            
         stc_mph.save(fname_mph)
 
+def compute_unfold_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='eLORETA_empirical_dropbads'):
+
+    sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])    
+    subject = str(sbj_id)
+    
+    fname_src = path.join(subjects_dir,
+                          subject,
+                          'bem',
+                          subject + '_' + str(config.src_spacing)
+                          + '-src.fif')
+    
+    fname_fwd = path.join(sbj_path, 
+                          subject + f'_{fwd}-fwd.fif')
+    fname_fsaverage_src = path.join(subjects_dir,
+                                    'fsaverage',
+                                    'bem', 
+                                    'fsaverage-ico-5-src.fif')
+    fname_stc = path.join(stc_path,
+                          f"{subject}_unfold_stc_{conditions[0]}_{stc_sub}")
+    
+    stc = mne.read_source_estimate(fname_stc, subject=subject)
+    
+    src_orig = mne.read_source_spaces(fname_src)
+    print(src_orig)
+    
+    fwd = mne.read_forward_solution(fname_fwd)
+    print(fwd['src'])  
+    
+    print([len(v) for v in stc.vertices])
+    
+    src_to = mne.read_source_spaces(fname_fsaverage_src)
+    print(src_to[0]['vertno'])  # special, np.arange(10242)
+    morph = mne.compute_source_morph(stc, subject_from=subject,
+                                     subject_to='fsaverage', src_to=src_to,
+                                     subjects_dir=subjects_dir)
+    for condition in conditions:
+        print(f'Reading stc file for {condition} condition')
+        fname_stc = path.join(stc_path,
+                              f"{subject}_unfold_stc_{condition}_{stc_sub}")
+                       
+        print(fname_stc)
+        stc = mne.read_source_estimate(fname_stc, subject=subject)
+        stc_mph = morph.apply(stc)
+        print(f'Saving morphed stc file for {condition}')
+        fname_mph = path.join(stc_path, 
+                              f"{subject}_unfold_stc_{condition}_{stc_sub}_fsaverage")
+        print(fname_mph)            
+        stc_mph.save(fname_mph)
+        
 # if len(sys.argv) == 1:
 
 #     sbj_ids = [1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,
