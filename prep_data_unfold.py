@@ -11,14 +11,34 @@ import os
 from os import path
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
 import mne
 os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
-from my_eyeCA import apply_ica
-from sklearn.preprocessing import OneHotEncoder
+
 import h5py
+
+def divide_before_after_target(evts):  
+    """I'm not sure this is worth it.
+    It would make the modelling of the fixation post target more noisy
+    because the target word is always towards the end of the sentence.
+    Since we care more about correcting the effects of fixations 
+    following that on target, it is probably suboptimal to model
+    them separately. If we had more post-target fixations it probably made sense."""
+    mask_onset = evts[evts['trigger']==94].index.values
+    mask_offset = evts[evts['trigger']==95].index.values
+    
+    mask_target = evts[evts['trigger']==999].index.values
+    
+    trial_times = list(zip(mask_onset, mask_offset))
+    for trial in trial_times:
+        if any(evts['trigger'].iloc[trial[0] : trial[1]+1].isin([991, 992, 993, 994])):
+            targ = evts.iloc[trial[0] : trial[1]+1][evts['trigger'].iloc[trial[0] : trial[1]+1].isin([991, 992, 993, 994])].index.values[0]
+            evts['trigger'].iloc[trial[0] : targ] = evts['trigger'].iloc[trial[0] : targ].apply(lambda x: 905 if x==901 else x)
+            evts['trigger'].iloc[targ+1 : trial[1]+1] = evts['trigger'].iloc[targ+1 : trial[1]+1].apply(lambda x: 907 if x==901 else x)
+        else:
+            evts['trigger'].iloc[trial[0] : targ] = evts['trigger'].iloc[trial[0] : trial[1]+1].apply(lambda x: 905 if x==901 else x)
+    return evts
 
 def prepare_data_for_unfold(sbj_id):
     meta = pd.read_csv('/imaging/hauk/users/fm02/MEG_NEOS/stim/meg_metadata.csv', header=0)
@@ -42,16 +62,19 @@ def prepare_data_for_unfold(sbj_id):
     raw = mne.io.read_raw(path.join(sbj_path, "block1_sss_f_raw.fif"))
     t0 = raw.first_samp
     
-    raw_test = apply_ica.get_ica_raw(sbj_id, 
-                                     condition='both',
-                                     overweighting=ovr,
-                                     interpolate=True, 
-                                     drop_EEG_4_8=False)
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
     
-    raw_test = raw_test.set_eeg_reference(ref_channels='average')
-    raw_test.load_data()
-    #raw_test.info['bads'] = bad_eeg
+    raw = list()
+    for i in range(1,6):
+        fpath = path.join(sbj_path, f'block{i}_sss_f_ica{ovr}_both_raw.fif')
+        raw_block = mne.io.read_raw(fpath)
+        raw.append(raw_block)
     
+    raw = mne.concatenate_raws(raw, preload=True)    
+    
+    raw.info['bads'] = bad_eeg
+    picks = mne.pick_types(raw.info, meg=True, eeg=True)
+        
     target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                              '_target_events.fif'))
     
@@ -82,11 +105,10 @@ def prepare_data_for_unfold(sbj_id):
     targ_n_fix = targ_n_fix.sort_values(by=['time'])
     targ_n_fix['time'] = targ_n_fix['time'] - t0
     
-    data_ds = raw_test.copy().resample(250)
-    
-    data_ds.pick_types(meg=True, eeg=True)
-    
-    d = data_ds.get_data(picks=['eeg','meg'])
+    data_ds = raw.copy().resample(250)
+
+    eeg = data_ds.get_data(picks=['eeg'])
+    meg = data_ds.get_data(picks=['meg'])
     
     t_ds = targ_n_fix.copy()
     t_ds['time'] = (t_ds['time']/4).apply(np.floor).astype(int) # careful this is must be same sampling rate of data
@@ -121,8 +143,9 @@ def prepare_data_for_unfold(sbj_id):
     
     ev_pred.to_csv(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/evts_sbj_{subject}_concpred.csv", index=False)
     
-    h5f = h5py.File(f'/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/data_sbj_{subject}.h5', 'w')
-    h5f.create_dataset('dataset_1', data=d)
+    h5f = h5py.File(f'/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/EMEG_data_sbj_{subject}.h5', 'w')
+    h5f.create_dataset('eeg', data=eeg)
+    h5f.create_dataset('meg', data=meg)
     h5f.close()
 
 
