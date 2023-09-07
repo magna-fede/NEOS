@@ -93,23 +93,33 @@ def compute_covariance_from_raw(sbj_id, cov_method='empirical', save_covmat=Fals
                         baseline=(-0.350, -0.150),
                         flat=None, picks=picks, reject_by_annotation=False, 
                         reject=None, preload=True)
-
-    noise_cov = mne.compute_covariance(epochs, method=cov_method, 
-                                                tmax=-0.150, rank='info', return_estimators=True)
-    if cov_method=='empirical':
-        noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
-                                   eeg=0.1, rank='info')
-    elif len(noise_cov)>1:
-        for i_nc, nc in enumerate(noise_cov):
-            if nc['method']=='empirical':
-                noise_cov[i_nc] = mne.cov.regularize(nc, epochs.info, mag=0.1, grad=0.1,
-                                           eeg=0.1, rank='info')
+    if cov_method==['auto']:
+        noise_cov=mne.compute_covariance(epochs, method='auto', 
+                                                 tmax=-0.150, rank='info', return_estimators=True)
+    else:
+        noise_cov = list()
+        for cov in cov_method:
+            noise_cov.append(mne.compute_covariance(epochs, method=cov, 
+                                                     tmax=-0.150, rank='info', return_estimators=True))
+    
+    # the bits below regularise the covariance matrix if computed using empirical
+    # HOWEVER, MNE document suggests to do it the compute_covariance function
+    # ALSO diagonal_fixed is equivalent to regularising and empirical covariance
+    
+    # if cov_method==['empirical']:
+    #     noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
+    #                                eeg=0.1, rank='info')
+    # elif len(noise_cov)>1:
+    #     for i_nc, nc in enumerate(noise_cov):
+    #         if nc['method']=='empirical':
+    #             noise_cov[i_nc] = mne.cov.regularize(nc, epochs.info, mag=0.1, grad=0.1,
+    #                                        eeg=0.1, rank='info')
                 
     if save_covmat:
         if len(noise_cov)==1:
             fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                                  f"_covariancematrix_{cov_method}_dropbads-cov.fif")
-            mne.write_cov(fname_cov, noise_cov, overwrite=True)
+                                  f"_covariancematrix_{cov_method[0]}_dropbads-cov.fif")
+            mne.write_cov(fname_cov, noise_cov[0], overwrite=True)
         elif len(noise_cov)>1:
             for nc in noise_cov:
                 fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
@@ -124,12 +134,12 @@ def compute_covariance_from_raw(sbj_id, cov_method='empirical', save_covmat=Fals
                 figs = noise_cov.plot(epochs.info, proj=True)
             
             for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_dropbads_{i}.png')
+                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method[0]}_dropbads_{i}.png')
                 fig.savefig(fname_fig)
         
             evoked = epochs.average()
             fig = evoked.plot_white(noise_cov, time_unit='s')
-            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method}_dropbads.png')
+            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method[0]}_dropbads.png')
             fig.savefig(fname_fig)
                 
         elif len(cov_method)>1:
@@ -171,7 +181,10 @@ def compute_covariance_from_ICA_raw(sbj_id, cov_method=['empirical'], save_covma
     
     # with this script we want to drop all bad channels for covariance computation
     # and we will do the same when computing evokeds
-    picks = mne.pick_types(raw.info, meg=True, eeg=True, exclude='bads')
+    if sbj_id==12:
+        picks = mne.pick_types(raw.info, meg=True, eeg=False, exclude='bads')
+    else:
+        picks = mne.pick_types(raw.info, meg=True, eeg=True, exclude='bads')
 
     target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
                               '_target_events.fif'))
@@ -199,23 +212,29 @@ def compute_covariance_from_ICA_raw(sbj_id, cov_method=['empirical'], save_covma
                         baseline=(-0.350, -0.150),
                         flat=None, picks=picks, reject_by_annotation=False, 
                         reject=None, preload=True)
-
-    noise_cov = mne.compute_covariance(epochs, method=cov_method, 
-                                                tmax=-0.150, rank='info', return_estimators=True)
-    if cov_method==['empirical']:
-        noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
-                                   eeg=0.1, rank='info')
-    elif len(cov_method)>1:
-        for i_nc, nc in enumerate(noise_cov):
-            if nc['method']=='empirical':
-                noise_cov[i_nc] = mne.cov.regularize(nc, epochs.info, mag=0.1, grad=0.1,
-                                           eeg=0.1, rank='info')
+    if cov_method==['auto']:
+        noise_cov=mne.compute_covariance(epochs, method='auto', 
+                                                 tmax=-0.150, rank='info', return_estimators=True)
+    else:
+        noise_cov = list()
+        for cov in cov_method:
+            noise_cov.append(mne.compute_covariance(epochs, method=cov, 
+                                                     tmax=-0.150, rank='info', return_estimators=True))
+            
+    # if cov_method==['empirical']:
+    #     noise_cov = mne.cov.regularize(noise_cov, epochs.info, mag=0.1, grad=0.1,
+    #                                eeg=0.1, rank='info')
+    # elif len(cov_method)>1:
+    #     for i_nc, nc in enumerate(noise_cov):
+    #         if nc['method']=='empirical':
+    #             noise_cov[i_nc] = mne.cov.regularize(nc, epochs.info, mag=0.1, grad=0.1,
+    #                                        eeg=0.1, rank='info')
                 
     if save_covmat:
         if len(cov_method)==1:
             fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
-                                  f"_covariancematrix_{cov_method}_dropbads-cov.fif")
-            mne.write_cov(fname_cov, noise_cov, overwrite=True)
+                                  f"_covariancematrix_{cov_method[0]}_dropbads-cov.fif")
+            mne.write_cov(fname_cov, noise_cov[0], overwrite=True)
         elif len(cov_method)>1:
             for nc in noise_cov:
                 fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
@@ -224,18 +243,15 @@ def compute_covariance_from_ICA_raw(sbj_id, cov_method=['empirical'], save_covma
                 
     if plot_covmat:
         if len(cov_method)==1:
-            if cov_method=='auto':
-                figs = noise_cov[0].plot(epochs.info, proj=True)
-            else:
-                figs = noise_cov.plot(epochs.info, proj=True)
+            figs = noise_cov[0].plot(epochs.info, proj=True)
             
             for i, fig in zip(['matrix', 'eigenvalue_index'], figs):
-                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method}_dropbads_{i}.png')
+                fname_fig = path.join(sbj_path, 'Figures', f'covariance_{cov_method[0]}_dropbads_{i}.png')
                 fig.savefig(fname_fig)
         
             evoked = epochs.average()
             fig = evoked.plot_white(noise_cov, time_unit='s')
-            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method}_dropbads.png')
+            fname_fig = path.join(sbj_path, 'Figures', f'whitened_cov_{cov_method[0]}_dropbads.png')
             fig.savefig(fname_fig)
                 
         elif len(cov_method)>1:
