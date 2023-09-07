@@ -177,7 +177,7 @@ def save_unfold_stcs_condition(fpath_evoked, inverse_operator, method,
                         inv_suf, orientation=None):
     
     evoked = mne.read_evokeds(fpath_evoked)[0]
-    evoked.apply_baseline(baseline=(-0.152,-0.020))
+    #evoked.apply_baseline(baseline=(-0.152,-0.020))
     
     stc = mne.minimum_norm.apply_inverse(evoked, inverse_operator,
                                          lambda2, method=method,
@@ -188,7 +188,7 @@ def save_unfold_stcs_condition(fpath_evoked, inverse_operator, method,
     subject, condition = fpath_evoked.split('/')[-1].split('_')[0:2]
     
     stc_fname = path.join(stc_path, f"{subject}_unfold_stc_{condition}_{method}_{inv_suf}")
-    stc.save(stc_fname)    
+    stc.save(stc_fname, overwrite=True)    
     return stc
 
 def compute_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empirical_dropbads',
@@ -257,7 +257,10 @@ def stcs_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dropbads'
                 'AG',
                 'PTC']
     
-    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+    if sbj_id==12:
+        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+    else:
+        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
     src = inverse_operator["src"]
     
@@ -309,7 +312,11 @@ def stcs_unfold_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dr
                 'AG',
                 'PTC']
     
-    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+    if sbj_id==12:
+        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+    else:
+        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+        
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
     src = inverse_operator["src"]
     

@@ -91,9 +91,10 @@ def make_InverseOperator(sbj_id, cov='empirical',
                                                           fixed='auto', loose=loose, depth=depth,
                                                           rank='info')
 
-    inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+    inv_fname = path.join(sbj_path, subject + f'_{fwd}{inv_suf}-inv.fif')
     print('Writing EEG/MEG inverse operator: %s.' % inv_fname)
-    mne.minimum_norm.write_inverse_operator(fname=inv_fname, inv=invop_eegmeg)
+    mne.minimum_norm.write_inverse_operator(fname=inv_fname, inv=invop_eegmeg,
+                                            overwrite=True)
 
 
 # if len(sys.argv) == 1:

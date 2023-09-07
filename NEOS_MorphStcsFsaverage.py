@@ -124,7 +124,7 @@ def compute_unfold_morphed_stcs(sbj_id, fwd='EEGMEG', stc_sub='eLORETA_empirical
         fname_mph = path.join(stc_path, 
                               f"{subject}_unfold_stc_{condition}_{stc_sub}_fsaverage")
         print(fname_mph)            
-        stc_mph.save(fname_mph)
+        stc_mph.save(fname_mph, overwrite=True)
         
 # if len(sys.argv) == 1:
 
