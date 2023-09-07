@@ -153,6 +153,66 @@ def create_evoked_from_ICA_raw(sbj_id):
         evoked = epochs[condition].average()
     
         mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/data/AVE/{sbj_id}_{condition}_evokeds_dropbads-ave.fif", evoked, overwrite=True)
+
+def create_evoked_from_ICA_raw_keepallchannels(sbj_id):
     
+    ovr = config.ovr_procedure[sbj_id]
+    ovr = ovr_sub(ovr)
+    
+    sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
+    bad_eeg = config.bad_channels_all[sbj_id]['eeg']
+    
+    raw = list()
+    for i in range(1,6):
+        fpath = path.join(sbj_path, f'block{i}_sss_f_ica{ovr}_both_raw.fif')
+        raw_block = mne.io.read_raw(fpath)
+        raw.append(raw_block)
+    
+    raw = mne.concatenate_raws(raw, preload=True)    
+    
+    #raw.info['bads'] = bad_eeg
+    picks = mne.pick_types(raw.info, meg=True, eeg=True, exclude=[])
+    
+    target_evts = mne.read_events(path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] + \
+                              '_target_events.fif'))
+            
+    rows = np.where(target_evts[:,2]==999)[0]
+    for row in rows:
+        if target_evts[row-2, 2] == 1:
+            target_evts[row, 2] = 991
+        elif target_evts[row-2, 2] == 2:
+            target_evts[row, 2] = 992
+        elif target_evts[row-2, 2] == 3:
+            target_evts[row, 2] = 993
+        elif target_evts[row-2, 2] == 4:
+            target_evts[row, 2] = 994
+        elif target_evts[row-2, 2] == 5:
+            target_evts[row, 2] = 995
+            
+    event_dict = {'Abstract/Predictable': 991, 
+                  'Concrete/Predictable': 992,
+                  'Abstract/Unpredictable': 993, 
+                  'Concrete/Unpredictable': 994}
+    tmin, tmax = -.2, .5
+
+    # regular epoching
+
+    epochs = mne.Epochs(raw, target_evts, event_dict, picks=picks,
+                        tmin=tmin, tmax=tmax, reject=reject_criteria, 
+                        preload=True)
+
+    # evokeds = linear_regression_raw(raw_test, target_evts, event_dict, tmin=tmin, tmax=tmax,
+    #                     reject=reject_criteria)
+    
+
+
+
+    for condition in ['Predictable', 'Unpredictable', 'Concrete', 'Abstract']:
+        evoked = epochs[condition].average()
+    
+        mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/data/AVE/{sbj_id}_{condition}_evokeds_-ave.fif", evoked, overwrite=True)
+    
+    
+        
     
     
