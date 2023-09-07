@@ -88,36 +88,36 @@ for sbj_id in sbj_ids:
     
     unpredictables.append(evoked_U)
     
-[mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/{sbj_id}_evoked_predictables.fif",
-                  predictable) for sbj_id, predictable in zip(sbj_ids, predictables)]
-[mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/{sbj_id}_evoked_unpredictables.fif",
-                  unpredictable) for sbj_id, unpredictable in zip(sbj_ids, unpredictables)]
+# [mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/{sbj_id}_evoked_predictables.fif",
+#                   predictable) for sbj_id, predictable in zip(sbj_ids, predictables)]
+# [mne.write_evokeds(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/{sbj_id}_evoked_unpredictables.fif",
+#                   unpredictable) for sbj_id, unpredictable in zip(sbj_ids, unpredictables)]
 
 grand_average_P = mne.grand_average(predictables)
-mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_predictable-ave.fif",
-                  grand_average_P)
+# mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_predictable-ave.fif",
+#                   grand_average_P)
 
 grand_average_U = mne.grand_average(unpredictables)
-mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_unpredictable-ave.fif",
-                  grand_average_U)
+# mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_unpredictable-ave.fif",
+#                   grand_average_U)
 
-contrast = mne.combine_evoked([grand_average_P, grand_average_U], 
+contrast = mne.combine_evoked([grand_average_U, grand_average_P], 
                               weights=[1, -1])
-mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_predictabilitycontrast-ave.fif",
-                  contrast)
+# mne.write_evokeds("/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/GA_predictabilitycontrast-ave.fif",
+#                   contrast)
 
 fig = grand_average_U.plot_joint(exclude=['MEG0111'])
-for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
-    f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_unpredictable.png",
-              dpi=300)
+# for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
+#     f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_unpredictable.png",
+#               dpi=300)
 
-fig = grand_average_P.plot_joint(exclude=['MEG0111'])
-for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
-    f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_predictable.png",
-              dpi=300)
+# fig = grand_average_P.plot_joint(exclude=['MEG0111'])
+# for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
+#     f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_predictable.png",
+#               dpi=300)
 
 
 fig = contrast.plot_joint(exclude=['MEG0111'])
 for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
-    f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_U-P.png",
+    f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_n400.png",
               dpi=300)

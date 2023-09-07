@@ -85,7 +85,11 @@ for sbj_id in sbj_ids:
     
     data_P = np.concatenate(([eeg_P, meg_P]))
     evoked_P = mne.EvokedArray(data_P, info, tmin=-0.15)
-    
+    fig = evoked_P.plot_joint(times=[0, 0.11, 0.167, 0.21, 0.266, 0.33, 0.43])
+    for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
+        f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/{sbj_id}_{ch}_Predictable.png",
+                  dpi=300)
+        
     predictables.append(evoked_P)
     
     eeg_U = [target_eeg['yhat'][(target_eeg['Predictability']=='Unpredictable') & (target_eeg['channel']==ch)] \
@@ -98,7 +102,11 @@ for sbj_id in sbj_ids:
     
     data_U = np.concatenate(([eeg_U, meg_U]))
     evoked_U = mne.EvokedArray(data_U, info, tmin=-0.15)
-    
+    fig = evoked_U.plot_joint(times=[0, 0.11, 0.167, 0.21, 0.266, 0.33, 0.43])
+    for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
+        f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/{sbj_id}_{ch}_Unpredictable.png",
+                  dpi=300)
+        
     unpredictables.append(evoked_U)
 
     eeg_file = pd.read_csv(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/eeg_effect_{sbj_id}_conc.csv")
@@ -118,7 +126,11 @@ for sbj_id in sbj_ids:
     
     data_C = np.concatenate(([eeg_C, meg_C]))
     evoked_C = mne.EvokedArray(data_C, info, tmin=-0.15)
-    
+    fig = evoked_C.plot_joint(times=[0, 0.11, 0.167, 0.21, 0.266, 0.33, 0.43])
+    for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
+        f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/{sbj_id}_{ch}_Concrete.png",
+                  dpi=300)
+        
     concretes.append(evoked_C)
     
     eeg_A = [target_eeg['yhat'][(target_eeg['Concreteness']=='Abstract') & (target_eeg['channel']==ch)] \
@@ -131,7 +143,11 @@ for sbj_id in sbj_ids:
     
     data_A = np.concatenate(([eeg_A, meg_A]))
     evoked_A = mne.EvokedArray(data_A, info, tmin=-0.15)
-    
+    fig = evoked_A.plot_joint(times=[0, 0.11, 0.167, 0.21, 0.266, 0.33, 0.43])
+    for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
+        f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/{sbj_id}_{ch}_Abstract.png",
+                  dpi=300)
+        
     abstracts.append(evoked_A)
     
 [mne.write_evokeds(path.join(ave_path, f"{sbj_id}_Predictable_unfold_evoked-ave.fif"),
@@ -186,17 +202,17 @@ mne.write_evokeds(path.join(ave_path, "GA_concreteness-contrast-ave.fif"),
                   contrast)
 
 fig = grand_average_A.plot_joint()
-for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
+for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
     f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_abstract.png",
               dpi=300)
 
 fig = grand_average_C.plot_joint()
-for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
+for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
     f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_concrete.png",
               dpi=300)
 
 fig = contrast.plot_joint()
-for f, ch in zip(fig, ['EEG', 'GRAD', 'MAG']):
+for f, ch in zip(fig, ['EEG', 'MAG', 'GRAD']):
     f.savefig(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/Figures/GA_{ch}_concreteness.png",
               dpi=300)
     

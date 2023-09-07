@@ -22,6 +22,7 @@ from mne.stats import spatio_temporal_cluster_1samp_test, summarize_clusters_stc
 os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
 
+stcs_path = path.join(config.data_path, "stcs")
 
 sbj_ids = [
             1,
@@ -60,13 +61,12 @@ src_fname = path.join(config.subjects_dir, "fsaverage", "bem", "fsaverage-ico-5-
 
 src = mne.read_source_spaces(src_fname)
 
-predictables = [mne.read_source_estimate(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/stcs/{sbj_id}_predictables") \
+predictables = [mne.read_source_estimate(os.path.join(stcs_path, f"{sbj_id}_unfold_stc_Predictable_eLORETA_auto_dropbads_fsaverage")) \
  for sbj_id in sbj_ids]
 
 
-unpredictables = [mne.read_source_estimate(f"/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/stcs/{sbj_id}_unpredictables") \
+unpredictables = [mne.read_source_estimate(os.path.join(stcs_path, f"{sbj_id}_unfold_stc_Unpredictable_eLORETA_auto_dropbads_fsaverage")) \
  for sbj_id in sbj_ids]
-
 
 data_p = [predictable.data.T for predictable in predictables]
 
@@ -82,6 +82,7 @@ t_threshold = stats.distributions.t.ppf(1 - p_threshold / 2, df=df)
 
 clu = spatio_temporal_cluster_1samp_test(
     X,
+    n_permutations=5000,
     adjacency=adjacency,
     threshold=t_threshold,
     buffer_size=None,
@@ -89,7 +90,7 @@ clu = spatio_temporal_cluster_1samp_test(
     n_jobs=-1
 )
 
-with open('/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/misc/cluster1samp.P', 'wb') as f:
+with open('/imaging/hauk/users/fm02/MEG_NEOS/jl_evts/misc/predictability_auto_cluster1samp.P', 'wb') as f:
     pickle.dump(clu, f)
     
 
