@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 29 11:01:51 2023
+Created on Thu Sep  7 18:09:57 2023
 
 @author: fm02
 """
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -76,7 +77,8 @@ for ch_type in ['grad', 'mag', 'eeg']:
     
     for condition in evokeds.keys():
         for sbj_id in sbj_ids:
-            evoked = mne.read_evokeds(path.join(data_path, f"{sbj_id}_{condition}_unfold_evoked-ave.fif"))[0]
+            evoked = mne.read_evokeds(path.join(data_path, f"{sbj_id}_{condition}_evokeds_-ave.fif"))[0]
+            evoked.resample(250)
             evokeds[condition].append(evoked.get_data(picks=ch_type))
     
     for test, c_1, c_2 in zip(['Concreteness', 'Predictability'],
@@ -103,18 +105,20 @@ for ch_type in ['grad', 'mag', 'eeg']:
             adjacency=adjacency,
         )
 
-times = np.arange(-0.152, 0.500, 0.004)
+times = np.arange(-0.200, 0.500, 0.004)
 
 for ch_type in cluster_stats.keys():
     for test in cluster_stats[ch_type]:
         if any(cluster_stats[ch_type][test][2] <0.05):
             print(f"{test} {ch_type} has significant clusters")
             
-preds = mne.read_evokeds(path.join(data_path, 'GA_unfold_predictable-ave.fif'))[0]
-unpreds = mne.read_evokeds(path.join(data_path, 'GA_unfold_unpredictable-ave.fif'))[0]
+preds = [mne.read_evokeds(path.join(data_path, f"{sbj_id}_Predictable_evokeds_-ave.fif"))[0] for sbj_id in sbj_ids]
+unpreds = [mne.read_evokeds(path.join(data_path, f"{sbj_id}_Unpredictable_evokeds_-ave.fif"))[0] for sbj_id in sbj_ids]
 
 test = 'Predictability'
 
+preds = mne.grand_average(preds)
+unpreds = mne.grand_average(unpreds)
 
 for ch_type in cluster_stats.keys():
     evo_p = preds.copy().pick(ch_type)
@@ -207,7 +211,3 @@ for ch_type in cluster_stats.keys():
             (ymin, ymax), sig_times[0], sig_times[-1], color="orange", alpha=0.3
         )
     
-        # clean up viz
-        mne.viz.tight_layout(fig=fig)
-        fig.subplots_adjust(bottom=0.05)
-        plt.show()
