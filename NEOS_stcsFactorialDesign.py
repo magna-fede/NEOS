@@ -157,10 +157,13 @@ def stcs_inlabel_dropbads(sbj_id, method="MNE", inv_suf='', orientation=None, mo
         activity.to_csv(path.join(ave_path, "in_labels", f"{sbj_id}_{ev}_in_labels.csv"))
         
         
-def save_stcs_condition(fpath_evoked, inverse_operator, method, 
+def save_stcs_condition(fpath_evoked, MEGonly, inverse_operator, method, 
                         inv_suf, orientation=None):
     
     evoked = mne.read_evokeds(fpath_evoked)[0]
+    if MEGonly:
+        evoked = evoked.pick_types(meg=True, eeg=False, exclude='bads')
+    
     stc = mne.minimum_norm.apply_inverse(evoked, inverse_operator,
                                          lambda2, method=method,
                                          pick_ori=orientation, verbose=True)
@@ -173,11 +176,13 @@ def save_stcs_condition(fpath_evoked, inverse_operator, method,
     stc.save(stc_fname)    
     return stc
 
-def save_unfold_stcs_condition(fpath_evoked, inverse_operator, method, 
+def save_unfold_stcs_condition(fpath_evoked, MEGonly, inverse_operator, method, 
                         inv_suf, orientation=None):
     
     evoked = mne.read_evokeds(fpath_evoked)[0]
     #evoked.apply_baseline(baseline=(-0.152,-0.020))
+    if MEGonly:
+        evoked = evoked.pick_types(meg=True, eeg=False, exclude='bads')
     
     stc = mne.minimum_norm.apply_inverse(evoked, inverse_operator,
                                          lambda2, method=method,
@@ -191,7 +196,7 @@ def save_unfold_stcs_condition(fpath_evoked, inverse_operator, method,
     stc.save(stc_fname, overwrite=True)    
     return stc
 
-def compute_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empirical_dropbads',
+def compute_evoked_condition_stcs(sbj_id, MEGonly=False, method="eLORETA", inv_suf='EEGMEGauto_dropbads',
                           orientation=None):
     
     subject = str(sbj_id)
@@ -199,15 +204,15 @@ def compute_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empirical_d
     
     # PARTICIPANT 12 PROBLEMS WITH EEG DURING RECORDING
     if sbj_id==12:
-        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     else:
-        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)    
     for condition in ['Abstract', 'Concrete', 'Predictable', 'Unpredictable']:
         filename = path.join(ave_path, f"{subject}_{condition}_evokeds_dropbads-ave.fif")
-        save_stcs_condition(filename, inverse_operator, method, inv_suf, orientation)
+        save_stcs_condition(filename, MEGonly, inverse_operator, method, inv_suf, orientation)
  
-def compute_unfold_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empirical_dropbads',
+def compute_unfold_evoked_condition_stcs(sbj_id, MEGonly=False, method="eLORETA", inv_suf='EEGMEGauto_dropbads',
                           orientation=None):
     
     subject = str(sbj_id)
@@ -215,17 +220,17 @@ def compute_unfold_evoked_condition_stcs(sbj_id, method="eLORETA", inv_suf='empi
     
     # PARTICIPANT 12 PROBLEMS WITH EEG DURING RECORDING
     if sbj_id==12:
-        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     else:
-        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)    
     for condition in ['Abstract', 'Concrete', 'Predictable', 'Unpredictable']:
         filename = path.join(ave_path, f"{subject}_{condition}_unfold_evoked-ave.fif")
-        save_unfold_stcs_condition(filename, inverse_operator, method, inv_suf, orientation)
+        save_unfold_stcs_condition(filename, MEGonly, inverse_operator, method, inv_suf, orientation)
 
        
 
-def stcs_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dropbads', mode_avg='mean'):
+def stcs_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='EEGMEGauto_dropbads', mode_avg='mean'):
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     
@@ -258,9 +263,9 @@ def stcs_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dropbads'
                 'PTC']
     
     if sbj_id==12:
-        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     else:
-        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
     src = inverse_operator["src"]
     
@@ -278,9 +283,9 @@ def stcs_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dropbads'
         activity[condition] = stc[condition].extract_label_time_course(rois_subject, src=src, mode=mode_avg)
 
         activity[condition] = pd.DataFrame(activity[condition].T, columns=rois_lab, index=stc[condition].times)
-        activity[condition].to_csv(path.join(stc_path, "in_labels", f"{sbj_id}_{condition}_in_labels.csv"))
+        activity[condition].to_csv(path.join(stc_path, "in_labels", f"{sbj_id}_{condition}_{inv_suf}_in_labels.csv"))
 
-def stcs_unfold_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dropbads', mode_avg='mean'):
+def stcs_unfold_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='EEGMEGauto_dropbads', mode_avg='mean'):
     subject = str(sbj_id)
     sbj_path = path.join(config.data_path, config.map_subjects[sbj_id][0])
     
@@ -313,9 +318,9 @@ def stcs_unfold_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dr
                 'PTC']
     
     if sbj_id==12:
-        inv_fname = path.join(sbj_path, subject + f'_MEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
     else:
-        inv_fname = path.join(sbj_path, subject + f'_EEGMEG{inv_suf}-inv.fif')
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
         
     inverse_operator = mne.minimum_norm.read_inverse_operator(inv_fname)
     src = inverse_operator["src"]
@@ -333,7 +338,7 @@ def stcs_unfold_inlabel_from_stc(sbj_id, method="eLORETA", inv_suf='empirical_dr
         activity[condition] = stc[condition].extract_label_time_course(rois_subject, src=src, mode=mode_avg)
 
         activity[condition] = pd.DataFrame(activity[condition].T, columns=rois_lab, index=stc[condition].times)
-        activity[condition].to_csv(path.join(stc_path, "in_labels", f"{sbj_id}_unfold_{condition}_in_labels.csv"))
+        activity[condition].to_csv(path.join(stc_path, "in_labels", f"{sbj_id}_unfold_{condition}_{inv_suf}_in_labels.csv"))
         
 # if len(sys.argv) == 1:
 

@@ -79,8 +79,10 @@ for ch_type in ['grad', 'mag', 'eeg']:
         for sbj_id in sbj_ids:
             evoked = mne.read_evokeds(path.join(data_path, f"{sbj_id}_{condition}_evokeds_-ave.fif"))[0]
             evoked.resample(250)
-            evokeds[condition].append(evoked.get_data(picks=ch_type))
-    
+            if (sbj_id==12) & (ch_type=='eeg'):
+                pass
+            else:                
+                evokeds[condition].append(evoked.get_data(picks=ch_type))
     for test, c_1, c_2 in zip(['Concreteness', 'Predictability'],
                               ['Abstract', 'Unpredictable'],
                               ['Concrete', 'Predictable']):
@@ -128,6 +130,8 @@ for ch_type in cluster_stats.keys():
     evo_u.comment = 'Unpredictable'
 
     evokeds = [evo_p, evo_u]
+    diff_wave = mne.combine_evoked([evo_u, evo_p], [1, -1])
+    
     # We subselect clusters that we consider significant at an arbitrarily
     # picked alpha level: "p_accept".
     # NOTE: remember the caveats with respect to "significant" clusters that
@@ -172,6 +176,7 @@ for ch_type in cluster_stats.keys():
             vlim=(np.min, np.max),
             show=False,
             colorbar=False,
+            scalings=dict(eeg=1, grad=1, mag=1),
             mask_params=dict(markersize=10),
         )
         image = ax_topo.images[0]
@@ -191,11 +196,23 @@ for ch_type in cluster_stats.keys():
     
         # add new axis for time courses and plot time courses
         ax_signals = divider.append_axes("right", size="300%", pad=1.2)
-        title = f"Cluster #{i_clu + 1} {ch_type}, {len(ch_inds)} sensor"
-        if len(ch_inds) > 1:
-            title += "s (mean)"
+        # title = f"Cluster #{i_clu + 1} {ch_type}, {len(ch_inds)} sensor"
+        title = f"Cluster #{i_clu + 1} {ch_type}, Difference across {len(ch_inds)} sensors"
+        
+        # if len(ch_inds) > 1:
+        #     title += "s (mean)"
+        # plot_compare_evokeds(
+        #     evokeds,
+        #     title=title,
+        #     picks=ch_inds,
+        #     axes=ax_signals,
+        #     colors=colors,
+        #     show=False,
+        #     split_legend=True,
+        #     truncate_yaxis="auto",
+        # )
         plot_compare_evokeds(
-            evokeds,
+            diff_wave,
             title=title,
             picks=ch_inds,
             axes=ax_signals,
@@ -204,10 +221,10 @@ for ch_type in cluster_stats.keys():
             split_legend=True,
             truncate_yaxis="auto",
         )
-    
+        
         # plot temporal cluster extent
         ymin, ymax = ax_signals.get_ylim()
         ax_signals.fill_betweenx(
             (ymin, ymax), sig_times[0], sig_times[-1], color="orange", alpha=0.3
         )
-    
+        fig.savefig(f"/home/fm02/MEG_NEOS/plots/sensor_erp_{i_clu + 1}_{ch_type}_diff.png")

@@ -47,8 +47,11 @@ for sbj_id in sbj_ids:
     
     fwd_fname = path.join(sbj_path, subject + '_EEGMEG-fwd.fif')    
     cov_fname =   fname_cov = path.join(sbj_path, config.map_subjects[sbj_id][0][-3:] \
-                                        + '_covariancematrix_shrunk_dropbads-cov.fif')
-    inv_fname = path.join(sbj_path, subject + '_EEGMEGshrunk_dropbads-inv.fif')
+                                        + '_covariancematrix_auto_dropbads-cov.fif')
+    if sbj_id==12:
+        inv_fname = path.join(sbj_path, subject + '_MEGauto_dropbads-inv.fif')
+    else:
+        inv_fname = path.join(sbj_path, subject + '_EEGMEGauto_dropbads-inv.fif')
     
     cov = mne.read_cov(cov_fname)
     
@@ -90,10 +93,10 @@ for sbj_id in sbj_ids:
     
     rois = [lATL,
             rATL, 
-            PVA,
+            PTC,
             IFG,
             AG,
-            PTC]
+            PVA]
     
     rois_subject = mne.morph_labels(rois, subject_to=subject, 
                                     subject_from='fsaverage', 
@@ -103,10 +106,10 @@ for sbj_id in sbj_ids:
     label_names = [
             lATL.name,
             rATL.name, 
-            PVA.name,
+            PTC.name,
             IFG.name,
             AG.name,
-            PTC.name]
+            PVA.name]
     n_labels = len(label_names)
 
 # %% THIS IS FOR PLOTTING FIRST 5 PC on BRAIN
@@ -171,11 +174,13 @@ for sbj_id in sbj_ids:
    
 avg_leak_norm = np.stack(all_leak_norm)
 #sns.heatmap(avg_leak_norm, annot=True, cmap='viridis', xticklabels=label_names, yticklabels=label_names)
-with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', 'wb') as handle:
+with open('/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', 'wb') as handle:
     pickle.dump(avg_leak_norm, handle, protocol=pickle.HIGHEST_PROTOCOL)
       
-# overall = np.stack(overall)
-# overall.shape
+#%% PLOTS
+
+# with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', 'rb') as handle:
+#     overall = pickle.load(handle)
 # avg_leak = overall.mean(axis=0)
 # import seaborn as sns
 # label_colors = sns.color_palette(['#FFBE0B',
@@ -183,8 +188,8 @@ with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', '
 #                             '#FF006E',
 #                             '#8338EC',
 #                             '#3A86FF',
+                            
 #                             '#1D437F',
-#                             '#1D437F'
 #                             ])
 # label_ypos = list()
 # for name in label_names:
@@ -197,15 +202,22 @@ with open(f'/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_normalised.P', '
 #                               group_boundaries=[0, len(label_names) / 2])
 
 # fig, ax = plt.subplots(figsize=(8, 8), facecolor='black',
-#                        subplot_kw=dict(polar=True))
+#                         subplot_kw=dict(polar=True))
 # fig = plot_connectivity_circle(avg_leak, label_names, n_lines=300,
-#                          node_angles=node_angles, node_colors=label_colors,
-#                          title='Leakage ROIs', ax=ax)
+#                           node_angles=node_angles, node_colors=label_colors,
+#                           title='Leakage ROIs', fontsize_title=15, fontsize_names=12, ax=ax)
+# plt.tight_layout()
+# plt.savefig('/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_circplot.png', dpi=300)
 
 # fig, ax = plt.subplots(figsize=(8, 8))
 # fig = sns.heatmap(avg_leak,annot=True, xticklabels=label_names,
 #             yticklabels=label_names, cmap='viridis')
-
+# ax.xaxis.tick_top()
+# ax.xaxis.set_label_position('top') 
+# fig.set_xlabel('Leakage into', fontsize=15)
+# fig.set_ylabel('Leakage from', fontsize=15)
+# plt.tight_layout()
+# plt.savefig('/imaging/hauk/users/fm02/MEG_NEOS/data/misc/leakage_heatplot.png', dpi=300)
 
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This collection gets you from Maxfiltered raw data to source timecourses.
+This collection gets you from Maxfiltered raw data to source timecourses and beyond.
 
 NB: This ignores the steps for calculatin the most optimal ICA procedure for each subject.
 That will need to be run and inferred separately.
@@ -47,9 +47,9 @@ print(mne)
 
 # # Apply best ICA for each participant and create evoked for each condition
 
-# from NEOS_applyICA_evoked_dropbadchannels import create_evoked_from_raw
-# from NEOS_applyICA_evoked_dropbadchannels import create_evoked_from_ICA_raw as create_evoked
-
+# from NEOS_applyICA_evoked_dropbadchannels import create_evoked_from_raw # old, do not use
+# from NEOS_applyICA_evoked_dropbadchannels import create_evoked_from_ICA_raw as create_evoked # for source estimation
+# from NEOS_applyICA_evoked_dropbadchannels import create_evoked_from_ICA_raw_keepallchannels as create_evoked # for sensor space sanalysis
 # # PLot various ICA procedures and save plots
 # from plot_conditionoverweighting_procedure import plot_evoked_for_comparisons
 # #  THIS will run through all the scripts above, careful is going to take time
@@ -82,7 +82,7 @@ print(mne)
 # from NEOS_makeBem import  run_make_bem
 # from NEOS_MakeForwardModel import run_make_forward_solution
 # from NEOS_ComputeCovariance import compute_covariance
-# from NEOS_ComputeCovariance_dropbadchannels import compute_covariance_from_ICA_raw as compute_covariance
+# from NEOS_ComputeCovariance_dropbadchannels import compute_covariance_MEGonly_from_ICA_raw as compute_covariance
 # from NEOS_MakeInverseOperator import make_InverseOperator
 
 # if len(sys.argv) == 1:
@@ -97,11 +97,14 @@ print(mne)
 
 
 # for ss in sbj_ids:
-#     make_source_space(ss)
-#     run_make_bem(ss)    
-    # run_make_forward_solution(ss)
-    # compute_covariance(ss, cov_method=['empirical', 'shrunk', 'ledoit_wolf'], save_covmat=True, plot_covmat=True)
-    # make_InverseOperator(ss, cov='empirical_dropbads', inv_suf='empirical_dropbads')
+# #     make_source_space(ss)
+# #     run_make_bem(ss)    
+#     # run_make_forward_solution(ss)
+#     # compute_covariance(ss, cov_method=['auto'], save_covmat=True, plot_covmat=False)
+#     if ss==12:
+#         make_InverseOperator(ss, fwd='MEG', MEGonly=True, cov='MEGonly_auto_dropbads', inv_suf='MEGonly_auto_dropbads')
+#     else:
+#         make_InverseOperator(ss, MEGonly=True, cov='MEGonly_auto_dropbads', inv_suf='MEGonly_auto_dropbads')
     
 # %% SOURCE SPACE ANALYSIS
 
@@ -109,9 +112,9 @@ print(mne)
 
 # create_fsaverage_rois()
 
-# from NEOS_stcsFactorialDesign import compute_evoked_condition_stcs as compute_stcs
+from NEOS_stcsFactorialDesign import compute_evoked_condition_stcs as compute_stcs
 from NEOS_stcsFactorialDesign import compute_unfold_evoked_condition_stcs as compute_unfold_stcs
-# from NEOS_MorphStcsFsaverage import compute_morphed_stcs
+from NEOS_MorphStcsFsaverage import compute_morphed_stcs
 from NEOS_MorphStcsFsaverage import compute_unfold_morphed_stcs
 from NEOS_stcsFactorialDesign import stcs_inlabel_from_stc
 from NEOS_stcsFactorialDesign import stcs_unfold_inlabel_from_stc
@@ -130,10 +133,12 @@ else:
 
 
 for ss in sbj_ids:
-    compute_unfold_stcs(ss, method='eLORETA', inv_suf='empirical_dropbads')
-    compute_unfold_morphed_stcs(ss, stc_sub='eLORETA_empirical_dropbads')   
-    stcs_inlabel_from_stc(ss, method='eLORETA', inv_suf='empirical_dropbads', orientation=None, mode_avg='mean')
-    stcs_unfold_inlabel_from_stc(ss, method='eLORETA', inv_suf='empirical_dropbads', orientation=None, mode_avg='mean')
+    compute_stcs(ss, MEGonly=True, method='eLORETA', inv_suf='MEGonly_auto_dropbads')
+    compute_unfold_stcs(ss, MEGonly=True, method='eLORETA', inv_suf='MEGonly_auto_dropbads')
+    compute_morphed_stcs(ss, stc_sub='eLORETA_MEGonly_auto_dropbads')   
+    compute_unfold_morphed_stcs(ss, stc_sub='eLORETA_MEGonly_auto_dropbads')   
+    stcs_inlabel_from_stc(ss, method='eLORETA', inv_suf='MEGonly_auto_dropbads', mode_avg='mean')
+    stcs_unfold_inlabel_from_stc(ss, method='eLORETA', inv_suf='MEGonly_auto_dropbads', mode_avg='mean')
 
      
     
@@ -144,9 +149,9 @@ for ss in sbj_ids:
 # from NEOS_MakeStcsROIs_SingleEpochs import make_stcsEpochs
 # from NEOS_MakeStcsROIs_SingleEpochs import make_stcsEpochs_intensities
 # from NEOS_MakeStcsROIs_SingleEpochs import make_stcsEpochs_factorial
-# from NEOS_MakeStcsROIs_SingleEpochs_decoding import get_decoding_scores
+# from NEOS_MakeStcsROIs_SingleEpochs_decoding import get_decoding_avg3trials_scores
 # from NEOS_MakeStcsROIs_SingleEpochs_decoding import decoding_continuous_predictors
-# from NEOS_decoding_ConcPred_sensor import get_decoding_sensor_scores
+# from NEOS_decoding_ConcPred_sensor import get_decoding_sensor_avg3trials_scores
 
 # if len(sys.argv) == 1:
 
@@ -163,9 +168,10 @@ for ss in sbj_ids:
 #     create_evoked(ss)
     # get_betas(ss)
     # make_stcsEpochs(ss)
-    # get_decoding_scores(ss)
+    # get_decoding_sensor_avg3trials_scores(ss)
+    # get_decoding_avg3trials_scores(ss, inv_suf='auto_dropbads')
     # decoding_continuous_predictors(ss)
     # make_stcsEpochs_intensities(ss)
     # make_stcsEpochs_factorial(ss)
-    # get_decoding_sensor_scores(ss)
+    
     

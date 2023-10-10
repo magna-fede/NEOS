@@ -22,12 +22,11 @@ os.chdir("/home/fm02/MEG_NEOS/NEOS")
 import NEOS_config as config
 import pickle
 
-ave_path = path.join(config.data_path, "AVE")
 stc_path = path.join(config.data_path, "stcs")
 
 subjects_dir = config.subjects_dir
 
-stc_sub='eLORETA'
+stc_sub='eLORETA_shrunk_dropbads'
 
 fname_fsaverage_src = path.join(subjects_dir,
                                 'fsaverage',
@@ -84,14 +83,14 @@ for factor, conditions in factors.items():
     # the cluster based permutation test.
     # We use a two-tailed threshold, the "1 - p_threshold" is needed
     # because for two-tailed tests we must specify a positive threshold.
-    p_threshold = 0.05
+    p_threshold = 0.001
     df = len(sbj_ids) - 1  # degrees of freedom for the test
     t_threshold = stats.distributions.t.ppf(1 - p_threshold / 2, df=df)
-    
+    n_permutations=50000
     # Now let's actually do the clustering. This can take a long time...
     print('Clustering.')
     T_obs, clusters, cluster_p_values, H0 = clu = \
-        spatio_temporal_cluster_1samp_test(X, adjacency=adjacency,
+        spatio_temporal_cluster_1samp_test(X, adjacency=adjacency, n_permutations=n_permutations,
                                            threshold=t_threshold, buffer_size=None,
                                            verbose=True, n_jobs=-1)
         

@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=leakage  # Name this job
+#SBATCH --job-name=permtest1  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=28
-#SBATCH --mem-per-cpu=4G
+#SBATCH --cpus-per-task=20
+#SBATCH --mem-per-cpu=8G
 #SBATCH --verbose                                   # Be verbose wherever possible
 #SBATCH --time=48:00:00                             # Request resources for 24 hours
 #SBATCH --mail-type=end,fail                        # Email on job completion / failure
@@ -23,10 +23,10 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="plt_frps_ic_n_filt.py"
 # SCRIPT="snr_compare_componentselection_ica_oveweighted_withplots.py"
 # SCRIPT2="snr_compare_componentselection_ica_NOoveweight_withplots.py"
-# SCRIPT="NEOS_permutationTtest.py"
-# SCRIPT="NEOS_plot_sourcelocalised_betas.py"
-# SCRIPT="NEOS_LeakageROIs.py"
-SCRIPT="temp_dataforunfold.py "
+# SCRIPT="NEOS_permutationFtest.py"
+# SCRIPT="GA_unfoldeffects_sensors.py"
+SCRIPT="erp_permtest.py"
+# SCRIPT="wholebrain_evoked_concreteness.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -38,9 +38,10 @@ conda activate mne1.2.1_0
 echo "JOB $SLURM_JOB_ID STARTING"
 
 # Loop over range of arguments to script
-# array=(12 17 28 29)
+# array=(1 2 3 5 6 8 9 10 11 12 13 14 15 16 17 18 19 
+#            21 22 23 24 25 26 27 28 29 30)
 # for i in "${array[@]}"
-# for i in {1..30}
+# # for i in {1..30}
 # do
     echo "TASK $i STARTING"
 

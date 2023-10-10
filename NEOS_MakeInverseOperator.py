@@ -43,7 +43,7 @@ def ovr_sub(ovr):
 
 # %%
 
-def make_InverseOperator(sbj_id, cov='empirical',
+def make_InverseOperator(sbj_id, cov='empirical', MEGonly=False,
                          fwd='EEGMEG', inv_suf=''):
     subject = str(sbj_id)
     
@@ -65,12 +65,23 @@ def make_InverseOperator(sbj_id, cov='empirical',
     raw_test = mne.concatenate_raws(raw, preload=True)
     raw_test.info['bads'] = bad_eeg
     
-    if "_dropbads" in cov:
-        raw_test.pick_types(meg=True, eeg=True, exclude='bads')
+    if MEGonly:
+        
+        if "_dropbads" in cov:
+            raw_test.pick_types(meg=True, eeg=False, exclude='bads')
+        else:
+            raw_test.pick_types(meg=True, eeg=False, exclude=None)
+            # drop those two channels but keep the other bads and interpolated them
+            raw_test.drop_channels(['EEG004', 'EEG008'])
+            raw_test.interpolate_bads(reset_bads=True)
     else:
-        raw_test.drop_channels(['EEG004', 'EEG008'])
-        raw_test.interpolate_bads(reset_bads=True)
-    
+        if "_dropbads" in cov:
+            raw_test.pick_types(meg=True, eeg=True, exclude='bads')
+        else:
+            # drop those two channels but keep the other bads and interpolated them
+            raw_test.drop_channels(['EEG004', 'EEG008'])
+            raw_test.interpolate_bads(reset_bads=True)
+
     info = raw_test.info
 
 
@@ -90,8 +101,10 @@ def make_InverseOperator(sbj_id, cov='empirical',
     invop_eegmeg = mne.minimum_norm.make_inverse_operator(info, fwd_eegmeg, noise_cov,
                                                           fixed='auto', loose=loose, depth=depth,
                                                           rank='info')
-
-    inv_fname = path.join(sbj_path, subject + f'_{fwd}{inv_suf}-inv.fif')
+    if MEGonly:
+        inv_fname = path.join(sbj_path, subject + f'_{inv_suf}-inv.fif')
+    else:
+        inv_fname = path.join(sbj_path, subject + f'_{fwd}{inv_suf}-inv.fif')
     print('Writing EEG/MEG inverse operator: %s.' % inv_fname)
     mne.minimum_norm.write_inverse_operator(fname=inv_fname, inv=invop_eegmeg,
                                             overwrite=True)

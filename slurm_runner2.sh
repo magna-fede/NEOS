@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=ica_testing  # Name this job
+#SBATCH --job-name=GA_unfold  # Name this job
 #SBATCH --output=slurm_%u_%x_%j_stdout.log          # Name of log for STDOUT & STDERR
-#SBATCH --ntasks=15
-#SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=1G
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=20
+#SBATCH --mem-per-cpu=8G
 #SBATCH --verbose                                   # Be verbose wherever possible
 #SBATCH --time=24:00:00                             # Request resources for 24 hours
 #SBATCH --mail-type=end,fail                        # Email on job completion / failure
@@ -18,7 +18,7 @@ WORKDIR="/home/fm02/MEG_NEOS/NEOS"
 # SCRIPT="plot_frps_over_participants.py"
 # SCRIPT="NEOS_synch_per_block.py"
 # SCRIPT="NEOS_stcsFactorialDesign.py"
-SCRIPT="NEOS_MorphStcsFsaverage_normalorientation.py"
+SCRIPT="dev_GA_unfoldeffects.py"
 
 # Make folders for logging
 LOGDIR="/home/fm02/Desktop/MEG_EOS_scripts/sbatch_out"
@@ -30,9 +30,9 @@ conda activate mne1.2.1_0
 echo "JOB $SLURM_JOB_ID STARTING"
 
 # Loop over range of arguments to script
-for i in {1..15}
-do
-    echo "TASK $i STARTING"
+# for i in {1..15}
+# do
+#     echo "TASK $i STARTING"
 
     # Run task on node
     srun --ntasks=1 \
@@ -40,28 +40,28 @@ do
         --exclusive "python" $SCRIPT $i &
     
     echo "TASK $i PUSHED TO BACKGROUND"
-done
+# done
 
 # Wait till everything has run
 wait
 
 # Loop over range of arguments to script
-for i in {16..30}
-do
-    echo "TASK $i STARTING"
+# for i in {16..30}
+# do
+#     echo "TASK $i STARTING"
 
-    # Run task on node
-    srun --ntasks=1 \
-        --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
-        --exclusive "python" $SCRIPT $i &
+#     # Run task on node
+#     srun --ntasks=1 \
+#         --output="$LOGDIR/tasks/slurm_%u_%x_%A_%a_%N_stdout_task_$i.log" \
+#         --exclusive "python" $SCRIPT $i &
     
-    echo "TASK $i PUSHED TO BACKGROUND"
-done
+#     echo "TASK $i PUSHED TO BACKGROUND"
+# done
 
-# Wait till everything has run
-wait
+# # Wait till everything has run
+# wait
 
-echo "JOB $SLURM_JOB_ID COMPLETED"
+# echo "JOB $SLURM_JOB_ID COMPLETED"
 
 
 
